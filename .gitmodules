@@ -1,0 +1,3 @@
+[submodule "fzf"]
+	path = fzf
+	url = git@github.com:rsyi/fzf.git

@@ -1,0 +1,58 @@
+name: CD
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release-osx:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Build Release
+      run: |
+        pip3 install -r requirements.txt
+        python3 -m PyInstaller build_script.py --clean --hidden-import='pkg_resources.py2_warn' --additional-hooks-dir='./hooks/'
+        tar -zcvf /tmp/metaframe-mac.tar.gz .
+
+    - name: Get version
+      id: get_version
+      run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
+
+    - name: Set SHA
+      id: shasum
+      run: |
+        echo ::set-output name=sha::"$(shasum -a 256 /tmp/metaframe-mac.tar.gz | awk '{printf $1}')"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        draft: false
+        prerelease: true
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: /tmp/metaframe-mac.tar.gz
+        asset_name: metaframe-mac.tar.gz
+        asset_content_type: application/gzip
+
+    - name: Bump Brew
+      env:
+        HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.BREW_TOKEN }}
+      run: |
+        brew tap rsyi/tap
+        brew bump-formula-pr -f --version=${{ steps.get_version.outputs.version }} --no-browse --no-audit \
+        --sha256=${{ steps.shasum.outputs.sha }} \
+        --url="https://github.com/rsyi/metaframe/releases/download/${{ steps.get_version.outputs.version }}/metaframe-mac.tar.gz" \
+        rsyi/tap/metaframe

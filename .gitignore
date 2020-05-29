@@ -1,0 +1,5 @@
+__pycache__/
+dist/
+build/
+target/
+build_script.spec

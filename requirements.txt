@@ -1,0 +1,6 @@
+amundsen-databuilder>=2.0.0
+tabulate
+pyaml
+pyhive
+pyinstaller
+requests

@@ -1,0 +1,137 @@
+#!/bin/bash
+function metaframe {
+
+    base_dir=~/.metaframe
+    config_dir=${base_dir}/config
+    metadata_dir=${base_dir}/metadata
+    logs_dir=${base_dir}/logs
+
+    connections_file=${config_dir}/connections.yaml
+    log_file=${logs_dir}/etl_log.out
+
+    SOURCE="${BASH_SOURCE[0]}"
+    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+      DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+      SOURCE="$(readlink "$SOURCE")"
+      [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+    done
+    relative_base_path="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+    python_executable=${relative_base_path}/../libexec/dist/build_script/build_script
+    fzf_binary=${relative_base_path}/../libexec/fzf
+
+    append_line() {
+        set -e
+        local line file pat lno
+        line="$1"
+        file="$2"
+        name="$3"
+        host="${4:-}"
+        lno=""
+
+        echo "Update $file:"
+        echo -e "$line"
+        if [ -f "$file" ]; then
+        lno_name=$(\grep -nF "$pat1" "$file" | sed 's/:.*//' | tr '\n' ' ')
+        lno_host=$(\grep -nF "$pat2" "$file" | sed 's/:.*//' | tr '\n' ' ')
+        fi
+        if [ -n "$lno_name" ]; then
+        echo "    - Name already exists: line #$lno_name"
+        elif [ -n "$lno" ]; then
+        echo "    - Host already exists: line #$lno_host"
+        else
+            [ -f "$file" ] && echo >> "$file"
+            echo -e "$line" >> "$file"
+        fi
+        echo
+        set +e
+    }
+
+    if [ $# -eq 0 ]; then
+        if [ ! -d ${metadata_dir} ]; then
+            echo "Welcome to metaframe's cli! It appears this is your first time running this program, so we'll walk you through the initialization process. Run through this process again with mf init."
+            # $(mf init)
+        else
+            cd ${metadata_dir}
+            dataframe_file="$(pwd)/$(${fzf_binary} --preview 'cat {}')"
+            if [ -f "${dataframe_file}" ]; then
+                vim "${dataframe_file}"
+            fi
+            # popd >&-
+            # trap popd >&-
+        fi
+    else
+        case $1 in
+
+            init)
+                mkdir -p ${metadata_dir}
+                mkdir -p ${base_dir}
+                mkdir -p ${config_dir}
+                mkdir -p ${metadata_dir}
+                mkdir -p ${logs_dir}
+                touch -a ${connections_file}
+
+                echo "Welcome to the init process. This process is intended to walk you through setting up an initial configuration for a single database so an ETL job can be run, but mf initcan be re-run at any point to add new connections to your mf connections list. Alternatively, use mf connection add (with flags --name, --type, --host, --username, and password for a more programmatic experience).\n\n"
+
+                echo "What is your host address:port (--host)? E.g. ec2-12-345-67-890.us-west-2.amazon.ws.com:8889"
+                read host
+                echo "What kind of db is this (--type)? E.g. presto, snowflake, hive. See the docs for a full list of supported warehouses."
+                read type
+                echo "Provide a unique name for this connection."
+                read name
+                echo "Username?"
+                read username
+                echo "Password?"
+                read password
+                mf connections add --name ${name} --type ${type} --host ${host} --username ${username} --password ${password}
+                ;;
+
+            connections)
+                shift
+                case $1 in
+                    add)
+                        shift
+                        while [ $# -gt 0 ]; do
+                            case $1 in
+                                -n|--name) name="$2"; shift ;;
+                                -t|--type) type="$2"; shift ;;
+                                -h|--host) host="$2"; shift ;;
+                                -u|--username) username="$2"; shift ;;
+                                -p|--password) password="$2"; shift ;;
+                            esac
+                            shift
+                        done
+                        line1="- name: ${name}\n"
+                        line2="  type: ${type}\n"
+                        line3="  host: ${host}\n"
+                        line4="  username: ${username}\n"
+                        line5="  password: ${password}\n"
+
+                        lines=${line1}${line2}${line3}${line4}${line5}
+                        append_line "${lines}" ${connections_file} "host: ${host}" "name: ${name}"
+                        ;;
+                    list)
+                        cat ${connections_file}
+                        ;;
+                    edit)
+                        $EDITOR ${connections_file}
+                        ;;
+                esac
+                ;;
+            etl)
+                echo "Running an ETL job against your db!"
+                echo "This may take up to an hour -- we've set this running in the background."
+                echo "The nohup log file can be found at ${log_file}."
+                nohup $(${python_executable}) > ${log_file} &
+
+                ;;
+            logs)
+                $EDITOR ${log_file}
+                ;;
+            *)
+                echo "Command not found."
+                ;;
+        esac
+   fi
+}
+
+metaframe $@
