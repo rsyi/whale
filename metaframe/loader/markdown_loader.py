@@ -82,10 +82,15 @@ class MarkdownLoader(Loader):
                 schema=record.schema,
                 table=record.name
             )
+            relative_file_path_docs = relative_file_path[:-3] + '.docs.md'
+            absolute_file_path=os.path.join(self.base_directory, relative_file_path)
+            absolute_file_path_docs=os.path.join(self.base_directory, relative_file_path_docs)
+
             relative_subdirectory = relative_file_path.split('/')[0]
             absolute_subdirectory = os.path.join(self.base_directory, relative_subdirectory)
             Path(absolute_subdirectory).mkdir(parents=True, exist_ok=True)
-            absolute_file_path= os.path.join(self.base_directory, relative_file_path)
+
+            Path(absolute_file_path_docs).touch()
             with open(absolute_file_path, 'w') as f:
                 f.write(metaframe_docs)
 

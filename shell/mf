@@ -54,9 +54,9 @@ function metaframe {
         else
             cd ${metadata_dir}
             if command -v bat; then
-                dataframe_file="$(pwd)/$(find . -name "*.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=numbers --color=always')".md
+                dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=full --color=always; echo "\n"; bat {}.docs.md --style=numbers --color=always')".docs.md
             else
-                dataframe_file="$(pwd)/$(find . -name "*.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md')".md
+                dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md; echo "\n"; cat {}.docs.md')".docs.md
             fi
             if [ -f "${dataframe_file}" ]; then
                 $EDITOR "${dataframe_file}"
