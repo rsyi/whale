@@ -13,10 +13,11 @@ dist:
 .PHONY: install
 install:
 	mkdir -p ${dependency_binary_dir}
+	mkdir -p ${install_dir}
 	chmod +x ${dependency_binary_dir}
 	# Fzf.
 	cp ./fzf/bin/fzf ${dependency_binary_dir}
 	# Databuilder.
 	cp -r ./dist ${dependency_binary_dir}
 	# Install shell commands.
-	cp ./shell/mf.* ${install_dir}
+	cp ./shell/mf ${install_dir}/mf

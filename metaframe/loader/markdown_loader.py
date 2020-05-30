@@ -54,7 +54,6 @@ class MarkdownLoader(Loader):
         if not record:
             return
         if type(record) == TableMetadata:
-            table_key = record._get_table_key()
             description = record.description
             columns = record.columns
             rows = [['column', 'type', 'description']]

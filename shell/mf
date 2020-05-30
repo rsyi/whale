@@ -1,4 +1,5 @@
 #!/bin/bash
+
 function metaframe {
 
     base_dir=~/.metaframe
@@ -49,15 +50,17 @@ function metaframe {
     if [ $# -eq 0 ]; then
         if [ ! -d ${metadata_dir} ]; then
             echo "Welcome to metaframe's cli! It appears this is your first time running this program, so we'll walk you through the initialization process. Run through this process again with mf init."
-            # $(mf init)
+            $(mf init)
         else
             cd ${metadata_dir}
-            dataframe_file="$(pwd)/$(${fzf_binary} --preview 'cat {}')"
+            if command -v bat; then
+                dataframe_file="$(pwd)/$(find . -name "*.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=numbers --color=always')"
+            else
+                dataframe_file="$(pwd)/$(find . -name "*.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md')"
+            fi
             if [ -f "${dataframe_file}" ]; then
                 vim "${dataframe_file}"
             fi
-            # popd >&-
-            # trap popd >&-
         fi
     else
         case $1 in
