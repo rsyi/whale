@@ -1,5 +1,9 @@
 # Metaframe
 
+![](docs/.gitbook/assets/image%20%281%29.png)
+
+_**Disclaimer: This project is still in alpha testing, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)**_ 
+
 `metaframe` is a CLI tool that allows you to run ETL jobs and view metadata straight from the command-line. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to search through your metadata.
 
 ### Installation
