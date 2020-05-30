@@ -1,7 +1,3 @@
----
-description: 'An overview, with quick start instructions.'
----
-
 # Metaframe
 
 `metaframe` is a CLI tool that allows you to run ETL jobs and view metadata straight from the command-line. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to search through your metadata.
