@@ -54,12 +54,13 @@ function metaframe {
         else
             cd ${metadata_dir}
             if command -v bat; then
-                dataframe_file="$(pwd)/$(find . -name "*.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=numbers --color=always')"
+                dataframe_file="$(pwd)/$(find . -name "*.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=numbers --color=always')".md
+                echo $dataframe_file
             else
-                dataframe_file="$(pwd)/$(find . -name "*.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md')"
+                dataframe_file="$(pwd)/$(find . -name "*.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md')".md
             fi
             if [ -f "${dataframe_file}" ]; then
-                vim "${dataframe_file}"
+                $EDITOR "${dataframe_file}"
             fi
         fi
     else
