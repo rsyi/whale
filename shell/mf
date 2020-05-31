@@ -48,19 +48,18 @@ function metaframe {
     }
 
     if [ $# -eq 0 ]; then
-        if [ ! -d ${metadata_dir} ]; then
-            echo "Welcome to metaframe's cli! It appears this is your first time running this program, so we'll walk you through the initialization process. Run through this process again with mf init."
-            $(mf init)
+        if [ ! -d ${metadata_dir} ] || [ ! -d ${base_dir} ] || [ ! -d ${config_dir} ]; then
+            metaframe init
+        fi
+
+        cd ${metadata_dir}
+        if command -v bat; then
+            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=full --color=always; echo "\n"; bat {}.docs.md --style=numbers --color=always')".docs.md
         else
-            cd ${metadata_dir}
-            if command -v bat; then
-                dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=full --color=always; echo "\n"; bat {}.docs.md --style=numbers --color=always')".docs.md
-            else
-                dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md; echo "\n"; cat {}.docs.md')".docs.md
-            fi
-            if [ -f "${dataframe_file}" ]; then
-                $EDITOR "${dataframe_file}"
-            fi
+            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md; echo "\n"; cat {}.docs.md')".docs.md
+        fi
+        if [ -f "${dataframe_file}" ]; then
+            $EDITOR "${dataframe_file}"
         fi
     else
         case $1 in
@@ -72,20 +71,6 @@ function metaframe {
                 mkdir -p ${metadata_dir}
                 mkdir -p ${logs_dir}
                 touch -a ${connections_file}
-
-                echo "Welcome to the init process. This process is intended to walk you through setting up an initial configuration for a single database so an ETL job can be run, but mf initcan be re-run at any point to add new connections to your mf connections list. Alternatively, use mf connection add (with flags --name, --type, --host, --username, and password for a more programmatic experience).\n\n"
-
-                echo "What is your host address:port (--host)? E.g. ec2-12-345-67-890.us-west-2.amazon.ws.com:8889"
-                read host
-                echo "What kind of db is this (--type)? E.g. presto, snowflake, hive. See the docs for a full list of supported warehouses."
-                read type
-                echo "Provide a unique name for this connection."
-                read name
-                echo "Username?"
-                read username
-                echo "Password?"
-                read password
-                mf connections add --name ${name} --type ${type} --host ${host} --username ${username} --password ${password}
                 ;;
 
             connections)
@@ -121,10 +106,9 @@ function metaframe {
                 esac
                 ;;
             etl)
-                echo "Running an ETL job against your db!"
-                echo "This may take up to an hour -- we've set this running in the background."
-                echo "The nohup log file can be found at ${log_file}."
-                nohup $(${python_executable}) > ${log_file} &
+                echo "Running an ETL job against your db (this may take some time)."
+                ${python_executable}
+                # nohup $(${python_executable}) > ${log_file} &
 
                 ;;
             logs)
