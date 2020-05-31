@@ -2,13 +2,9 @@
 
 To use metaframe, you need to configure your server connection to enable ETL jobs to be run. Metaframe automatically creates some [amundsen databuilder](https://github.com/lyft/amundsendatabuilder) pipelines to enable this. 
 
-There are **three** ways to add a new connection:
+There are **two** ways to add a new connection:
 
-#### **Option 1: Run `mf init`.**
-
-This will manually walk you through a step-by-step set of prompts that will help you register your connection with metaframe.
-
-#### **Option 2: Run `mf connections add`, with keyword arguments.**
+#### **Option 1: Run `mf connections add`, with keyword arguments.**
 
 Use the following flags to specify database properties.
 
@@ -31,7 +27,7 @@ mf connections add \
     --password bungabungabunga
 ```
 
-**Option 3: Manually edit `~/.metaframe/config/connections.yaml`**
+**Option 2: Manually edit `~/.metaframe/config/connections.yaml`**
 
 The above commands simply edit a yaml file located at `~/.metaframe/config/connections.yaml` referenced by the markdown loader. You can, therefore, alternatively manually edit this connection file yourself. Simply add the following block:
 
@@ -41,5 +37,8 @@ The above commands simply edit a yaml file located at `~/.metaframe/config/conne
   host: ec2-something.yourhost.com:8889
   username:
   password:
+  cluster:
 ```
+
+All fields are optional except for `host` and `type`.
 

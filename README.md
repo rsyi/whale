@@ -6,11 +6,15 @@ _**Disclaimer: This project is still in alpha testing, so there will be bugs. Us
 
 `metaframe` is a CLI tool that allows you to run ETL jobs and view metadata straight from the command-line. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to search through your metadata.
 
-### Installation
+## Installation
+
+### Mac OS
 
 ```text
 brew install rsyi/tap/metaframe
 ```
+
+### All others
 
 If not on macOS, clone this directory, then run:
 
@@ -18,13 +22,54 @@ If not on macOS, clone this directory, then run:
 make && make install
 ```
 
-_Metaframe is still in alpha, so if you encounter a problem with installation, please post an issue, and I'll look it into it immediately._
+We don't explicitly add an alias for the `mf` binary, so you'll want to either add `~/.metaframe/bin/` to your `PATH`, or add the following alias to your `.bash_profile` or `.zshrc` file.
 
-### Quick start
+```text
+alias mf=~/.metaframe/bin/mf
+```
 
-To quickly get started, run `mf init` \(and follow the prompts\) to add a db connection and `mf etl` to run an ETL job against that connection. Once these are complete, run `mf` to view your metadata.
+## Getting started
+
+### Initialize file structure
+
+Start by running:
+
+```text
+mf init
+```
+
+which will generate a file structure in `~/.metaframe`.
+
+### Configure warehouse connections
+
+You'll next need to **manually configure your warehouse connections**, which are defined as yaml in `~/.metaframe/config/connections.yaml`. Add an entry like the one below, replacing the credentials with your own.
+
+```text
+- name: presto                # optional
+  type: presto
+  host: host.mysite.com:8889
+  username:                   # optional
+  password:                   # optional
+  cluster: system             # optional 
+```
+
+The only **necessary** arguments are the `host` and the `type`. At the moment, we only support `type: presto`, but this will change very soon.
+
+### Run your ETL job
+
+Once this configuration is complete, you can run your ETL job by running:
+
+```text
+mf etl
+```
+
+### Go go go!
+
+Run:
 
 ```text
 mf
 ```
+
+to search over all metadata. Hitting `enter` will open the editable part of the docs in your default text editor, defined by the environmental variable `$EDITOR`.
 
