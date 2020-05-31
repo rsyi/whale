@@ -71,7 +71,7 @@ class PrestoLoopExtractor(PrestoEngine):
 
                 for i, table_row in enumerate(tables):
                     if (i%10==0) or (i==n_tables-1):
-                        LOGGER.info('On table {} of {}'.format(i, n_tables))
+                        LOGGER.info('On table {} of {}'.format(i+1, n_tables))
                     table = table_row[0]
 
                     if self._is_table_metadata_enabled:
