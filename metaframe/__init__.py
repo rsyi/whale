@@ -52,6 +52,7 @@ def main(verbose=True):
                 'extractor.presto_loop.is_watermark_enabled': False,
                 'extractor.presto_loop.is_stats_enabled': False,
                 'extractor.presto_loop.is_analyze_enabled': False,
+                'extractor.presto_loop.database': name,
                 'extractor.presto_loop.cluster': cluster,
             })
 

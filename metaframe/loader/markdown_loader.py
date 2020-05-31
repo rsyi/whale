@@ -11,7 +11,7 @@ from typing import Any  # noqa: F401
 from databuilder.loader.base_loader import Loader
 import metaframe.models.table_metadata as metadata_model_metaframe
 import databuilder.models.table_metadata as metadata_model_amundsen
-
+from metaframe.utils import get_table_file_path_base
 
 class MarkdownLoader(Loader):
     """
@@ -20,9 +20,6 @@ class MarkdownLoader(Loader):
     DEFAULT_CONFIG = ConfigFactory.from_dict({
         'base_directory': os.path.join(Path.home(), '.metaframe/metadata/')
     })
-
-    TABLE_RELATIVE_FILE_PATH = '{database}/{cluster}.{schema}.{table}.md'
-    CLUSTERLESS_TABLE_RELATIVE_FILE_PATH = '{database}/{schema}.{table}.md'
 
     METAFRAME_HEADER_TEMPLATE = textwrap.dedent("""    {schema}.{name} {view_statement}
     """)
@@ -85,30 +82,20 @@ class MarkdownLoader(Loader):
                 columns=tabulated_columns)
 
             # Format file names.
-            if record.cluster is not None:
-                relative_file_path = MarkdownLoader.TABLE_RELATIVE_FILE_PATH.format(
-                    database=self.database_name,
-                    cluster=record.cluster,
-                    schema=record.schema,
-                    table=record.name
-                )
-            else:
-                relative_file_path = MarkdownLoader.CLUSTERLESS_TABLE_RELATIVE_FILE_PATH.format(
-                    database=self.database_name,
-                    schema=record.schema,
-                    table=record.name
-                )
+            table_file_path_base = get_table_file_path_base(
+                database=self.database_name,
+                cluster=record.cluster,
+                schema=record.schema,
+                table=record.name
+            )
 
-            relative_file_path_docs = relative_file_path[:-3] + '.docs.md'
-            absolute_file_path=os.path.join(self.base_directory, relative_file_path)
-            absolute_file_path_docs=os.path.join(self.base_directory, relative_file_path_docs)
+            file_path = table_file_path_base + '.md'
+            file_path_docs = table_file_path_base + '.docs.md'
+            subdirectory = '/'.join(file_path.split('/')[:-1])
+            Path(subdirectory).mkdir(parents=True, exist_ok=True)
 
-            relative_subdirectory = relative_file_path.split('/')[0]
-            absolute_subdirectory = os.path.join(self.base_directory, relative_subdirectory)
-            Path(absolute_subdirectory).mkdir(parents=True, exist_ok=True)
-
-            Path(absolute_file_path_docs).touch()
-            with open(absolute_file_path, 'w') as f:
+            Path(file_path_docs).touch()
+            with open(file_path, 'w') as f:
                 f.write(metaframe_docs)
 
     def close(self):
