@@ -30,6 +30,7 @@ def main(verbose=True):
         host = connection['host']
         connection_type = connection['type']
         name = connection['name'] if 'name' in connection else connection['type']
+        cluster = connection['cluster'] if 'cluster' in connection else None
 
         if connection_type=='presto':
 
@@ -51,6 +52,7 @@ def main(verbose=True):
                 'extractor.presto_loop.is_watermark_enabled': False,
                 'extractor.presto_loop.is_stats_enabled': False,
                 'extractor.presto_loop.is_analyze_enabled': False,
+                'extractor.presto_loop.cluster': cluster,
             })
 
         elif connection_type=='neo4j':
