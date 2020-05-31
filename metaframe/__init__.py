@@ -7,34 +7,35 @@ from pathlib import Path
 from pyhocon import ConfigFactory
 from databuilder.task.task import DefaultTask
 from .loader.markdown_loader import MarkdownLoader
-from .extractor.presto_table_metadata_extractor import PrestoTableMetadataExtractor
+from .extractor.presto_loop_extractor import PrestoLoopExtractor
 from databuilder.extractor.hive_table_metadata_extractor import HiveTableMetadataExtractor
 from databuilder.extractor.neo4j_extractor import Neo4jExtractor
 from databuilder.models.table_metadata import TableMetadata
 
 SQL_ALCHEMY_EXTRACTORS = {
-    'presto': PrestoTableMetadataExtractor,
+    'presto': PrestoLoopExtractor,
     'hive-metastore': HiveTableMetadataExtractor,
 }
 BASE_DIR = os.path.join(Path.home(), '.metaframe/')
 
-def main():
+def main(verbose=True):
     with open(os.path.join(BASE_DIR, 'config/connections.yaml')) as f:
         connections = yaml.safe_load(f)
 
     for connection in connections:
 
         # Parse configuration.
-        username = connection['username']
-        password = connection['password']
+        username = connection['username'] if 'username' in connection else None
+        password = connection['password'] if 'password' in connection else None
         host = connection['host']
         connection_type = connection['type']
+        name = connection['name'] if 'name' in connection else connection['type']
 
-        if connection_type in SQL_ALCHEMY_EXTRACTORS:
+        if connection_type=='presto':
 
-            extractor = SQL_ALCHEMY_EXTRACTORS[connection_type]()
+            extractor = PrestoLoopExtractor()
             scope = extractor.get_scope()
-            conn_string_key = '{}.extractor.sqlalchemy.conn_string'.format(scope)
+            conn_string_key = '{}.conn_string'.format(scope)
 
             username_password_placeholder = \
                     '{}:{}'.format(username, password) if password is not None else ''
@@ -46,6 +47,10 @@ def main():
 
             conf = ConfigFactory.from_dict({
                 conn_string_key: conn_string,
+                'extractor.presto_loop.is_table_metadata_enabled': True,
+                'extractor.presto_loop.is_watermark_enabled': False,
+                'extractor.presto_loop.is_stats_enabled': False,
+                'extractor.presto_loop.is_analyze_enabled': False,
             })
 
         elif connection_type=='neo4j':
@@ -61,6 +66,8 @@ def main():
                 '{}.neo4j_auth_pw'.format(scope): password,
                 '{}.model_class'.format(scope): 'databuilder.models.table_metadata.TableMetadata',
             })
+
+        conf.put('loader.markdown.database_name', name)
 
         task = DefaultTask(
             extractor=extractor,

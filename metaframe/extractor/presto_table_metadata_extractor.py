@@ -43,8 +43,7 @@ class PrestoTableMetadataExtractor(Extractor):
     DEFAULT_CONFIG = ConfigFactory.from_dict({
         'where_clause_suffix': "WHERE a.table_schema NOT IN ('pg_catalog', 'information_schema')",
         'default_cluster_name': '<default>',
-        'database': 'presto',
-        'organization_uuid': None})
+        'database': 'presto'})
 
     def init(self, conf):
         # type: (ConfigTree) -> None
@@ -52,7 +51,6 @@ class PrestoTableMetadataExtractor(Extractor):
         self._database = '{}'.format(self.conf.get_string('database'))
         self._cluster = self.conf.get('cluster', None)
         self._default_cluster_name = self.conf.get_string('default_cluster_name')
-        self._organization_uuid = self.conf.get('organization_uuid')
         LOGGER.info('Cluster name: {}'.format(self._cluster))
 
         if self._cluster is not None:
