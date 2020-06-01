@@ -8,7 +8,7 @@ all: dist
 
 dist:
 	pip3 install -r requirements.txt --user
-	python3 -m PyInstaller build_script.py --clean --hidden-import='pkg_resources.py2_warn' --additional-hooks-dir='./hooks/'
+	pyinstaller build_script.py --clean --hidden-import='pkg_resources.py2_warn' --additional-hooks-dir='./hooks/'
 
 .PHONY: install
 install:
