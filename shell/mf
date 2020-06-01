@@ -107,9 +107,9 @@ function metaframe {
                 ;;
             etl)
                 echo "Running an ETL job against your db (this may take some time)."
-                ${python_executable}
+                shift
+                ${python_executable} $@
                 # nohup $(${python_executable}) > ${log_file} &
-
                 ;;
             logs)
                 $EDITOR ${log_file}

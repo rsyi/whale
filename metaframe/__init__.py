@@ -18,7 +18,7 @@ SQL_ALCHEMY_EXTRACTORS = {
 }
 BASE_DIR = os.path.join(Path.home(), '.metaframe/')
 
-def main(verbose=True):
+def main(is_full_extraction_enabled=False, verbose=True):
     with open(os.path.join(BASE_DIR, 'config/connections.yaml')) as f:
         connections = yaml.safe_load(f)
 
@@ -49,6 +49,8 @@ def main(verbose=True):
             conf = ConfigFactory.from_dict({
                 conn_string_key: conn_string,
                 'extractor.presto_loop.is_table_metadata_enabled': True,
+                'extractor.presto_loop.is_full_extraction_enabled': \
+                        is_full_extraction_enabled,
                 'extractor.presto_loop.is_watermark_enabled': False,
                 'extractor.presto_loop.is_stats_enabled': False,
                 'extractor.presto_loop.is_analyze_enabled': False,
