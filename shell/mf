@@ -47,10 +47,39 @@ function metaframe {
         set +e
     }
 
-    if [ $# -eq 0 ]; then
-        if [ ! -d ${metadata_dir} ] || [ ! -d ${base_dir} ] || [ ! -d ${config_dir} ]; then
-            metaframe init
+    initialize() {
+        echo ""
+        echo "Welcome to metaframe!"
+        echo ""
+        echo "Metaframe needs to initialize the following file structure:"
+        echo ""
+        echo "~/.metaframe"
+        echo "├── config"
+        echo "│   └── connections.yaml"
+        echo "├── logs"
+        echo "└── metadata"
+        echo ""
+        echo "We'll check if this exists and make it if it doesn't."
+        echo "Continue? [Press enter to continue, CTRL-C to exit]"
+        read
+
+        mkdir -p ${metadata_dir}
+        mkdir -p ${base_dir}
+        mkdir -p ${config_dir}
+        mkdir -p ${metadata_dir}
+        mkdir -p ${logs_dir}
+        touch -a ${connections_file}
+    }
+
+    file_structure_check () {
+        if ([ ! -d ${metadata_dir} ] || [ ! -d ${base_dir} ] || [ ! -f ${connections_file} ]); then
+            echo "You need to initialize the file structure first. Run 'mf init'."
+            exit
         fi
+    }
+
+    if [ $# -eq 0 ]; then
+        file_structure_check
 
         cd ${metadata_dir}
         if command -v bat; then
@@ -65,15 +94,11 @@ function metaframe {
         case $1 in
 
             init)
-                mkdir -p ${metadata_dir}
-                mkdir -p ${base_dir}
-                mkdir -p ${config_dir}
-                mkdir -p ${metadata_dir}
-                mkdir -p ${logs_dir}
-                touch -a ${connections_file}
+                initialize
                 ;;
 
             connections)
+                file_structure_check
                 shift
                 case $1 in
                     add)
@@ -106,6 +131,7 @@ function metaframe {
                 esac
                 ;;
             etl)
+                file_structure_check
                 echo "Running an ETL job against your db (this may take some time)."
                 shift
                 ${python_executable} $@
