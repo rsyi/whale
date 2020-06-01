@@ -22,6 +22,8 @@ If not on macOS, clone this directory, then run:
 make && make install
 ```
 
+If there are errors, it's often because the specific flavor of python referenced by `pip3` on your machine is incompatible \(metaframe is tested against python 3.7 and 3.8 only\). To troubleshoot this, try using a virtual environment in 3.7 or 3.8 or modifying the makefile `pip3` reference to specific binary paths in your filesystem. **Or open an issue!**
+
 We don't explicitly add an alias for the `mf` binary, so you'll want to either add `~/.metaframe/bin/` to your `PATH`, or add the following alias to your `.bash_profile` or `.zshrc` file.
 
 ```text
@@ -42,7 +44,7 @@ which will generate a file structure in `~/.metaframe`.
 
 ### Configure warehouse connections
 
-You'll next need to **manually configure your warehouse connections**, which are defined as yaml in `~/.metaframe/config/connections.yaml`. Add an entry like the one below, replacing the credentials with your own.
+You'll next need to add an entry to your `connections.yaml` file, which can be accessed by running `mf connections edit`. For example:
 
 ```text
 - name: presto                # optional
@@ -53,7 +55,7 @@ You'll next need to **manually configure your warehouse connections**, which are
   cluster: system             # optional 
 ```
 
-The only **necessary** arguments are the `host` and the `type`. At the moment, we only support `type: presto`, but this will change very soon.
+The only necessary arguments are the `host` and the `type`. See [Connection setup](docs/connection-setup.md) for more details \(including information on type-specific syntax\).
 
 ### Run your ETL job
 
@@ -62,6 +64,8 @@ Once this configuration is complete, you can run your ETL job by running:
 ```text
 mf etl
 ```
+
+By default this only pulls tables that haven't already been pulled. For more details, see [ETL](docs/running-an-etl-job.md).
 
 ### Go go go!
 
