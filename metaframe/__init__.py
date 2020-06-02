@@ -8,8 +8,8 @@ from pyhocon import ConfigFactory
 from databuilder.task.task import DefaultTask
 from .loader.markdown_loader import MarkdownLoader
 from .extractor.presto_loop_extractor import PrestoLoopExtractor
+from .extractor.neo4j_metaframe_extractor import Neo4jMetaframeExtractor
 from databuilder.extractor.hive_table_metadata_extractor import HiveTableMetadataExtractor
-from databuilder.extractor.neo4j_extractor import Neo4jExtractor
 from databuilder.models.table_metadata import TableMetadata
 
 SQL_ALCHEMY_EXTRACTORS = {
@@ -59,17 +59,12 @@ def main(is_full_extraction_enabled=False, verbose=True):
             })
 
         elif connection_type=='neo4j':
-            query = """
-            MATCH (n:Table) RETURN n
-            """
-            extractor = Neo4jExtractor()
+            extractor = Neo4jMetaframeExtractor()
             scope = extractor.get_scope()
             conf = ConfigFactory.from_dict({
-                '{}.graph_url'.format(scope): host,
-                '{}.cypher_query'.format(scope): query,
+                '{}.graph_url'.format(scope): 'bolt://' + host,
                 '{}.neo4j_auth_user'.format(scope): username,
                 '{}.neo4j_auth_pw'.format(scope): password,
-                '{}.model_class'.format(scope): 'databuilder.models.table_metadata.TableMetadata',
             })
 
         conf.put('loader.markdown.database_name', name)

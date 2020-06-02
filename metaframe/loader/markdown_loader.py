@@ -54,6 +54,7 @@ class MarkdownLoader(Loader):
             columns = record.columns
             rows = [['column', 'type', 'partition', 'description']]
 
+            tabulated_columns = None
             for column in columns:
                 # Deal with slightly different TableMetadataSchemas.
                 if hasattr(column, 'is_partition_column'):

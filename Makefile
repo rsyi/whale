@@ -8,7 +8,7 @@ all: dist
 
 dist:
 	pip3 install -r requirements.txt --user
-	pyinstaller build_script.py --clean --hidden-import='pkg_resources.py2_warn' --additional-hooks-dir='./hooks/'
+	pyinstaller build_script.py --clean --hidden-import='pkg_resources.py2_warn' --hidden-import='neobolt.packstream.unpacker' --hidden-import='neobolt.bolt' --hidden-import='neobolt.bolt.io' --hidden-import='neobolt.packstream.packer' --additional-hooks-dir='./hooks/'
 
 .PHONY: install
 install:
