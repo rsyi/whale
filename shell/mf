@@ -88,7 +88,7 @@ function metaframe {
             dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md; echo "\n"; cat {}.docs.md')".docs.md
         fi
         if [ -f "${dataframe_file}" ]; then
-            $EDITOR "${dataframe_file}"
+            ${EDITOR:-vim} "${dataframe_file}"
         fi
     else
         case $1 in
@@ -126,7 +126,7 @@ function metaframe {
                         cat ${connections_file}
                         ;;
                     edit)
-                        $EDITOR ${connections_file}
+                        ${EDITOR:-vim} ${connections_file}
                         ;;
                 esac
                 ;;
@@ -138,7 +138,7 @@ function metaframe {
                 # nohup $(${python_executable}) > ${log_file} &
                 ;;
             logs)
-                $EDITOR ${log_file}
+                ${EDITOR:-vim} ${log_file}
                 ;;
             *)
                 echo "Command not found."

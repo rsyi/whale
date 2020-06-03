@@ -2,7 +2,9 @@
 
 ![](docs/.gitbook/assets/image%20%282%29.png)
 
-_**Disclaimer: This project is still in alpha testing, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)**_ 
+{% hint style="warning" %}
+_**Disclaimer:** This project is still in alpha, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)_ 
+{% endhint %}
 
 `metaframe` is a CLI **data catalog + documentation tool**. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to:
 
@@ -20,7 +22,7 @@ brew install rsyi/tap/metaframe
 
 ### All others
 
-If not on macOS, clone this directory, then run:
+If not on macOS, clone this directory, then run the following in the base directory of the repo \(**make sure `./dist` does not exist, or pyinstaller won't rebuild**\):
 
 ```text
 make && make install
@@ -59,7 +61,7 @@ You'll next need to add an entry to your `connections.yaml` file, which can be a
   cluster: system             # optional 
 ```
 
-The only necessary arguments are the `host` and the `type`. See [Connection setup](docs/connection-setup.md) for more details \(including information on type-specific syntax\).
+The only necessary arguments are the `host` and the `type`. See [Connection setup](docs/connection-setup/) for more details \(including information on type-specific syntax\).
 
 ### Run your ETL job
 

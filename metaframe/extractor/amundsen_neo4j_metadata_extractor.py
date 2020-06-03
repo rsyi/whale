@@ -66,42 +66,34 @@ class AmundsenNeo4jMetadataExtractor(Neo4jExtractor):
         self.conf = conf.with_fallback(Neo4jExtractor.DEFAULT_CONFIG)
         self.graph_url = conf.get_string('graph_url')
 
-        self.included_schema_keys = conf.get('included_schema_keys', None)
-        self.excluded_schema_keys = conf.get('excluded_schema_keys', None)
-        self.included_database_keys = conf.get('included_database_keys', None)
-        self.excluded_database_keys = conf.get('excluded_database_keys', None)
-        self.included_cluster_keys = conf.get('included_cluster_keys', None)
-        self.excluded_cluster_keys = conf.get('excluded_cluster_keys', None)
-        self.included_table_key_regex = conf.get('included_table_key_regex', None)
-        self.excluded_table_key_regex = conf.get('excluded_table_key_regex', None)
+        self.included_keys = conf.get('included_keys', None)
+        self.excluded_keys = conf.get('excluded_keys', None)
+        self.included_key_regex = conf.get('included_key_regex', None)
+        self.excluded_key_regex = conf.get('excluded_key_regex', None)
 
         # Add where clause based on configuration inputs.
-        where_clauses = []
-        if self.included_schema_keys is not None:
-            where_clauses.append('schema.key IN {}'.format(self.included_schema_keys))
+        keys = ['schema.key', 'db.key', 'cluster.key', 'table.key']
+        or_where_clauses = []
+        and_where_clauses = []
+        if self.included_keys is not None:
+            for key in keys:
+                or_clauses.append('{} IN {}'.format(key, self.included_keys))
 
-        if self.excluded_schema_keys is not None:
-            where_clauses.append('schema.key NOT IN {}'.format(self.excluded_schema_keys))
+        if self.excluded_keys is not None:
+            for key in keys:
+                and_where_clauses.append('{} NOT IN {}'.format(key, self.excluded_keys))
 
-        if self.included_database_keys is not None:
-            where_clauses.append('db.key IN {}'.format(self.excluded_database_keys))
+        if self.included_key_regex is not None:
+            for key in keys:
+                or_where_clauses.append("{} =~ '{}'".format(key, self.included_key_regex))
 
-        if self.excluded_database_keys is not None:
-            where_clauses.append('db.key NOT IN {}'.format(self.excluded_database_keys))
+        if self.excluded_key_regex is not None:
+            for key in keys:
+                and_where_clauses.append("NOT {} =~ '{}'".format(key, self.excluded_key_regex))
 
-        if self.included_cluster_keys is not None:
-            where_clauses.append('cluster.key IN {}'.format(self.excluded_cluster_keys))
-
-        if self.excluded_cluster_keys is not None:
-            where_clauses.append('cluster.key NOT IN {}'.format(self.excluded_cluster_keys))
-
-        if self.included_table_key_regex is not None:
-            where_clauses.append("table.key =~ '{}'".format(self.included_table_key_regex))
-
-        if self.excluded_table_key_regex is not None:
-            where_clauses.append("NOT table.key =~ '{}'".format(self.excluded_table_key_regex))
-
-        where_clause = combine_where_clauses(where_clauses)
+        where_clause = combine_where_clauses(
+            and_clauses=and_where_clauses,
+            or_clauses=or_where_clauses)
 
         self.cypher_query = AmundsenNeo4jMetadataExtractor.CYPHER_QUERY.format(
             where_clause=where_clause

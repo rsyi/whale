@@ -2,9 +2,13 @@
 
 ## Version tracking
 
-If you're working in a team of more than 1 person, you may want to consider tracking your `./metaframe/metadata` directory through git rather than locally through your own computer.
+If you're working in a team of more than 1 person, you may want to consider tracking your `./metaframe/metadata` directory through git rather than locally through your own computer. A `git pull` is much cheaper than a full-fledged ETL job.
 
 To set this up, navigate to `~/.metaframe/metadata`, run `git init`, and proceed as usual with any other repo. Voila -- you now have version-tracked metadata!
+
+{% hint style="danger" %}
+Because syncing your custom metadata upstream with neo4j is not on our roadmap \(and because it is also very difficult to implement seamlessly\), we strongly suggest you do not push to master -- back up your personal docs to a branch instead.
+{% endhint %}
 
 ## Scheduling
 
