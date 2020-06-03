@@ -27,3 +27,4 @@ def get_table_file_path_base(
         )
 
     return os.path.join(base_directory, relative_file_path)
+

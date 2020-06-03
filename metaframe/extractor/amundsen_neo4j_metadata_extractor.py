@@ -1,11 +1,13 @@
 from itertools import zip_longest
 from pyhocon import ConfigFactory
+import textwrap
 
 from databuilder.extractor.neo4j_extractor import Neo4jExtractor
 from metaframe.models.table_metadata import TableMetadata, ColumnMetadata
+from metaframe.utils.neo4j import combine_where_clauses
 
 
-class Neo4jMetaframeExtractor(Neo4jExtractor):
+class AmundsenNeo4jMetadataExtractor(Neo4jExtractor):
 
     CYPHER_QUERY = """
         MATCH (db:Database)<-[:CLUSTER_OF]-(cluster:Cluster)
@@ -31,6 +33,7 @@ class Neo4jMetaframeExtractor(Neo4jExtractor):
         OPTIONAL MATCH (table)-[:LAST_UPDATED_AT]->(time_stamp:Timestamp)
         OPTIONAL MATCH (table)<-[:BELONG_TO_TABLE]-(watermark:Watermark)
         WITH db, cluster, schema, schema_description, table, table_description, tags, badges, total_usage, unique_usage, column_names, column_descriptions, column_types, column_sort_orders, time_stamp, COLLECT(watermark) AS watermarks
+        {where_clause}
 
         RETURN
         db.name as database,
@@ -62,7 +65,47 @@ class Neo4jMetaframeExtractor(Neo4jExtractor):
         """
         self.conf = conf.with_fallback(Neo4jExtractor.DEFAULT_CONFIG)
         self.graph_url = conf.get_string('graph_url')
-        self.cypher_query = Neo4jMetaframeExtractor.CYPHER_QUERY
+
+        self.included_schema_keys = conf.get('included_schema_keys', None)
+        self.excluded_schema_keys = conf.get('excluded_schema_keys', None)
+        self.included_database_keys = conf.get('included_database_keys', None)
+        self.excluded_database_keys = conf.get('excluded_database_keys', None)
+        self.included_cluster_keys = conf.get('included_cluster_keys', None)
+        self.excluded_cluster_keys = conf.get('excluded_cluster_keys', None)
+        self.included_table_key_regex = conf.get('included_table_key_regex', None)
+        self.excluded_table_key_regex = conf.get('excluded_table_key_regex', None)
+
+        # Add where clause based on configuration inputs.
+        where_clauses = []
+        if self.included_schema_keys is not None:
+            where_clauses.append('schema.key IN {}'.format(self.included_schema_keys))
+
+        if self.excluded_schema_keys is not None:
+            where_clauses.append('schema.key NOT IN {}'.format(self.excluded_schema_keys))
+
+        if self.included_database_keys is not None:
+            where_clauses.append('db.key IN {}'.format(self.excluded_database_keys))
+
+        if self.excluded_database_keys is not None:
+            where_clauses.append('db.key NOT IN {}'.format(self.excluded_database_keys))
+
+        if self.included_cluster_keys is not None:
+            where_clauses.append('cluster.key IN {}'.format(self.excluded_cluster_keys))
+
+        if self.excluded_cluster_keys is not None:
+            where_clauses.append('cluster.key NOT IN {}'.format(self.excluded_cluster_keys))
+
+        if self.included_table_key_regex is not None:
+            where_clauses.append("table.key =~ '{}'".format(self.included_table_key_regex))
+
+        if self.excluded_table_key_regex is not None:
+            where_clauses.append("NOT table.key =~ '{}'".format(self.excluded_table_key_regex))
+
+        where_clause = combine_where_clauses(where_clauses)
+
+        self.cypher_query = AmundsenNeo4jMetadataExtractor.CYPHER_QUERY.format(
+            where_clause=where_clause
+        )
         self.driver = self._get_driver()
 
         self._extract_iter = None

@@ -28,7 +28,8 @@ class PrestoLoopExtractor(PrestoEngine):
     """
     DEFAULT_CONFIG = ConfigFactory.from_dict({
         'conn_string': None,
-        'excluded_schemas': ['information_schema', 'looker', 'pg_catalog'],
+        'excluded_schemas': None,
+        'included_schemas': None,
         'cluster': None,
         'database': 'presto',
         'is_full_extraction_enabled': False,
@@ -44,7 +45,8 @@ class PrestoLoopExtractor(PrestoEngine):
         self._database = self.conf.get_string('database')
 
         self._extract_iter = None
-        self._excluded_schemas = self.conf.get('excluded_schemas')
+        self._excluded_schemas = self.conf.get('excluded_schemas') or []
+        self._included_schemas = self.conf.get('included_schemas') or []
 
         self._sql_stmt_schemas = ' in '.join(filter(None, ['show schemas', self._cluster]))
         self._is_table_metadata_enabled = self.conf.get('is_table_metadata_enabled')
@@ -67,7 +69,9 @@ class PrestoLoopExtractor(PrestoEngine):
             schema = schema_row[0]
             LOGGER.info('Fetching all tables in {}.'.format(schema))
 
-            if schema not in self._excluded_schemas:
+            if (schema not in self._excluded_schemas) \
+                    and ((schema in self._included_schemas) or \
+                    not self._included_schemas):
                 full_schema_address = '.'.join(filter(None, [self._cluster, schema]))
                 tables = list(self.execute('show tables in {}'.format(full_schema_address)))
                 n_tables = len(tables)

@@ -8,7 +8,7 @@ from pyhocon import ConfigFactory
 from databuilder.task.task import DefaultTask
 from .loader.markdown_loader import MarkdownLoader
 from .extractor.presto_loop_extractor import PrestoLoopExtractor
-from .extractor.neo4j_metaframe_extractor import Neo4jMetaframeExtractor
+from .extractor.amundsen_neo4j_metadata_extractor import AmundsenNeo4jMetadataExtractor
 from databuilder.extractor.hive_table_metadata_extractor import HiveTableMetadataExtractor
 from databuilder.models.table_metadata import TableMetadata
 
@@ -23,14 +23,28 @@ def main(is_full_extraction_enabled=False, verbose=True):
         connections = yaml.safe_load(f)
 
     for connection in connections:
+        def get_connection_value(key, fallback=None):
+            return connection[key] if key in connection else fallback
 
         # Parse configuration.
-        username = connection['username'] if 'username' in connection else None
-        password = connection['password'] if 'password' in connection else None
         host = connection['host']
         connection_type = connection['type']
-        name = connection['name'] if 'name' in connection else connection['type']
-        cluster = connection['cluster'] if 'cluster' in connection else None
+        username = get_connection_value('username')
+        password = get_connection_value('password')
+        name = get_connection_value('name')
+
+        # Parse optional configuration entries.
+        cluster = get_connection_value('cluster')
+        included_schemas = get_connection_value('included_schemas')
+        excluded_schemas = get_connection_value('excluded_schemas')
+        included_schema_keys = get_connection_value('included_schema_keys')
+        excluded_schema_keys = get_connection_value('excluded_schema_keys')
+        included_cluster_keys = get_connection_value('included_cluster_keys')
+        excluded_cluster_keys = get_connection_value('excluded_cluster_keys')
+        included_database_keys = get_connection_value('included_database_keys')
+        excluded_database_keys = get_connection_value('excluded_database_keys')
+        included_table_key_regex = get_connection_value('included_table_key_regex')
+        excluded_table_key_regex = get_connection_value('excluded_table_key_regex')
 
         if connection_type=='presto':
 
@@ -56,15 +70,25 @@ def main(is_full_extraction_enabled=False, verbose=True):
                 'extractor.presto_loop.is_analyze_enabled': False,
                 'extractor.presto_loop.database': name,
                 'extractor.presto_loop.cluster': cluster,
+                'extractor.presto_loop.included_schemas': included_schemas,
+                'extractor.presto_loop.excluded_schemas': excluded_schemas,
             })
 
         elif connection_type=='neo4j':
-            extractor = Neo4jMetaframeExtractor()
+            extractor = AmundsenNeo4jMetadataExtractor()
             scope = extractor.get_scope()
             conf = ConfigFactory.from_dict({
                 '{}.graph_url'.format(scope): 'bolt://' + host,
                 '{}.neo4j_auth_user'.format(scope): username,
                 '{}.neo4j_auth_pw'.format(scope): password,
+                '{}.included_schema_keys'.format(scope): included_schema_keys,
+                '{}.excluded_schema_keys'.format(scope): excluded_schema_keys,
+                '{}.included_cluster_keys'.format(scope): included_cluster_keys,
+                '{}.excluded_cluster_keys'.format(scope): excluded_cluster_keys,
+                '{}.included_database_keys'.format(scope): included_database_keys,
+                '{}.excluded_database_keys'.format(scope): excluded_database_keys,
+                '{}.included_table_key_regex'.format(scope): included_table_key_regex,
+                '{}.excluded_table_key_regex'.format(scope): excluded_table_key_regex,
             })
 
         conf.put('loader.markdown.database_name', name)

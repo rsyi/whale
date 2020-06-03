@@ -36,7 +36,7 @@ class MarkdownLoader(Loader):
     def init(self, conf: ConfigTree):
         self.conf = conf.with_fallback(MarkdownLoader.DEFAULT_CONFIG)
         self.base_directory = self.conf.get_string('base_directory')
-        self.database_name = self.conf.get_string('database_name')
+        self.database_name = self.conf.get_string('database_name', None)
         Path(self.base_directory).mkdir(parents=True, exist_ok=True)
 
     def load(self, record):
@@ -84,7 +84,7 @@ class MarkdownLoader(Loader):
 
             # Format file names.
             table_file_path_base = get_table_file_path_base(
-                database=self.database_name,
+                database=self.database_name or record.database,
                 cluster=record.cluster,
                 schema=record.schema,
                 table=record.name
