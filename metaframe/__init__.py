@@ -37,14 +37,10 @@ def main(is_full_extraction_enabled=False, verbose=True):
         cluster = get_connection_value('cluster')
         included_schemas = get_connection_value('included_schemas')
         excluded_schemas = get_connection_value('excluded_schemas')
-        included_schema_keys = get_connection_value('included_schema_keys')
-        excluded_schema_keys = get_connection_value('excluded_schema_keys')
-        included_cluster_keys = get_connection_value('included_cluster_keys')
-        excluded_cluster_keys = get_connection_value('excluded_cluster_keys')
-        included_database_keys = get_connection_value('included_database_keys')
-        excluded_database_keys = get_connection_value('excluded_database_keys')
-        included_table_key_regex = get_connection_value('included_table_key_regex')
-        excluded_table_key_regex = get_connection_value('excluded_table_key_regex')
+        included_keys = get_connection_value('included_keys')
+        excluded_keys = get_connection_value('excluded_keys')
+        included_key_regex = get_connection_value('included_key_regex')
+        excluded_key_regex = get_connection_value('excluded_key_regex')
 
         if connection_type=='presto':
 
@@ -81,14 +77,10 @@ def main(is_full_extraction_enabled=False, verbose=True):
                 '{}.graph_url'.format(scope): 'bolt://' + host,
                 '{}.neo4j_auth_user'.format(scope): username,
                 '{}.neo4j_auth_pw'.format(scope): password,
-                '{}.included_schema_keys'.format(scope): included_schema_keys,
-                '{}.excluded_schema_keys'.format(scope): excluded_schema_keys,
-                '{}.included_cluster_keys'.format(scope): included_cluster_keys,
-                '{}.excluded_cluster_keys'.format(scope): excluded_cluster_keys,
-                '{}.included_database_keys'.format(scope): included_database_keys,
-                '{}.excluded_database_keys'.format(scope): excluded_database_keys,
-                '{}.included_table_key_regex'.format(scope): included_table_key_regex,
-                '{}.excluded_table_key_regex'.format(scope): excluded_table_key_regex,
+                '{}.included_keys'.format(scope): included_keys,
+                '{}.excluded_keys'.format(scope): excluded_keys,
+                '{}.included_key_regex'.format(scope): included_key_regex,
+                '{}.excluded_key_regex'.format(scope): excluded_key_regex,
             })
 
         conf.put('loader.markdown.database_name', name)
