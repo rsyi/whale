@@ -21,3 +21,10 @@ install:
 	cp -r ./dist ${dependency_binary_dir}
 	# Install shell commands.
 	cp ./shell/mf ${install_dir}/mf
+
+.PHONY: test_python
+test_python:
+	python3 -b -m pytest tests
+
+.PHONY: test
+test: test_python
