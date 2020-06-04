@@ -1,7 +1,5 @@
 # Metaframe
 
-![](docs/.gitbook/assets/image%20%282%29.png)
-
 {% hint style="warning" %}
 _**Disclaimer:** This project is still in alpha, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)_ 
 {% endhint %}
@@ -12,7 +10,7 @@ _**Disclaimer:** This project is still in alpha, so there will be bugs. Use at y
 * Search through your metadata.
 * Enrich your metadata with personal notes.
 
-![](docs/.gitbook/assets/image%20%284%29.png)
+![](https://raw.githubusercontent.com/rsyi/metaframe/master/docs/demo.gif)
 
 ## Installation
 
