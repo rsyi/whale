@@ -1,0 +1,30 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        export MACHINE_USER_ACCESS_TOKEN=${{ secrets.MACHINE_USER_ACCESS_TOKEN }}
+        pip install -r requirements.txt
+    - name: Run tests
+      run: |
+        pytest
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
