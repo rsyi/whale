@@ -12,6 +12,8 @@ _**Disclaimer:** This project is still in alpha, so there will be bugs. Use at y
 * Search through your metadata.
 * Enrich your metadata with personal notes.
 
+![](docs/.gitbook/assets/image%20%284%29.png)
+
 ## Installation
 
 ### Mac OS
