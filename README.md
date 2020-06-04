@@ -12,8 +12,6 @@ _**Disclaimer:** This project is still in alpha, so there will be bugs. Use at y
 * Search through your metadata.
 * Enrich your metadata with personal notes.
 
-![](https://asciinema.org/a/fKIolsiCuC4T4vB4Xy5V4YYfr.svg)
-
 ## Installation
 
 ### Mac OS
