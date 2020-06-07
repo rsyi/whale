@@ -1,11 +1,10 @@
 # Metaframe
 
-![](docs/.gitbook/assets/image%20%286%29.png)
+![](docs/.gitbook/assets/image%20%288%29.png)
 
-![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg)
-![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg)
+![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg)
 
-_**Disclaimer:** This project is still in alpha, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)_ 
+_**Disclaimer:** This project is still in alpha, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)_
 
 `metaframe` is a CLI **data catalog + documentation tool**. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to:
 
@@ -61,7 +60,7 @@ You'll next need to add an entry to your `connections.yaml` file, which can be a
   host: host.mysite.com:8889
   username:                   # optional
   password:                   # optional
-  cluster: system             # optional 
+  cluster: system             # optional
 ```
 
 The only necessary arguments are the `host` and the `type`. See [Connection setup](docs/connection-setup/) for more details \(including information on type-specific syntax\).
