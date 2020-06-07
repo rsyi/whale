@@ -151,7 +151,7 @@ function metaframe {
                     fi
                     echo "Creating ${new_file} and ${doc_file}."
                     mkdir -p "${new_file%/*}" && touch "$new_file" && touch "$doc_file"
-                    $EDITOR $new_file
+                    $EDITOR $doc_file
                 fi
                 ;;
             -a|--all)
