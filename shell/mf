@@ -83,9 +83,9 @@ function metaframe {
 
         cd ${metadata_dir}
         if command -v bat; then
-            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=full --color=always; echo "\n"; bat {}.docs.md --style=numbers --color=always')".docs.md
+            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=full --color=always; bat {}.docs.md --style=numbers --color=always')".docs.md
         else
-            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md; echo "\n"; cat {}.docs.md')".docs.md
+            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md; cat {}.docs.md')".docs.md
         fi
         if [ -f "${dataframe_file}" ]; then
             ${EDITOR:-vim} "${dataframe_file}"
@@ -136,6 +136,36 @@ function metaframe {
                 shift
                 ${python_executable} $@
                 # nohup $(${python_executable}) > ${log_file} &
+                ;;
+            new)
+                shift
+                if [ -z $1 ]; then
+                    echo "You need to supply a file name."
+                else
+                    if [ ${1: -3} == ".md" ]; then
+                        new_file=${metadata_dir}/$1
+                        doc_file=${metadata_dir}/${1: -3}.docs.md
+                    else
+                        new_file=${metadata_dir}/${1}.md
+                        doc_file=${metadata_dir}/${1}.docs.md
+                    fi
+                    echo "Creating ${new_file} and ${doc_file}."
+                    mkdir -p "${new_file%/*}" && touch "$new_file" && touch "$doc_file"
+                    $EDITOR $new_file
+                fi
+                ;;
+            -a|--all)
+                file_structure_check
+
+                cd ${metadata_dir}
+                if command -v bat; then
+                    dataframe_file="$(pwd)/$(find . -name "*.md" | ${fzf_binary} --preview 'bat {} --style=full --color=always')"
+                else
+                    dataframe_file="$(pwd)/$(find . -name "*.md" | ${fzf_binary} --preview 'cat {}')"
+                fi
+                if [ -f "${dataframe_file}" ]; then
+                    ${EDITOR:-vim} "${dataframe_file}"
+                fi
                 ;;
             logs)
                 ${EDITOR:-vim} ${log_file}
