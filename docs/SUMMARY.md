@@ -8,4 +8,5 @@
 * [Custom ETL](custom-etl.md)
 * [Syntax highlighting](visual-customization.md)
 * [Collaboration](collaboration.md)
+* [Manual usage](manual-usage.md)
 
