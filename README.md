@@ -6,11 +6,11 @@
 
 _**Disclaimer:** This project is still in alpha, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)_
 
-`metaframe` is a CLI **data catalog + documentation tool**. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to:
+`metaframe` is a CLI **data documentation tool \(+catalog\)**. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to:
 
-* Run ETL jobs from the command-line.
-* Search through your metadata.
-* Enrich your metadata with personal notes.
+* Easily document your tables, using an organizational structure where tables are first-class citizens.
+* Run ETL jobs from the command-line \(or manually document your datasets\).
+* Search through your tables.
 
 ![](https://raw.githubusercontent.com/rsyi/metaframe/master/docs/demo.gif)
 
@@ -50,9 +50,19 @@ mf init
 
 which will generate a file structure in `~/.metaframe`.
 
+If you want to manually document tables, create a new table stub by running:
+
+```text
+mf new <TABLE_NAME>
+```
+
+Then run `mf` to search over these docs! See the [Manual usage](docs/manual-usage.md) section for more information.
+
+If you want to run ETL jobs to automatically populate this metadata, keep reading.
+
 ### Configure warehouse connections
 
-You'll next need to add an entry to your `connections.yaml` file, which can be accessed by running `mf connections edit`. For example:
+If you want metadata to be scraped and populated automatically, you'll next need to add an entry to your `connections.yaml` file, which can be accessed by running `mf connections edit`. For example:
 
 ```text
 - name: presto                # optional
