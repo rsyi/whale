@@ -1,6 +1,6 @@
 # Metaframe
 
-![](docs/.gitbook/assets/image%20%288%29.png)
+![](docs/.gitbook/assets/image%20%2810%29.png)
 
 ![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg)
 
