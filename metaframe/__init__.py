@@ -6,7 +6,8 @@ import yaml
 from pathlib import Path
 from pyhocon import ConfigFactory
 from databuilder.task.task import DefaultTask
-from .loader.markdown_loader import MarkdownLoader
+from .loader.metaframe_loader import MetaframeLoader
+from .transformer.markdown_transformer import MarkdownTransformer
 from .extractor.presto_loop_extractor import PrestoLoopExtractor
 from .extractor.amundsen_neo4j_metadata_extractor import AmundsenNeo4jMetadataExtractor
 from databuilder.extractor.hive_table_metadata_extractor import HiveTableMetadataExtractor
@@ -87,7 +88,8 @@ def main(is_full_extraction_enabled=False, verbose=True):
 
         task = DefaultTask(
             extractor=extractor,
-            loader=MarkdownLoader(),
+            transformer=MarkdownTransformer(),
+            loader=MetaframeLoader(),
         )
         task.init(conf)
         task.run()

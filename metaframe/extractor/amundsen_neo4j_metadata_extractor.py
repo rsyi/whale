@@ -77,7 +77,7 @@ class AmundsenNeo4jMetadataExtractor(Neo4jExtractor):
         and_where_clauses = []
         if self.included_keys is not None:
             for key in keys:
-                or_clauses.append('{} IN {}'.format(key, self.included_keys))
+                or_where_clauses.append('{} IN {}'.format(key, self.included_keys))
 
         if self.excluded_keys is not None:
             for key in keys:
@@ -149,7 +149,6 @@ class AmundsenNeo4jMetadataExtractor(Neo4jExtractor):
                     is_view=result['is_view'],
                     tags=result['tags'],
                 )
-                yield result
 
     def get_scope(self):
         return 'extractor.neo4j_metaframe'
