@@ -108,7 +108,7 @@ class PrestoEngine(SQLAlchemyEngine):
              cluster=cluster,
              schema=schema,
              name=table,
-             description='',
+             description=None,
              columns=columns,
              # is_view=is_view,
         )

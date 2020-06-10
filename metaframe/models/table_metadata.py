@@ -45,7 +45,7 @@ class ColumnMetadata:
 
 class TableMetadata(object):
     """
-    Simplified table metadata that contains columns.
+    Simplified table metadata that contains columns, extended with markdown_blob.
     """
     TABLE_KEY_FORMAT = '{db}://{cluster}.{schema}/{tbl}'
 
@@ -58,9 +58,10 @@ class TableMetadata(object):
                  cluster: str,
                  schema: str,
                  name: str,
-                 description: Union[str, None],
+                 description: Union[str, None] = None,
                  columns: Iterable[ColumnMetadata] = None,
                  is_view: bool = False,
+                 markdown_blob: str = '',
                  tags: Union[List, str] = None,
                  description_source: Union[str, None] = None,
                  **kwargs
@@ -84,6 +85,7 @@ class TableMetadata(object):
         self.description = description
         self.columns = columns if columns else []
         self.is_view = is_view
+        self.markdown_blob = markdown_blob
         self.attrs = None
         if isinstance(tags, str):
             tags = list(filter(None, tags.split(',')))
@@ -129,4 +131,3 @@ class TableMetadata(object):
                                                        schema=self.schema,
                                                        tbl=self.name,
                                                        col=col.name)
-
