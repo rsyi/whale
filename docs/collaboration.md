@@ -1,8 +1,8 @@
-# Collaboration
+# Scaling metaframe with version-tracking and scheduling
 
 ## Version tracking
 
-If you're working in a team of more than 1 person, you may want to consider tracking your `./metaframe/metadata` directory through git rather than locally through your own computer. A `git pull` is much cheaper than a full-fledged ETL job.
+If you're working in a team of more than a few people, you may want to consider tracking your `./metaframe/metadata` directory through git rather than locally through your own computer. A `git pull` is much cheaper than a full-fledged ETL job.
 
 To set this up, navigate to `~/.metaframe/metadata`, run `git init`, and proceed as usual with any other repo. Voila -- you now have version-tracked metadata!
 

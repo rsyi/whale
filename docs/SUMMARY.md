@@ -8,5 +8,6 @@
 * [ETL](running-an-etl-job.md)
 * [Custom ETL](custom-etl.md)
 * [Syntax highlighting](visual-customization.md)
-* [Collaboration](collaboration.md)
+* [Scaling metaframe with version-tracking and scheduling](collaboration.md)
+* [Contributing](contributing.md)
 
