@@ -1,4 +1,4 @@
-amundsen-databuilder=2.6.2
+amundsen-databuilder==2.6.2
 neo4j-driver==1.7.2
 tabulate
 pyaml
