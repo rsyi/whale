@@ -1,5 +1,5 @@
-amundsen-databuilder>=2.0.0
-neo4j
+amundsen-databuilder==2.6.2
+neo4j-driver==1.7.2
 tabulate
 pyaml
 pyhive
