@@ -54,5 +54,5 @@ class MetaframeLoader(Loader):
 
     def get_scope(self):
         # type: () -> str
-        return "loader.markdown"
+        return "loader.metaframe"
 
