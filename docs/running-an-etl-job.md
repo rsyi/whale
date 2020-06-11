@@ -1,4 +1,4 @@
-# ETL
+# Running a configured ETL job
 
 Once your connection is set up, you can trigger a full ETL job by running:
 
@@ -16,5 +16,5 @@ mf etl --no-cache
 
 
 
-If you're using a [Custom ETL](custom-etl.md) job, you simply need to run that job in your local environment.
+If you're using a [Custom ETL](connection-setup/custom-etl.md) job, you simply need to run that job in your local environment.
 
