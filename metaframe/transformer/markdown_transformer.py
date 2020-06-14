@@ -69,14 +69,16 @@ class MarkdownTransformer(Transformer):
         # Format all markdown statements.
         record_type = type(record)
         if record_type == metadata_model_metaframe.TableMetadata:
-            columns_processed_for_tabulation.append(MarkdownTransformer.PARTITIONED_TABLE_HEADER)
+            columns_processed_for_tabulation \
+                .append(MarkdownTransformer.PARTITIONED_TABLE_HEADER)
         elif record_type == metadata_model_amundsen.TableMetadata:
-            columns_processed_for_tabulation.append(MarkdownTransformer.GENERIC_TABLE_HEADER)
+            columns_processed_for_tabulation \
+                .append(MarkdownTransformer.GENERIC_TABLE_HEADER)
 
-        # Loop through all columns and format ColumnMetadata as a list of lists.
+        # Loop through all columns and format ColumnMetadata as a list of
+        # lists.
         for column in columns:
-            # Once again, deal with the two different ColumnMetadata classes.
-            if hasattr(column, 'is_partition_column'):  # Metaframe's ColumnMetadata class.
+            if hasattr(column, 'is_partition_column'):
                 if column.is_partition_column:
                     partition_flag = 'x'
                 else:
@@ -87,19 +89,24 @@ class MarkdownTransformer(Transformer):
                     column.type,
                     partition_flag,
                     column.description])
-            else:  # Amundsen's ColumnMetadata class.
+            else:
                 columns_processed_for_tabulation.append([
                     column.name,
                     column.type,
                     column.description])
 
         if columns_processed_for_tabulation:
-            tabulated_columns = tabulate(columns_processed_for_tabulation, headers="firstrow", tablefmt="github")
+            tabulated_columns = \
+                tabulate(
+                    columns_processed_for_tabulation,
+                    headers="firstrow",
+                    tablefmt="github")
         else:
             tabulated_columns = ''
         return tabulated_columns
 
-    def format_templates(self,
+    def format_templates(
+            self,
             database,
             cluster,
             schema,
@@ -113,15 +120,21 @@ class MarkdownTransformer(Transformer):
             name=table_name,
             view_statement=view_statement,
         )
-        header += '\n' + '-'*(len(table_name) + len(schema) + len(view_statement) + 2)
+        header += \
+            '\n' + '-'*(
+                len(table_name) +
+                len(schema) +
+                len(view_statement) +
+                2)
         subheader = MarkdownTransformer.SUBHEADER_TEMPLATE.format(
             database=database,
             cluster=cluster,
         )
         if description is not None:
-            description_statement = MarkdownTransformer.DESCRIPTION_TEMPLATE.format(
-                description=description
-            )
+            description_statement = \
+                MarkdownTransformer.DESCRIPTION_TEMPLATE.format(
+                    description=description
+                )
         else:
             description_statement = ''
 

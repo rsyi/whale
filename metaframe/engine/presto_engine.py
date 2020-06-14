@@ -35,7 +35,8 @@ def _calculate_watermarks(
     list_of_partition_values = list(zip(*list(partition_query_rows)))
 
     watermarks = []
-    for partition_name, partition_values in zip(partition_names, list_of_partition_values):
+    for partition_name, partition_values \
+            in zip(partition_names, list_of_partition_values):
         if watermark_type == 'high_watermark':
             watermarks.append((partition_name, max(partition_values)))
         elif watermark_type == 'low_watermark':
@@ -51,7 +52,7 @@ class PrestoEngine(SQLAlchemyEngine):
     DEFAULT_CONFIG = ConfigFactory.from_dict({
         'conn_string': None,
         'n_rows': 10,
-        'default_cluster_name': '<default>',  # cluster name passed to neo4j if no cluster name is provided.
+        'default_cluster_name': '<default>',  # if no cluster name is provided.
         'database': 'presto',
     })
 
@@ -61,7 +62,8 @@ class PrestoEngine(SQLAlchemyEngine):
         })
         super().init(sql_alchemy_conf)
         self.conf = conf.with_fallback(PrestoEngine.DEFAULT_CONFIG)
-        self._default_cluster_name = self.conf.get_string('default_cluster_name')
+        self._default_cluster_name = \
+            self.conf.get_string('default_cluster_name')
         self._database = self.conf.get_string('database')
         self._extract_iter = None
 
@@ -84,7 +86,8 @@ class PrestoEngine(SQLAlchemyEngine):
         column_query_field_names = next(column_query_results)
         columns = []
         for i, column_query_result in enumerate(column_query_results):
-            column_dict = dict(zip(column_query_field_names, column_query_result))
+            column_dict = \
+                    dict(zip(column_query_field_names, column_query_result))
             columns.append(ColumnMetadata(
                 name=column_dict['Column'],
                 description=column_dict['Comment'],
@@ -127,20 +130,28 @@ class PrestoEngine(SQLAlchemyEngine):
         returned as an iterator.
         """
         full_schema_address = self._get_full_schema_address(cluster, schema)
-        partition_table_name = '{}."{}$partitions"'.format(full_schema_address, table)
-        # Hack: since partitions are usually date, this should usually get the latest partition.
-        partition_query = 'select * from {} order by 1 desc limit 1'.format(partition_table_name)
+        partition_table_name = \
+            '{}."{}$partitions"'.format(full_schema_address, table)
+        # Hack: since partitions are usually date, this should usually get the
+        # latest partition.
+        partition_query = \
+            'select * from {} order by 1 desc limit 1' \
+            .format(partition_table_name)
 
-        # Attempt to query partition information and format into a `where_clause`
+        # Attempt to query partition info and format into a `where_clause`
         try:
-            partition_query_results = self.execute(partition_query, has_header=True)
+            partition_query_results = \
+                self.execute(partition_query, has_header=True)
 
             # Parse the `self.execute` results. The first row is the header.
             latest_partition_column_names = next(partition_query_results)
             latest_partition_values = next(partition_query_results)
 
-            # Obtain partition types to enable typesafe comparisons in our preview query.
-            type_query = 'show columns from {}.{}'.format(full_schema_address, table)
+            # Obtain partition types to enable typesafe comparisons in our
+            # preview query.
+            type_query = \
+                'show columns from {}.{}'. \
+                format(full_schema_address, table)
             type_query_results = self.execute(type_query, has_header=True)
             type_results_column_names = next(type_query_results)
             partition_type_dict = {}
@@ -160,7 +171,8 @@ class PrestoEngine(SQLAlchemyEngine):
             where_clause = ''
 
         preview_query = \
-            'select * from {}.{} {} limit {}'.format(full_schema_address, table, where_clause, n_rows)
+            'select * from {}.{} {} limit {}' \
+            .format(full_schema_address, table, where_clause, n_rows)
         preview_query_results = self.execute(preview_query, has_header=True)
         preview_column_names = next(preview_query_results)
         for row in preview_query_results:
@@ -175,7 +187,9 @@ class PrestoEngine(SQLAlchemyEngine):
 
         statements = []
         for i, (key, value) in enumerate(zip(keys, values)):
-            condition_str = "{} = CAST('{}' AS {})".format(key, value, type_dict[key])
+            condition_str = \
+                    "{} = CAST('{}' AS {})" \
+                    .format(key, value, type_dict[key])
             if i == 0:
                 statements.append('where {}'.format(condition_str))
             else:
@@ -191,14 +205,17 @@ class PrestoEngine(SQLAlchemyEngine):
             table: str,
             cluster: str = None) -> Iterator[PrestoWatermark]:
         """
-
+        Get watermarks, which are high/low values of partition columns.
         """
         full_schema_address = self._get_full_schema_address(cluster, schema)
-        partition_table_name = '{}."{}$partitions"'.format(full_schema_address, table)
+        partition_table_name = \
+            '{}."{}$partitions"' \
+            .format(full_schema_address, table)
         partition_query = 'SELECT * FROM {}'.format(partition_table_name)
 
         try:
-            partition_query_results = self.execute(partition_query, has_header=True)
+            partition_query_results = \
+                self.execute(partition_query, has_header=True)
             partition_column_names = next(partition_query_results)
             partition_query_rows = list(partition_query_results)
             watermarks_high = _calculate_watermarks(
@@ -270,7 +287,9 @@ class PrestoEngine(SQLAlchemyEngine):
                 if column_name:
                     for stat_name, stat_value in stats_dict.items():
                         if stat_name and stat_value:
-                            LOGGER.debug('Creating column stats object for {}: {}'.format(stat_name, stat_value))
+                            LOGGER.debug(
+                                'Creating column stats object for {}: {}'
+                                .format(stat_name, stat_value))
                             yield TableColumnStats(
                                 table_name=table,
                                 col_name=column_name,

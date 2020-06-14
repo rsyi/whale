@@ -1,6 +1,5 @@
 from itertools import zip_longest
-from pyhocon import ConfigFactory
-import textwrap
+from pyhocon import ConfigTree
 
 from databuilder.extractor.neo4j_extractor import Neo4jExtractor
 from metaframe.models.table_metadata import TableMetadata, ColumnMetadata
@@ -55,10 +54,9 @@ class AmundsenNeo4jMetadataExtractor(Neo4jExtractor):
         badges,
         watermarks
         ORDER BY table.name;
-        """
+        """  # noqa: E501
 
-    def init(self, conf):
-        # type: (ConfigTree) -> None
+    def init(self, conf: ConfigTree) -> None:
         """
         Establish connections and import data model class if provided
         :param conf:
@@ -77,27 +75,36 @@ class AmundsenNeo4jMetadataExtractor(Neo4jExtractor):
         and_where_clauses = []
         if self.included_keys is not None:
             for key in keys:
-                or_where_clauses.append('{} IN {}'.format(key, self.included_keys))
+                or_where_clauses \
+                    .append('{} IN {}'.format(key, self.included_keys))
 
         if self.excluded_keys is not None:
             for key in keys:
-                and_where_clauses.append('{} NOT IN {}'.format(key, self.excluded_keys))
+                and_where_clauses \
+                    .append('{} NOT IN {}'.format(key, self.excluded_keys))
 
         if self.included_key_regex is not None:
             for key in keys:
-                or_where_clauses.append("{} =~ '{}'".format(key, self.included_key_regex))
+                or_where_clauses \
+                    .append(
+                        "{} =~ '{}'"
+                        .format(key, self.included_key_regex))
 
         if self.excluded_key_regex is not None:
             for key in keys:
-                and_where_clauses.append("NOT {} =~ '{}'".format(key, self.excluded_key_regex))
+                and_where_clauses \
+                    .append(
+                        "NOT {} =~ '{}'"
+                        .format(key, self.excluded_key_regex))
 
         where_clause = combine_where_clauses(
             and_clauses=and_where_clauses,
             or_clauses=or_where_clauses)
 
-        self.cypher_query = AmundsenNeo4jMetadataExtractor.CYPHER_QUERY.format(
-            where_clause=where_clause
-        )
+        self.cypher_query = \
+            AmundsenNeo4jMetadataExtractor.CYPHER_QUERY.format(
+                where_clause=where_clause
+            )
         self.driver = self._get_driver()
 
         self._extract_iter = None
@@ -125,7 +132,10 @@ class AmundsenNeo4jMetadataExtractor(Neo4jExtractor):
                     column_sort_orders)
 
                 column_metadatas = []
-                for column_name, column_description, column_type, column_sort_order \
+                for column_name, \
+                        column_description, \
+                        column_type, \
+                        column_sort_order \
                         in zipped_columns:
                     if column_name in partition_columns:
                         is_partition_column = True

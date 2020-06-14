@@ -2,7 +2,8 @@ from typing import Optional, List
 
 
 class ConnectionConfigSchema(object):
-    def __init__(self,
+    def __init__(
+            self,
             type: str,
             host: Optional[str] = None,
             username: Optional[str] = None,
@@ -19,6 +20,7 @@ class ConnectionConfigSchema(object):
             venv_path: Optional[str] = None,
             python_binary: Optional[str] = None,
             **kwargs):
+
         self.host = host
         self.type = type
         self.username = username
