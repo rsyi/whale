@@ -25,7 +25,7 @@ install:
 .PHONY: test_python
 test_python:
 	python3 -b -m pytest tests
-	coverage run -m pytest
+	pytest --cov=./ --cov-report=xml
 	flake8 . --exit-zero
 
 .PHONY: test

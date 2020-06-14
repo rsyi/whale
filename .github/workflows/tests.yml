@@ -20,9 +20,11 @@ jobs:
       run: |
         pip install -r requirements.txt
         pip install flake8
-        pip install coverage
+        pip install pytest-cov
     - name: Run tests
       run: |
         make test
     - name: Code coverage
       uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
