@@ -1,4 +1,3 @@
-import csv
 import logging
 import os
 
@@ -8,6 +7,7 @@ from typing import Any  # noqa: F401
 
 from databuilder.loader.base_loader import Loader
 from metaframe.utils import get_table_file_path_base
+
 
 class MetaframeLoader(Loader):
     """
@@ -55,4 +55,3 @@ class MetaframeLoader(Loader):
     def get_scope(self):
         # type: () -> str
         return "loader.metaframe"
-
