@@ -4,6 +4,8 @@
 
 ![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg)
 
+[![codecov](https://codecov.io/gh/rsyi/metaframe/branch/master/graph/badge.svg)](https://codecov.io/gh/rsyi/metaframe)
+
 _**Disclaimer:** This project is still in alpha, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)_
 
 `metaframe` is a CLI **data documentation tool \(+catalog\)**. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to:
