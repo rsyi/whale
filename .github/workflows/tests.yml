@@ -18,13 +18,13 @@ jobs:
         python-version: 3.7
     - name: Install dependencies
       run: |
-        echo ${{ secrets.BIGQUERY_JSON }} >> /var/tmp/credentials.json
+        echo '${{ secrets.BIGQUERY_JSON }}' > /var/tmp/credentials.json
         pip install -r requirements.txt
         pip install .
         pip install flake8
         pip install pytest-cov
       with:
-        GOOGLE_APPLICATION_CREDENTIALS=/var/tmp/credentials.json
+          GOOGLE_APPLICATION_CREDENTIALS: /var/tmp/credentials.json
     - name: Run tests
       run: |
         make test
