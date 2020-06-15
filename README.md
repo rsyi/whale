@@ -1,10 +1,8 @@
 # Metaframe
 
-![](docs/.gitbook/assets/image%20%2810%29%20%281%29.png)
+![](docs/.gitbook/assets/image%20%2810%29%20%281%29%20%281%29.png)
 
-![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg)
-
-[![codecov](https://codecov.io/gh/rsyi/metaframe/branch/master/graph/badge.svg)](https://codecov.io/gh/rsyi/metaframe)
+![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg)![codecov](https://codecov.io/gh/rsyi/metaframe/branch/master/graph/badge.svg)
 
 _**Disclaimer:** This project is still in alpha, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)_
 
