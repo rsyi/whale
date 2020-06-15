@@ -9,4 +9,3 @@ def combine_where_clauses(and_clauses=[], or_clauses=[]):
         return 'WHERE ' + ' AND '.join(clauses)
     else:
         return ''
-

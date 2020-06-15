@@ -1,9 +1,6 @@
 import copy
-from collections import namedtuple
 
-from typing import Iterable, Any, Union, Iterator, List, Dict, Set  # noqa: F401
-
-from databuilder.models.cluster import cluster_constants
+from typing import Iterable, List, Optional
 
 DESCRIPTION_NODE_LABEL_VAL = 'Description'
 DESCRIPTION_NODE_LABEL = DESCRIPTION_NODE_LABEL_VAL
@@ -14,11 +11,11 @@ class ColumnMetadata:
 
     def __init__(self,
                  name: str,
-                 description: Union[str, None],
+                 description: Optional[str],
                  col_type: str,
                  sort_order: int,
-                 tags: Union[List[str], None] = None,
-                 is_partition_column: Union[bool, None] = None,
+                 tags: Optional[List[str]] = None,
+                 is_partition_column: Optional[bool] = None,
                  ):
         # type: (...) -> None
         """
@@ -36,16 +33,19 @@ class ColumnMetadata:
 
     def __repr__(self):
         # type: () -> str
-        return 'ColumnMetadata({!r}, {!r}, {!r}, {!r}, {!r})'.format(self.name,
-                                                               self.description,
-                                                               self.type,
-                                                               self.sort_order,
-                                                               self.is_partition_column)
+        return 'ColumnMetadata({!r}, {!r}, {!r}, {!r}, {!r})' \
+                .format(
+                    self.name,
+                    self.description,
+                    self.type,
+                    self.sort_order,
+                    self.is_partition_column)
 
 
 class TableMetadata(object):
     """
-    Simplified table metadata that contains columns, extended with markdown_blob.
+    Simplified table metadata that contains columns, extended with
+    markdown_blob.
     """
     TABLE_KEY_FORMAT = '{db}://{cluster}.{schema}/{tbl}'
 
@@ -53,19 +53,20 @@ class TableMetadata(object):
 
     CLUSTER_KEY_FORMAT = '{db}://{cluster}'
 
-    def __init__(self,
-                 database: str,
-                 cluster: str,
-                 schema: str,
-                 name: str,
-                 description: Union[str, None] = None,
-                 columns: Iterable[ColumnMetadata] = None,
-                 is_view: bool = False,
-                 markdown_blob: str = '',
-                 tags: Union[List, str] = None,
-                 description_source: Union[str, None] = None,
-                 **kwargs
-                 ):
+    def __init__(
+            self,
+            database: str,
+            cluster: str,
+            schema: str,
+            name: str,
+            description: Optional[str] = None,
+            columns: Iterable[ColumnMetadata] = None,
+            is_view: bool = False,
+            markdown_blob: str = '',
+            tags: Optional[List] = None,
+            description_source: Optional[str] = None,
+            **kwargs
+            ):
         # type: (...) -> None
         """
         :param database:
@@ -110,10 +111,11 @@ class TableMetadata(object):
 
     def _get_table_key(self):
         # type: () -> str
-        return TableMetadata.TABLE_KEY_FORMAT.format(db=self.database,
-                                                     cluster=self.cluster,
-                                                     schema=self.schema,
-                                                     tbl=self.name)
+        return TableMetadata.TABLE_KEY_FORMAT.format(
+            db=self.database,
+            cluster=self.cluster,
+            schema=self.schema,
+            tbl=self.name)
 
     def _get_database_key(self):
         # type: () -> str
@@ -121,13 +123,15 @@ class TableMetadata(object):
 
     def _get_cluster_key(self):
         # type: () -> str
-        return TableMetadata.CLUSTER_KEY_FORMAT.format(db=self.database,
-                                                       cluster=self.cluster)
+        return TableMetadata.CLUSTER_KEY_FORMAT.format(
+            db=self.database,
+            cluster=self.cluster)
 
     def _get_col_key(self, col):
         # type: (ColumnMetadata) -> str
-        return ColumnMetadata.COLUMN_KEY_FORMAT.format(db=self.database,
-                                                       cluster=self.cluster,
-                                                       schema=self.schema,
-                                                       tbl=self.name,
-                                                       col=col.name)
+        return ColumnMetadata.COLUMN_KEY_FORMAT.format(
+            db=self.database,
+            cluster=self.cluster,
+            schema=self.schema,
+            tbl=self.name,
+            col=col.name)

@@ -4,6 +4,7 @@ from pathlib import Path
 TABLE_RELATIVE_FILE_PATH = '{database}/{cluster}.{schema}.{table}'
 CLUSTERLESS_TABLE_RELATIVE_FILE_PATH = '{database}/{schema}.{table}'
 
+
 def get_table_file_path_base(
         database,
         cluster,
@@ -27,4 +28,3 @@ def get_table_file_path_base(
         )
 
     return os.path.join(base_directory, relative_file_path)
-

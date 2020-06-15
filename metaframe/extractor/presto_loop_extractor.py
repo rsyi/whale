@@ -48,11 +48,14 @@ class PrestoLoopExtractor(PrestoEngine):
         self._excluded_schemas = self.conf.get('excluded_schemas') or []
         self._included_schemas = self.conf.get('included_schemas') or []
 
-        self._sql_stmt_schemas = ' in '.join(filter(None, ['show schemas', self._cluster]))
-        self._is_table_metadata_enabled = self.conf.get('is_table_metadata_enabled')
+        self._sql_stmt_schemas = \
+            ' in '.join(filter(None, ['show schemas', self._cluster]))
+        self._is_table_metadata_enabled = \
+            self.conf.get('is_table_metadata_enabled')
         self._is_stats_enabled = self.conf.get('is_stats_enabled')
         self._is_analyze_enabled = self.conf.get('is_analyze_enabled')
-        self._is_full_extraction_enabled = self.conf.get('is_full_extraction_enabled')
+        self._is_full_extraction_enabled = \
+            self.conf.get('is_full_extraction_enabled')
 
     def extract(self):
         if not self._extract_iter:
@@ -70,15 +73,22 @@ class PrestoLoopExtractor(PrestoEngine):
             LOGGER.info('Fetching all tables in {}.'.format(schema))
 
             if (schema not in self._excluded_schemas) \
-                    and ((schema in self._included_schemas) or \
-                    not self._included_schemas):
-                full_schema_address = '.'.join(filter(None, [self._cluster, schema]))
-                tables = list(self.execute('show tables in {}'.format(full_schema_address)))
+                and (
+                    (schema in self._included_schemas)
+                    or not self._included_schemas):
+                full_schema_address = \
+                    '.'.join(filter(None, [self._cluster, schema]))
+                tables = list(
+                    self.execute(
+                        'show tables in {}'
+                        .format(full_schema_address)))
                 n_tables = len(tables)
-                LOGGER.info('There are {} tables in {}.'.format(n_tables, schema))
+                LOGGER.info(
+                    'There are {} tables in {}.'
+                    .format(n_tables, schema))
 
                 for i, table_row in enumerate(tables):
-                    if (i%10==0) or (i==n_tables-1):
+                    if (i % 10 == 0) or (i == n_tables-1):
                         LOGGER.info('On table {} of {}'.format(i+1, n_tables))
                     table = table_row[0]
                     file_name = get_table_file_path_base(
@@ -87,22 +97,26 @@ class PrestoLoopExtractor(PrestoEngine):
                         schema=schema,
                         table=table,
                     )
-                    if not os.path.exists(file_name + '.md') or self._is_full_extraction_enabled:
+                    if not os.path.exists(file_name + '.md') \
+                            or self._is_full_extraction_enabled:
 
                         if self._is_table_metadata_enabled:
-                            table_metadata = self.get_table_metadata(schema, table, cluster=self._cluster)
+                            table_metadata = \
+                                self.get_table_metadata(
+                                    schema, table, cluster=self._cluster)
                             yield table_metadata
 
                         if self._is_analyze_enabled:
                             self.get_analyze(schema, table, self._cluster)
 
                         if self._is_stats_enabled:
-                            stats_generator = self.get_stats(schema, table, self._cluster)
+                            stats_generator = \
+                                self.get_stats(schema, table, self._cluster)
                             yield from stats_generator
                     else:
                         LOGGER.info(
-                            'Skipping {}.{} because the file already exists.'.format(schema, table))
-
+                            'Skipping {}.{} because the file already exists.'
+                            .format(schema, table))
 
     def get_scope(self):
         return 'extractor.presto_loop'

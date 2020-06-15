@@ -1,8 +1,6 @@
 from pyhocon import ConfigFactory
 
 from databuilder.task.task import DefaultTask
-from databuilder.extractor.bigquery_metadata_extractor import BigQueryMetadataExtractor
-from databuilder.models.table_metadata import TableMetadata
 from metaframe.extractor.presto_loop_extractor import PrestoLoopExtractor
 from metaframe.loader.metaframe_loader import MetaframeLoader
 from metaframe.transformer.markdown_transformer import MarkdownTransformer

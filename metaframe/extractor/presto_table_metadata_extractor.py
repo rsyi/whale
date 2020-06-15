@@ -18,7 +18,8 @@ LOGGER = logging.getLogger(__name__)
 
 class PrestoTableMetadataExtractor(Extractor):
     """
-    Extracts Presto table and column metadata from underlying meta store database using SQLAlchemyExtractor
+    Extracts Presto table and column metadata from underlying meta store
+    database using SQLAlchemyExtractor
     """
     SQL_STATEMENT = """
     SELECT
@@ -33,7 +34,8 @@ class PrestoTableMetadataExtractor(Extractor):
       , a.data_type AS col_type
       , IF(b.table_name is not null, 1, 0) AS is_view
     FROM {cluster_prefix}information_schema.columns a
-    LEFT JOIN {cluster_prefix}information_schema.views b ON a.table_catalog = b.table_catalog
+    LEFT JOIN {cluster_prefix}information_schema.views b
+        ON a.table_catalog = b.table_catalog
         and a.table_schema = b.table_schema
         and a.table_name = b.table_name
     {where_clause_suffix}
@@ -41,16 +43,19 @@ class PrestoTableMetadataExtractor(Extractor):
 
     # Config keys.
     DEFAULT_CONFIG = ConfigFactory.from_dict({
-        'where_clause_suffix': "WHERE a.table_schema NOT IN ('pg_catalog', 'information_schema')",
+        'where_clause_suffix':
+            "WHERE a.table_schema NOT IN ('pg_catalog', 'information_schema')",
         'default_cluster_name': '<default>',
         'database': 'presto'})
 
     def init(self, conf):
         # type: (ConfigTree) -> None
-        self.conf = conf.with_fallback(PrestoTableMetadataExtractor.DEFAULT_CONFIG)
+        self.conf = \
+            conf.with_fallback(PrestoTableMetadataExtractor.DEFAULT_CONFIG)
         self._database = '{}'.format(self.conf.get_string('database'))
         self._cluster = self.conf.get('cluster', None)
-        self._default_cluster_name = self.conf.get_string('default_cluster_name')
+        self._default_cluster_name = \
+            self.conf.get_string('default_cluster_name')
         LOGGER.info('Cluster name: {}'.format(self._cluster))
 
         if self._cluster is not None:
@@ -65,8 +70,13 @@ class PrestoTableMetadataExtractor(Extractor):
         LOGGER.info('SQL for presto: {}'.format(self.sql_stmt))
 
         self._alchemy_extractor = SQLAlchemyExtractor()
-        sql_alch_conf = Scoped.get_scoped_conf(self.conf, self._alchemy_extractor.get_scope())\
-            .with_fallback(ConfigFactory.from_dict({SQLAlchemyExtractor.EXTRACT_SQL: self.sql_stmt}))
+        sql_alch_conf = \
+            Scoped.get_scoped_conf(
+                self.conf,
+                self._alchemy_extractor.get_scope()) \
+            .with_fallback(
+                ConfigFactory.from_dict({
+                    SQLAlchemyExtractor.EXTRACT_SQL: self.sql_stmt}))
 
         self._alchemy_extractor.init(sql_alch_conf)
         self._extract_iter = None  # type: Union[None, Iterator]
@@ -87,25 +97,31 @@ class PrestoTableMetadataExtractor(Extractor):
     def _get_extract_iter(self):
         # type: () -> Iterator[TableMetadata]
         """
-        Using itertools.groupby and raw level iterator, it groups to table and yields TableMetadata
-        :return:
+        Using itertools.groupby and raw level iterator, it groups to table and
+        yields TableMetadata
         """
-        for _, group in groupby(self._get_raw_extract_iter(), self._get_table_key):
+        for _, group in groupby(
+                self._get_raw_extract_iter(),
+                self._get_table_key):
             columns = []
 
             for row in group:
                 last_row = row
-                columns.append(ColumnMetadata(row['col_name'], row['col_description'],
-                                              row['col_type'], row['col_sort_order']))
+                columns.append(
+                    ColumnMetadata(
+                        row['col_name'],
+                        row['col_description'],
+                        row['col_type'],
+                        row['col_sort_order']))
 
-            yield TableMetadata(self._database,
-                                self._cluster or self._default_cluster_name,
-                                last_row['schema'],
-                                last_row['name'],
-                                last_row['description'],
-                                columns,
-                                is_view=bool(last_row['is_view']),
-                                )
+        yield TableMetadata(self._database,
+                            self._cluster or self._default_cluster_name,
+                            last_row['schema'],
+                            last_row['name'],
+                            last_row['description'],
+                            columns,
+                            is_view=bool(last_row['is_view']),
+                            )
 
     def _get_raw_extract_iter(self):
         # type: () -> Iterator[Dict[str, Any]]
