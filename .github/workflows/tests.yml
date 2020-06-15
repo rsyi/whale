@@ -23,11 +23,11 @@ jobs:
         pip install .
         pip install flake8
         pip install pytest-cov
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: /var/tmp/credentials.json
     - name: Run tests
       run: |
         make test
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: /var/tmp/credentials.json
     - name: Code coverage
       uses: codecov/codecov-action@v1
       with:
