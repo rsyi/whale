@@ -36,7 +36,8 @@ class MetaframeLoader(Loader):
             database=self.database_name or record.database,
             cluster=record.cluster,
             schema=record.schema,
-            table=record.name
+            table=record.name,
+            base_directory=self.conf.get('base_directory')
         )
 
         file_path = table_file_path_base + '.md'

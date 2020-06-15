@@ -3,3 +3,4 @@ dist/
 build/
 target/
 build_script.spec
+.test_artifacts
