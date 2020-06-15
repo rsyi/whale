@@ -64,7 +64,7 @@ class TestPrestoLoopExtractor(unittest.TestCase):
 
         results = extractor.extract()
         is_partition_column = True \
-            if MOCK_COLUMN_RESULT[2] == 'partition_key' \
+            if MOCK_COLUMN_RESULT[2] == 'partition key' \
             else False
         expected = TableMetadata(
                 database=extractor._database,
