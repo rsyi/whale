@@ -49,7 +49,8 @@ class TestMetaframeLoader(unittest.TestCase):
 
         loader.close()
         file_path = \
-            './.test_artifacts/mock_database/mock_cluster.mock_schema.mock_table.md'
+            './.test_artifacts/' + \
+            'mock_database/mock_cluster.mock_schema.mock_table.md'
         with open(file_path, 'r') as f:
             written_record = f.read()
         print(written_record)
