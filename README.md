@@ -2,15 +2,15 @@
 
 ![](docs/.gitbook/assets/image%20%2810%29%20%281%29%20%281%29.png)
 
-![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg)![codecov](https://codecov.io/gh/rsyi/metaframe/branch/master/graph/badge.svg)
+![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg) ![codecov](https://codecov.io/gh/rsyi/metaframe/branch/master/graph/badge.svg)
 
 _**Disclaimer:** This project is still in alpha, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)_
 
 `metaframe` is a CLI **data documentation tool \(+catalog\)**. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to:
 
-* Easily document your tables, using an organizational structure where tables are first-class citizens.
-* Run ETL jobs from the command-line \(or manually document your datasets\).
-* Search through your tables.
+* Easily document your tables \(or anything else you want -- like SQL recipes, jupyter notebooks, love letters\), using an organizational structure where tables are first-class citizens.
+* Run ETL jobs from the command-line.
+* Search through your tables/assets.
 
 ![](https://raw.githubusercontent.com/rsyi/metaframe/master/docs/demo.gif)
 
@@ -50,13 +50,15 @@ mf init
 
 which will generate a file structure in `~/.metaframe`.
 
-If you want to manually document tables, create a new table stub by running:
+If you want to manually document assets \(tables\), create a new stub by running:
 
 ```text
-mf new <TABLE_NAME>
+mf new <ASSET_NAME>
 ```
 
-Then run `mf` to search over these docs! See the [Manual usage](docs/manual-usage.md) section for more information.
+Then run `mf` to search over these assets. Generally, `<ASSET_NAME>` corresponds to a table name, which we suggest formatting as follows: `database_name/cluster.schema.table` to ensure `mf etl` will correctly associate your documentation with scraped table information, should you choose to automatically extract some table metadata. **But because metaframe is highly flexible in this regard, you also easily document SQL snippets, projects, machine learning models, metrics, etc.** 
+
+See the [Manual usage](docs/manual-usage.md) section for more information.
 
 If you want to run ETL jobs to automatically populate this metadata, keep reading.
 
