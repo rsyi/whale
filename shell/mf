@@ -83,9 +83,9 @@ function metaframe {
 
         cd ${metadata_dir}
         if command -v bat; then
-            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=full --color=always; bat {}.docs.md --style=numbers --color=always')".docs.md
+            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md$//" | sed 's/^..//' | ${fzf_binary} --preview 'bat {}.md --style=full --color=always; bat {}.docs.md --style=numbers --color=always')".docs.md
         else
-            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md; cat {}.docs.md')".docs.md
+            dataframe_file="$(pwd)/$(find . -name "*.md" ! -name "*.docs.md" | sed "s/\.md$//" | sed 's/^..//' | ${fzf_binary} --preview 'cat {}.md; cat {}.docs.md')".docs.md
         fi
         if [ -f "${dataframe_file}" ]; then
             ${EDITOR:-vim} "${dataframe_file}"
