@@ -19,6 +19,11 @@ class ConnectionConfigSchema(object):
             build_script_path: Optional[str] = None,
             venv_path: Optional[str] = None,
             python_binary: Optional[str] = None,
+            key_path: Optional[str] = None,
+            project_id: Optional[str] = None,
+            project_credentials: Optional[str] = None,
+            page_size: Optional[str] = None,
+            filter_key: Optional[str] = None,
             **kwargs):
 
         self.host = host
@@ -36,3 +41,8 @@ class ConnectionConfigSchema(object):
         self.build_script_path = build_script_path
         self.venv_path = venv_path
         self.python_binary = python_binary
+        self.key_path = key_path
+        self.project_id = project_id
+        self.project_credentials = project_credentials
+        self.page_size = page_size
+        self.filter_key = filter_key

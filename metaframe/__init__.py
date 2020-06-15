@@ -8,8 +8,9 @@ from metaframe.transformer.markdown_transformer import MarkdownTransformer
 from metaframe.utils.connections import dump_connection_config_in_schema
 
 from metaframe.utils.extractor_wrappers import \
-        configure_presto_extractor, \
+        configure_bigquery_extractor, \
         configure_neo4j_extractor, \
+        configure_presto_extractor, \
         run_build_script
 
 BASE_DIR = os.path.join(Path.home(), '.metaframe/')
@@ -29,8 +30,12 @@ def main(is_full_extraction_enabled=False, verbose=True):
                     is_full_extraction_enabled=is_full_extraction_enabled)
         elif connection.type == 'neo4j':
             extractor, conf = configure_neo4j_extractor(connection)
+        elif connection.type == 'bigquery':
+            extractor, conf = configure_bigquery_extractor(connection)
         elif connection.type == 'build_script':
             run_build_script(connection)
+            break
+        else:
             break
 
         conf.put('loader.metaframe.database_name', connection.name)

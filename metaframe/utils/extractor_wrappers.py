@@ -5,11 +5,27 @@ from metaframe.extractor.presto_loop_extractor import PrestoLoopExtractor
 from metaframe.models.connection_config import ConnectionConfigSchema
 from metaframe.extractor.amundsen_neo4j_metadata_extractor \
     import AmundsenNeo4jMetadataExtractor
+from metaframe.extractor.bigquery_metadata_extractor \
+    import BigQueryMetadataExtractor
 
 
 BUILD_SCRIPT_TEMPLATE = \
     """source {venv_path}/bin/activate \
     && {python_binary} {build_script_path}"""
+
+
+def configure_bigquery_extractor(connection: ConnectionConfigSchema):
+    extractor = BigQueryMetadataExtractor()
+    scope = extractor.get_scope()
+    conf = ConfigFactory.from_dict({
+        '{}.key_path'.format(scope): connection.key_path,
+        '{}.project_id'.format(scope): connection.project_id,
+        '{}.project_credentials'.format(scope): connection.project_credentials,
+        '{}.page_size'.format(scope): connection.page_size,
+        '{}.filter_key'.format(scope): connection.filter_key,
+    })
+
+    return extractor, conf
 
 
 def configure_presto_extractor(
@@ -30,16 +46,16 @@ def configure_presto_extractor(
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
-        'extractor.presto_loop.is_table_metadata_enabled': True,
-        'extractor.presto_loop.is_full_extraction_enabled':
+        '{}.is_table_metadata_enabled'.format(scope): True,
+        '{}.is_full_extraction_enabled'.format(scope):
             is_full_extraction_enabled,
-        'extractor.presto_loop.is_watermark_enabled': False,
-        'extractor.presto_loop.is_stats_enabled': False,
-        'extractor.presto_loop.is_analyze_enabled': False,
-        'extractor.presto_loop.database': connection.name,
-        'extractor.presto_loop.cluster': connection.cluster,
-        'extractor.presto_loop.included_schemas': connection.included_schemas,
-        'extractor.presto_loop.excluded_schemas': connection.excluded_schemas,
+        '{}.is_watermark_enabled'.format(scope): False,
+        '{}.is_stats_enabled'.format(scope): False,
+        '{}.is_analyze_enabled'.format(scope): False,
+        '{}.database'.format(scope): connection.name,
+        '{}.cluster'.format(scope): connection.cluster,
+        '{}.included_schemas'.format(scope): connection.included_schemas,
+        '{}.excluded_schemas'.format(scope): connection.excluded_schemas,
     })
 
     return extractor, conf
