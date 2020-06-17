@@ -6,6 +6,7 @@ Currently, metaframe supports the following connections out-of-the-box:
 
 * presto
 * neo4j \(amundsen's format\)
+* bigquery
 
 If you need to connect any other sort of database, it's not difficult -- you just have to make your own build script. See [Custom ETL](custom-etl.md) for detailed instructions.
 

@@ -16,7 +16,7 @@ Writing your own build script, in short, simply involves invoking a databuilder 
 * **The `MarkdownLoader` class** This generates markdown strings from your extracted data.
 * **And the `MetaframeTransformer` class**  This dumps the markdown strings into files\).
 
-This pattern mostly follows the architecture of amundsen-databuilder's `Task`s \(see [this doc](https://lyft.github.io/amundsen/databuilder/) for a more detailed overview\). We simplify the process considerably by removing `Publishers` and `Jobs`, in order to \(a\) sequentially pull data, which is enabled by the `Task` class, and \(b\) avoid having to redundantly dump all metadata to comma-separated files before copying these to our markdown format, which is the typical pattern for amundsen `Job`s.
+This pattern mostly follows the architecture of amundsen-databuilder's `Task`s \(see [this doc](https://lyft.github.io/amundsen/databuilder/) for a more detailed overview\). We simplify the process by removing `Publishers` and `Jobs`, in order to \(a\) sequentially pull data, which is enabled by the `Task` class, and \(b\) avoid having to dump all metadata to comma-separated files \(since we're dumping to markdown files anyway\) before copying these to our markdown format, which is the typical pattern for amundsen `Job`s.
 
 Some small additional details to be mindful of:
 
@@ -33,6 +33,8 @@ Once you've written an executable python build script, you can either run it man
   python_binary: python3
   venv_path: ~/envs/default
 ```
+
+### Supported flags
 
 There are a few key arguments of note, above:
 

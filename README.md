@@ -4,13 +4,13 @@
 
 ![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg) ![codecov](https://codecov.io/gh/rsyi/metaframe/branch/master/graph/badge.svg)
 
-_**Disclaimer:** This project is still in alpha, so there will be bugs. Use at your own risk! But if you find bugs or have feature requests, open an issue :\)_
+`metaframe` is a blazingly fast CLI **data discovery + documentation tool**, built using [fzf](https://github.com/junegunn/fzf) and [amundsen](https://github.com/lyft/amundsen). It allows you to:
 
-`metaframe` is a CLI **data documentation tool \(+catalog\)**. It leverages [junegunn/fzf](https://github.com/junegunn/fzf) and [lyft/amundsen](https://github.com/lyft/amundsen) to create a blazingly fast CLI framework to:
+* Collect all table + column information from data warehouses with **`mf etl`**.
+* Search for this info with **`mf`**.
+* Write documentation that sits next to these table stubs.
 
-* Easily document your tables \(or anything else you want -- like SQL recipes, jupyter notebooks, love letters\), using an organizational structure where tables are first-class citizens.
-* Run ETL jobs from the command-line.
-* Search through your tables/assets.
+Metaframe is built primarily for organizations for whom standing up a full-fledged data catalog is too resource-intensive to be justified, but we've also seen some adoption by hacker data scientists at larger companies who mostly live and run queries in the terminal, to enable more streamlined workflows.
 
 ![](https://raw.githubusercontent.com/rsyi/metaframe/master/docs/demo.gif)
 
@@ -30,7 +30,7 @@ If not on macOS, clone this directory, then run the following in the base direct
 make && make install
 ```
 
-If there are errors, it's often because the specific flavor of python referenced by `pip3` on your machine is incompatible \(metaframe is tested against python 3.7 and 3.8 only\). To troubleshoot this, try using a virtual environment in 3.7 or 3.8 or modifying the makefile `pip3` reference to specific binary paths in your filesystem. **Or open an issue!**
+If there are errors, it's often because the specific flavor of python referenced by `pip3` on your machine is incompatible \(metaframe requires python &gt;= 3.6\). To troubleshoot this, try using a virtual environment in &gt;=3.6 or modifying the makefile `pip3` reference to specific binary paths in your filesystem. **Or open an issue.**
 
 We don't explicitly add an alias for the `mf` binary, so you'll want to either add `~/.metaframe/bin/` to your `PATH`, or add the following alias to your `.bash_profile` or `.zshrc` file.
 
@@ -75,11 +75,11 @@ If you want metadata to be scraped and populated automatically, you'll next need
   cluster: system             # optional
 ```
 
-The only necessary arguments are the `host` and the `type`. See [Connection setup](docs/connection-setup/) for more details \(including information on type-specific syntax\).
+The only necessary arguments is `type` \(and `host`, in general\). See [Connection setup](docs/connection-setup/) for more details + information on `type`-specific syntax.
 
 ### Run your ETL job
 
-Once this configuration is complete, you can run your ETL job by running:
+Once this configuration is complete, you can pull down all table info by running:
 
 ```text
 mf etl

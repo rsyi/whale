@@ -1,6 +1,6 @@
 # Manual usage
 
-While metaframe supports the ability to run ETL jobs and automatically document tables, you can also use it fully manually if you so desire to document whatever you'd like -- tables, ML models, dashboards. The actual base idea behind `mf` is pretty flexible.
+While metaframe supports the ability to pull table info from warehouses and automatically index these locally, you can also use it manually if you so desire to document whatever you'd like -- tables, ML models, dashboards. The actual base idea behind `mf` is pretty flexible.
 
 ## Creating a new table stub
 
@@ -13,6 +13,10 @@ mf new <TABLE_NAME>
 replacing `<TABLE_NAME>` with your table's name. This will create a new metaframe table stub and open up a `<TABLE_NAME>.docs.md` file, which will allow you to start writing documentation for this table immediately. The metadata will then be searchable using `mf`, as usual.
 
 We follow the naming convention `database/cluster.schema.table` \(and drop the `cluster` if there is no cluster or catalog\), which, if you want to maintain compatibility with future ETL jobs, we recommend you follow as well. 
+
+## Creating other stubs
+
+`mf new` can actually be used to create anything, so if you would like to index models or dashboards, feel free to do so. We personally like to use `mf new sql/...` to index sql queries in markdown files as well.
 
 ## Overview of the file structure
 

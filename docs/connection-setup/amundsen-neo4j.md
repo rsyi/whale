@@ -16,10 +16,14 @@ If you are using amundsen with kubernetes, you can port-forward the neo4j instan
 k port-forward pod-name-@@@@@-@@@@@ 7474:7474 7687:7687
 ```
 
-## Neo4j-specific flags
+## Supported flags
 
 We provide several neo4j-specific configuration flags that you can add to your `connections.yaml` entry to customize your experience. 
 
+* **`name`** Name to be used in naming the sub-folder for this connection. Files will be searchable as `name/cluster.schema.table`.
+* **`host`** Host URI, in `uri:port` format, e.g. `localhost:7687` \(no need to specify `bolt`\).
+* **`username`** \[Optional\] Username to connect.
+* **`password`** \[Optional\] Password to connect.
 * **`included_keys`** This field must be provided as a list \(e.g. \[`presto://default.default`\]\). When this field is provided,  it specifies the only keys that are to be included in metaframe. For each table, metaframe requires that at least one of either the database, schema, cluster, or table keys match the keys in this list. All other tables will not be indexed.
 * **`excluded_keys`** Like `included_keys`, `excluded_keys` is a list of keys, but these will be excluded. For each table, if any of the database, schema, cluster, or table keys matches any key in this list, it will not be indexed.
 * **`included_key_regex`**
