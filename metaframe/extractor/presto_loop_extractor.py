@@ -26,36 +26,56 @@ class PrestoLoopExtractor(PrestoEngine):
     several methods (`get_...`) to execute and organize the results of queries
     against single tables.
     """
+    CONN_STRING_KEY = 'conn_string'
+    EXCLUDED_SCHEMAS_KEY = 'excluded_schemas'
+    INCLUDED_SCHEMAS_KEY = 'included_schemas'
+    CLUSTER_KEY = 'cluster'
+    DATABASE_KEY = 'database'
+    IS_FULL_EXTRACTION_ENABLED_KEY = 'is_full_extraction_enabled'
+    IS_WATERMARK_ENABLED_KEY = 'is_watermark_enabled'
+    IS_STATS_ENABLED_KEY = 'is_stats_enabled'
+    IS_ANALYZE_ENABLED_KEY = 'is_analyze_enabled'
+    IS_TABLE_METADATA_ENABLED_KEY = 'is_table_metadata_enabled'
+    IS_VIEW_QUERY_ENABLED_KEY = 'is_view_query_enabled'
+
     DEFAULT_CONFIG = ConfigFactory.from_dict({
-        'conn_string': None,
-        'excluded_schemas': None,
-        'included_schemas': None,
-        'cluster': None,
-        'database': 'presto',
-        'is_full_extraction_enabled': False,
-        'is_watermark_enabled': False,
-        'is_stats_enabled': False,
-        'is_analyze_enabled': False,
+        CONN_STRING_KEY: None,
+        EXCLUDED_SCHEMAS_KEY: None,
+        INCLUDED_SCHEMAS_KEY: None,
+        CLUSTER_KEY: None,
+        DATABASE_KEY: 'presto',
+        IS_FULL_EXTRACTION_ENABLED_KEY: False,
+        IS_WATERMARK_ENABLED_KEY: False,
+        IS_STATS_ENABLED_KEY: False,
+        IS_ANALYZE_ENABLED_KEY: False,
+        IS_TABLE_METADATA_ENABLED_KEY: False,
+        IS_VIEW_QUERY_ENABLED_KEY: False,
     })
 
     def init(self, conf):
         super().init(conf)
-        self.conf = conf.with_fallback(PrestoLoopExtractor.DEFAULT_CONFIG)
-        self._cluster = self.conf.get('cluster')
-        self._database = self.conf.get_string('database')
+        self.conf = conf.with_fallback(self.DEFAULT_CONFIG)
+        self._cluster = self.conf.get(PrestoLoopExtractor.CLUSTER_KEY)
+        self._database = self.conf.get_string(PrestoLoopExtractor.DATABASE_KEY)
 
         self._extract_iter = None
-        self._excluded_schemas = self.conf.get('excluded_schemas') or []
-        self._included_schemas = self.conf.get('included_schemas') or []
+        self._excluded_schemas = \
+            self.conf.get(PrestoLoopExtractor.EXCLUDED_SCHEMAS_KEY) or []
+        self._included_schemas = \
+            self.conf.get(PrestoLoopExtractor.INCLUDED_SCHEMAS_KEY) or []
 
         self._sql_stmt_schemas = \
             ' in '.join(filter(None, ['show schemas', self._cluster]))
         self._is_table_metadata_enabled = \
-            self.conf.get('is_table_metadata_enabled')
-        self._is_stats_enabled = self.conf.get('is_stats_enabled')
-        self._is_analyze_enabled = self.conf.get('is_analyze_enabled')
+            self.conf.get(PrestoLoopExtractor.IS_TABLE_METADATA_ENABLED_KEY)
+        self._is_stats_enabled = \
+            self.conf.get(PrestoLoopExtractor.IS_STATS_ENABLED_KEY)
+        self._is_analyze_enabled = \
+            self.conf.get(PrestoLoopExtractor.IS_ANALYZE_ENABLED_KEY)
         self._is_full_extraction_enabled = \
-            self.conf.get('is_full_extraction_enabled')
+            self.conf.get(PrestoLoopExtractor.IS_FULL_EXTRACTION_ENABLED_KEY)
+        self._is_view_query_enabled = \
+            self.conf.get(PrestoLoopExtractor.IS_VIEW_QUERY_ENABLED_KEY)
 
     def extract(self):
         if not self._extract_iter:
@@ -103,7 +123,11 @@ class PrestoLoopExtractor(PrestoEngine):
                         if self._is_table_metadata_enabled:
                             table_metadata = \
                                 self.get_table_metadata(
-                                    schema, table, cluster=self._cluster)
+                                    schema,
+                                    table,
+                                    cluster=self._cluster,
+                                    is_view_query_enabled
+                                        =self._is_view_query_enabled)
                             yield table_metadata
 
                         if self._is_analyze_enabled:

@@ -12,9 +12,12 @@ class SQLAlchemyEngine(Engine):
     An engine that connects via SQLAlchemy.
     """
 
+    CONN_STRING_KEY = 'conn_string'
+    MODEL_CLASS_KEY = 'model_class'
+
     DEFAULT_CONFIG = ConfigFactory.from_dict({
-        'conn_string': None,
-        'model_class': None,
+        CONN_STRING_KEY: None,
+        MODEL_CLASS_KEY: None,
     })
 
     def init(self, conf: ConfigTree):
@@ -24,10 +27,10 @@ class SQLAlchemyEngine(Engine):
         :param conf: configuration file.
         """
         self.conf = conf
-        self.conn_string = conf.get_string('conn_string')
+        self.conn_string = conf.get_string(SQLAlchemyEngine.CONN_STRING_KEY)
         self.connection = self._get_connection()
 
-        model_class = conf.get('model_class', None)
+        model_class = conf.get(SQLAlchemyEngine.MODEL_CLASS_KEY, None)
         if model_class:
             module_name, class_name = model_class.rsplit(".", 1)
             mod = importlib.import_module(module_name)
@@ -41,7 +44,12 @@ class SQLAlchemyEngine(Engine):
         conn = engine.connect()
         return conn
 
-    def execute(self, query: str, has_header: bool = False) -> Iterator:
+    def execute(
+            self,
+            query: str,
+            is_dict_return_enabled: bool = False,
+            has_header: bool = False
+            ) -> Iterator:
         """
         Execute `query` over `conn_string`, and yield rows.
 
@@ -59,7 +67,10 @@ class SQLAlchemyEngine(Engine):
                     yield self.model_class(**row)
             else:
                 for row in results:
-                    yield row
+                    if is_dict_return_enabled:
+                        yield dict(zip(keys, row))
+                    else:
+                        yield row
         except Exception as e:
             raise e
 

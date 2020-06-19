@@ -5,7 +5,7 @@ DEFAULT_DIRECTORY_NAME = '.metaframe'
 
 setuptools.setup(
     name='metaframe-databuilder',
-    version='0.0.0a27',
+    version='0.0.0a30',
     author='Robert Yi',
     author_email='robert@ryi.me',
     description="A pared-down metadata ETL library.",
@@ -17,6 +17,7 @@ setuptools.setup(
         'pyhocon>=0.3.42',
         'tabulate',
         'pyaml',
+        'google-api-python-client'
     ],
     include_package_data=True,
 )
