@@ -10,7 +10,7 @@
 * Search for this info with **`mf`**.
 * Write documentation that sits next to these table stubs.
 
-Metaframe is built primarily for organizations for whom standing up a full-fledged data catalog is too resource-intensive to be justified, but we've also seen some adoption by hacker data scientists at larger companies who mostly live and run queries in the terminal, to enable more streamlined workflows.
+Metaframe is built primarily for users who want to write documentation on their tables, but we've found that it can also be useful for: organizations with &lt; 100k tables and want to stand up a git-based data catalog, or hacker data scientists at larger companies who live and run queries in the terminal, to enable more streamlined workflows.
 
 ![](https://raw.githubusercontent.com/rsyi/metaframe/master/docs/demo.gif)
 
