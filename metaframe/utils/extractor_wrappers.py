@@ -7,11 +7,15 @@ from metaframe.extractor.amundsen_neo4j_metadata_extractor \
     import AmundsenNeo4jMetadataExtractor
 from metaframe.extractor.bigquery_metadata_extractor \
     import BigQueryMetadataExtractor
+from metaframe.extractor.snowflake_metadata_extractor \
+    import SnowflakeMetadataExtractor
+from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 
 
 BUILD_SCRIPT_TEMPLATE = \
     """source {venv_path}/bin/activate \
     && {python_binary} {build_script_path}"""
+SQL_ALCHEMY_SCOPE = SQLAlchemyExtractor().get_scope()
 
 
 def configure_bigquery_extractor(connection: ConnectionConfigSchema):
@@ -39,7 +43,7 @@ def configure_presto_extractor(
         '{}:{}'.format(connection.username, connection.password) \
         if connection.password is not None else ''
 
-    conn_string = '{connection_type}://{username_password}{host}'.format(
+    conn_string = '{connection_type}://{username_password}@{host}'.format(
         connection_type=connection.type,
         username_password=username_password_placeholder,
         host=connection.host)
@@ -72,6 +76,31 @@ def configure_neo4j_extractor(connection: ConnectionConfigSchema):
         '{}.excluded_keys'.format(scope): connection.excluded_keys,
         '{}.included_key_regex'.format(scope): connection.included_key_regex,
         '{}.excluded_key_regex'.format(scope): connection.excluded_key_regex,
+    })
+
+    return extractor, conf
+
+
+def configure_snowflake_extractor(connection: ConnectionConfigSchema):
+    extractor = SnowflakeMetadataExtractor()
+    scope = extractor.get_scope()
+
+    conn_string_key = '{}.{}.conn_string'\
+        .format(scope, SQL_ALCHEMY_SCOPE)
+
+    username_password_placeholder = \
+        '{}:{}'.format(connection.username, connection.password) \
+        if connection.password is not None else ''
+
+    conn_string = '{connection_type}://{username_password}@{host}'.format(
+        connection_type=connection.type,
+        username_password=username_password_placeholder,
+        host=connection.host)
+
+    conf = ConfigFactory.from_dict({
+        conn_string_key: conn_string,
+        '{}.database'.format(scope): connection.name,
+        '{}.cluster'.format(scope): connection.cluster,
     })
 
     return extractor, conf
