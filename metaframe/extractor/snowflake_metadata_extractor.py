@@ -9,7 +9,7 @@ from unidecode import unidecode
 from databuilder import Scoped
 from databuilder.extractor.base_extractor import Extractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
-from databuilder.models.table_metadata import TableMetadata, ColumnMetadata
+from metaframe.models.table_metadata import TableMetadata, ColumnMetadata
 from itertools import groupby
 
 
@@ -101,18 +101,20 @@ class SnowflakeMetadataExtractor(Extractor):
             for row in group:
                 last_row = row
                 columns.append(ColumnMetadata(
-                               row['col_name'],
-                               unidecode(row['col_description']) if row['col_description'] else None,
-                               row['col_type'],
-                               row['col_sort_order'])
-                               )
+                    name=row['col_name'],
+                    description=unidecode(row['col_description']) if row['col_description'] else None,
+                    col_type=row['col_type'],
+                    sort_order=row['col_sort_order'])
+                )
 
-            yield TableMetadata(self._database, last_row['cluster'],
-                                last_row['schema'],
-                                last_row['name'],
-                                unidecode(last_row['description']) if last_row['description'] else None,
-                                columns,
-                                last_row['is_view'] == 'true')
+            yield TableMetadata(
+                    database=self._database,
+                    cluster=last_row['cluster'],
+                    schema=last_row['schema'],
+                    name=last_row['name'],
+                    description=unidecode(last_row['description']) if last_row['description'] else None,
+                    columns=columns,
+                    is_view=last_row['is_view'] == 'true')
 
     def _get_raw_extract_iter(self) -> Iterator[Dict[str, Any]]:
         """

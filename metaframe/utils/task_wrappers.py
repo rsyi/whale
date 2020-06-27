@@ -43,7 +43,8 @@ def create_and_run_tasks_from_yaml(
         else:
             break
 
-        conf.put('loader.metaframe.database_name', connection.name)
+        conf.put('loader.metaframe.database_name',
+            connection.name or connection.type)
 
         task = DefaultTask(
             extractor=extractor,
