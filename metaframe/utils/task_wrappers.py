@@ -11,6 +11,7 @@ from metaframe.utils.extractor_wrappers import \
         configure_bigquery_extractor, \
         configure_neo4j_extractor, \
         configure_presto_extractor, \
+        configure_snowflake_extractor, \
         run_build_script
 
 BASE_DIR = os.path.join(Path.home(), '.metaframe/')
@@ -34,6 +35,8 @@ def create_and_run_tasks_from_yaml(
             extractor, conf = configure_neo4j_extractor(connection)
         elif connection.type == 'bigquery':
             extractor, conf = configure_bigquery_extractor(connection)
+        elif connection.type == 'snowflake':
+            extractor, conf = configure_snowflake_extractor(connection)
         elif connection.type == 'build_script':
             run_build_script(connection)
             break
