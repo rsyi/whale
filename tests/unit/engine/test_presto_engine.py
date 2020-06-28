@@ -10,13 +10,13 @@ from metaframe.models.table_metadata import ColumnMetadata, TableMetadata
 
 MOCK_CONNECTION_NAME = 'TEST_CONNECTION'
 MOCK_DATABASE_NAME = 'mock_database'
-MOCK_CLUSTER_NAME = 'mock_cluster'
+MOCK_CATALOG_NAME = 'mock_catalog'
 MOCK_SCHEMA_NAME = 'mock_schema'
 MOCK_TABLE_NAME = 'mock_table'
 MOCK_COLUMN_RESULT = ('ds', 'varchar(64)', 'partition key', '')
 MOCK_COLUMN_RESULT = ('ds', 'varchar(64)', 'partition key', '')
 MOCK_INFORMATION_SCHEMA_RESULT_1 = {
-    'catalog': MOCK_CLUSTER_NAME,
+    'catalog': MOCK_CATALOG_NAME,
     'schema': MOCK_SCHEMA_NAME,
     'name': MOCK_TABLE_NAME,
     'description': None,
@@ -28,7 +28,7 @@ MOCK_INFORMATION_SCHEMA_RESULT_1 = {
     'is_view': '0',
 }
 MOCK_INFORMATION_SCHEMA_RESULT_2 = {
-    'catalog': MOCK_CLUSTER_NAME,
+    'catalog': MOCK_CATALOG_NAME,
     'schema': MOCK_SCHEMA_NAME,
     'name': MOCK_TABLE_NAME,
     'description': None,
@@ -64,7 +64,7 @@ class TestPrestoEngine(unittest.TestCase):
         config_dict = {
             PrestoEngine.CONN_STRING_KEY: MOCK_CONNECTION_NAME,
             PrestoEngine.DATABASE_KEY: MOCK_DATABASE_NAME,
-            PrestoEngine.DEFAULT_CLUSTER_NAME_KEY: MOCK_CLUSTER_NAME
+            PrestoEngine.DEFAULT_CATALOG_NAME_KEY: MOCK_CATALOG_NAME
         }
         self.conf = ConfigFactory.from_dict(config_dict)
         self.engine = PrestoEngine()
@@ -78,7 +78,7 @@ class TestPrestoEngine(unittest.TestCase):
 
         expected = TableMetadata(
                 database=MOCK_DATABASE_NAME,
-                cluster=MOCK_CLUSTER_NAME,
+                catalog=MOCK_CATALOG_NAME,
                 schema=MOCK_SCHEMA_NAME,
                 name=MOCK_TABLE_NAME,
                 columns=[
@@ -99,7 +99,7 @@ class TestPrestoEngine(unittest.TestCase):
                 is_view=bool(MOCK_INFORMATION_SCHEMA_RESULT_1['is_view']),
         )
         results = self.engine.get_all_table_metadata_from_information_schema(
-            cluster=MOCK_CLUSTER_NAME)
+            catalog=MOCK_CATALOG_NAME)
         result = next(results)
         self.maxDiff = None
         self.assertEqual(result.__repr__(), expected.__repr__())

@@ -5,7 +5,7 @@ DEFAULT_DIRECTORY_NAME = '.metaframe'
 
 setuptools.setup(
     name='metaframe-databuilder',
-    version='0.0.0a30',
+    version='0.0.0a31',
     author='Robert Yi',
     author_email='robert@ryi.me',
     description="A pared-down metadata ETL library.",

@@ -68,7 +68,7 @@ class TestPrestoLoopExtractor(unittest.TestCase):
             else False
         expected = TableMetadata(
                 database=extractor._database,
-                cluster=None,
+                catalog=None,
                 schema=MOCK_SCHEMA_NAME,
                 name=MOCK_TABLE_NAME,
                 columns=[ColumnMetadata(

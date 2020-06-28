@@ -57,7 +57,7 @@ def configure_presto_extractor(
         '{}.is_stats_enabled'.format(scope): False,
         '{}.is_analyze_enabled'.format(scope): False,
         '{}.database'.format(scope): connection.name,
-        '{}.cluster'.format(scope): connection.cluster,
+        '{}.catalog'.format(scope): connection.catalog,
         '{}.included_schemas'.format(scope): connection.included_schemas,
         '{}.excluded_schemas'.format(scope): connection.excluded_schemas,
     })
@@ -100,7 +100,7 @@ def configure_snowflake_extractor(connection: ConnectionConfigSchema):
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
         '{}.database'.format(scope): connection.name,
-        '{}.cluster'.format(scope): connection.cluster,
+        '{}.catalog'.format(scope): connection.catalog,
     })
 
     return extractor, conf

@@ -9,7 +9,7 @@ class ConnectionConfigSchema(object):
             username: Optional[str] = None,
             password: Optional[str] = None,
             name: Optional[str] = None,
-            cluster: Optional[str] = None,
+            catalog: Optional[str] = None,
             included_schemas: List = [],
             excluded_schemas: List = [],
             included_keys: Optional[List[str]] = None,
@@ -31,7 +31,7 @@ class ConnectionConfigSchema(object):
         self.username = username
         self.password = password
         self.name = name
-        self.cluster = cluster
+        self.catalog = catalog
         self.included_schemas = included_schemas
         self.excluded_schemas = excluded_schemas
         self.included_keys = included_keys

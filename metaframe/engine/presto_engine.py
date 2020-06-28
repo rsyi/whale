@@ -20,12 +20,12 @@ class PrestoAlchemyEngine(PrestoCommandsMixin, SQLAlchemyEngine):
     """
 
     CONN_STRING_KEY = 'conn_string'
-    DEFAULT_CLUSTER_NAME_KEY = 'default_cluster_name'
+    DEFAULT_CATALOG_NAME_KEY = 'default_catalog_name'
     DATABASE_KEY = 'database'
 
     DEFAULT_CONFIG = ConfigFactory.from_dict({
         CONN_STRING_KEY: None,
-        DEFAULT_CLUSTER_NAME_KEY: '<default>',  # if no cluster name is provided.
+        DEFAULT_CATALOG_NAME_KEY: '<default>',  # if no catalog name is provided.
         DATABASE_KEY: 'presto',
     })
 
@@ -36,8 +36,8 @@ class PrestoAlchemyEngine(PrestoCommandsMixin, SQLAlchemyEngine):
         })
         super().init(sql_alchemy_conf)
         self.conf = conf.with_fallback(PrestoAlchemyEngine.DEFAULT_CONFIG)
-        self._default_cluster_name = \
-            self.conf.get_string(PrestoAlchemyEngine.DEFAULT_CLUSTER_NAME_KEY)
+        self._default_catalog_name = \
+            self.conf.get_string(PrestoAlchemyEngine.DEFAULT_CATALOG_NAME_KEY)
         self._database = self.conf.get_string(PrestoAlchemyEngine.DATABASE_KEY)
         self._extract_iter = None
 
@@ -52,12 +52,12 @@ class PrestoEngine(PrestoCommandsMixin, SQLAlchemyEngine):
     """
 
     CONN_STRING_KEY = 'conn_string'
-    DEFAULT_CLUSTER_NAME_KEY = 'default_cluster_name'
+    DEFAULT_CATALOG_NAME_KEY = 'default_catalog_name'
     DATABASE_KEY = 'database'
 
     DEFAULT_CONFIG = ConfigFactory.from_dict({
         CONN_STRING_KEY: None,
-        DEFAULT_CLUSTER_NAME_KEY: '<default>',  # if no cluster name is provided.
+        DEFAULT_CATALOG_NAME_KEY: '<default>',  # if no catalog name is provided.
         DATABASE_KEY: 'presto',
     })
 
@@ -68,8 +68,8 @@ class PrestoEngine(PrestoCommandsMixin, SQLAlchemyEngine):
         })
         super().init(sql_alchemy_conf)
         self.conf = conf.with_fallback(PrestoEngine.DEFAULT_CONFIG)
-        self._default_cluster_name = \
-            self.conf.get_string(PrestoEngine.DEFAULT_CLUSTER_NAME_KEY)
+        self._default_catalog_name = \
+            self.conf.get_string(PrestoEngine.DEFAULT_CATALOG_NAME_KEY)
         self._database = self.conf.get_string(PrestoEngine.DATABASE_KEY)
         self._extract_iter = None
 

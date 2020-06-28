@@ -14,7 +14,7 @@ class MarkdownTransformer(Transformer):
 
     HEADER_TEMPLATE = '{schema}.{name} {view_statement}'
     SUBHEADER_TEMPLATE = \
-        'Database: {database} | Cluster: {cluster}'
+        'Database: {database} | Cluster: {catalog}'
     DESCRIPTION_TEMPLATE = textwrap.dedent("""    # Description
     {description}\n
     """)
@@ -34,7 +34,7 @@ class MarkdownTransformer(Transformer):
             return
 
         database = record.database
-        cluster = record.cluster
+        catalog = record.catalog
         schema = record.schema
         table_name = record.name
         view_statement = '[view]' if record.is_view else ''
@@ -44,7 +44,7 @@ class MarkdownTransformer(Transformer):
 
         markdown_blob = self.format_templates(
             database=database,
-            cluster=cluster,
+            catalog=catalog,
             schema=schema,
             table_name=table_name,
             view_statement=view_statement,
@@ -53,7 +53,7 @@ class MarkdownTransformer(Transformer):
 
         return metadata_model_metaframe.TableMetadata(
             database=database,
-            cluster=cluster,
+            catalog=catalog,
             schema=schema,
             name=table_name,
             markdown_blob=markdown_blob,
@@ -108,7 +108,7 @@ class MarkdownTransformer(Transformer):
     def format_templates(
             self,
             database,
-            cluster,
+            catalog,
             schema,
             table_name,
             view_statement,
@@ -128,7 +128,7 @@ class MarkdownTransformer(Transformer):
                 2)
         subheader = MarkdownTransformer.SUBHEADER_TEMPLATE.format(
             database=database,
-            cluster=cluster,
+            catalog=catalog,
         )
         if description is not None:
             description_statement = \
