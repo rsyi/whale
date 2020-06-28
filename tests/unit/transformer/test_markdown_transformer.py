@@ -9,7 +9,7 @@ from metaframe.transformer.markdown_transformer import MarkdownTransformer
 
 
 DATABASE = 'mock_database'
-CLUSTER = 'mock_cluster'
+CATALOG = 'mock_catalog'
 SCHEMA = 'mock_schema'
 TABLE = 'mock_table'
 COLUMN = 'mock_column'
@@ -34,14 +34,14 @@ class TestMetaframeLoader(unittest.TestCase):
         )
         record = TableMetadata(
             database=DATABASE,
-            cluster=CLUSTER,
+            catalog=CATALOG,
             schema=SCHEMA,
             name=TABLE,
             columns=[column]
         )
         components = [
             DATABASE,
-            CLUSTER,
+            CATALOG,
             SCHEMA,
             TABLE,
             COLUMN,

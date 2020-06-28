@@ -15,10 +15,10 @@ class TestMetaframeLoader(unittest.TestCase):
             'base_directory': './.test_artifacts',
             })
 
-    def test_load_no_cluster(self):
+    def test_load_no_catalog(self):
         record = TableMetadata(
             database='mock_database',
-            cluster=None,
+            catalog=None,
             schema='mock_schema',
             name='mock_table',
             markdown_blob='Test',
@@ -35,10 +35,10 @@ class TestMetaframeLoader(unittest.TestCase):
 
         self.assertEqual(written_record, record.markdown_blob)
 
-    def test_load_cluster_specified(self):
+    def test_load_catalog_specified(self):
         record = TableMetadata(
             database='mock_database',
-            cluster='mock_cluster',
+            catalog='mock_catalog',
             schema='mock_schema',
             name='mock_table',
             markdown_blob='Test',
@@ -50,7 +50,7 @@ class TestMetaframeLoader(unittest.TestCase):
         loader.close()
         file_path = \
             './.test_artifacts/' + \
-            'mock_database/mock_cluster.mock_schema.mock_table.md'
+            'mock_database/mock_catalog.mock_schema.mock_table.md'
         with open(file_path, 'r') as f:
             written_record = f.read()
         print(written_record)

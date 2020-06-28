@@ -14,7 +14,7 @@ conf = ConfigFactory.from_dict({
     'extractor.presto_loop.is_stats_enabled': False,
     'extractor.presto_loop.is_analyze_enabled': False,
     'extractor.presto_loop.database': None,
-    'extractor.presto_loop.cluster': None,
+    'extractor.presto_loop.catalog': None,
     'extractor.presto_loop.included_schemas': None,
     'extractor.presto_loop.excluded_schemas': None,
     'loader.metaframe.database_name': 'presto-test',

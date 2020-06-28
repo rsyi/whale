@@ -34,7 +34,7 @@ class MetaframeLoader(Loader):
 
         table_file_path_base = get_table_file_path_base(
             database=self.database_name or record.database,
-            cluster=record.cluster,
+            catalog=record.catalog,
             schema=record.schema,
             table=record.name,
             base_directory=self.conf.get('base_directory')
