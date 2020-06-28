@@ -26,10 +26,12 @@ This file accepts entries as yaml blocks. For example:
   host: ec2-something.yourhost.com:8889
   username:
   password:
-  cluster:
+  catalog:
 ```
 
-All fields are optional except for `host` and `type`.
+All fields are optional except for `host` and `type`. 
+
+\*\*\*\*
 
 ## Other considerations
 

@@ -8,5 +8,5 @@ We support the following flags to be added to `connections.yaml` for snowflake c
 * **`host`** Host name, without the snowflakecomputing.com address. For example, if your full address is `jku301.snowflakecomputing.com`, you should set `host` to `jku301`.
 * **`username`** \[Optional\] Username to connect.
 * **`password`** \[Optional\] Password to connect.
-* **`cluster`** \[Optional\] Specify the catalog that you want to source metadata from.
+* **`catalog`** \[Optional\] Specify the catalog that you want to source metadata from.
 

@@ -72,7 +72,7 @@ If you want metadata to be scraped and populated automatically, you'll next need
   host: host.mysite.com:8889
   username:                   # optional
   password:                   # optional
-  cluster: system             # optional
+  catalog: system             # optional
 ```
 
 The only necessary arguments is `type` \(and `host`, in general\). See [Connection setup](docs/connection-setup/) for more details + information on `type`-specific syntax.
