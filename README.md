@@ -1,6 +1,6 @@
 # Whale
 
-<img align="center" src="docs/whale_logo.svg" width="500"/>
+<div style="text-align:center"><img src="docs/whale_logo.svg" width="500"/></div>
 
 ![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg) ![codecov](https://codecov.io/gh/rsyi/metaframe/branch/master/graph/badge.svg)
 
