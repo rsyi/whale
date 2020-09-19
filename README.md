@@ -1,6 +1,6 @@
 # Whale
 
-![](docs/whale_logo.svg)
+![](docs/whale_logo.svg =500x)
 
 ![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg) ![codecov](https://codecov.io/gh/rsyi/metaframe/branch/master/graph/badge.svg)
 
