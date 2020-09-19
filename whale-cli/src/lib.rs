@@ -3,12 +3,11 @@ extern crate colored;
 extern crate shellexpand;
 use clap::{ArgMatches};
 use colored::*;
-use std::fs;
-use std::path::Path;
 
 pub mod warehouse;
 pub mod skimmer;
 pub mod utils;
+pub mod filesystem;
 
 
 fn print_initialization_header() {
@@ -36,20 +35,6 @@ Whale needs to initialize the following file structure:
 We'll check if this exists and make it if it doesn't.")
 }
 
-fn create_file_structure() {
-    let base_path = shellexpand::tilde("~");
-    let base_path = Path::new(&*base_path);
-    let whale_base_path = base_path
-        .join(".whale");
-    let subpaths = ["config", "metadata", "logs"];
-
-    for subpath in subpaths.iter() {
-        let path_to_create = whale_base_path.join(subpath);
-        fs::create_dir_all(path_to_create)
-            .expect("Directory was not created succesfully.");
-    }
-}
-
 
 
 pub struct Whale {}
@@ -62,7 +47,7 @@ impl Whale {
     pub fn init() {
         print_initialization_header();
         utils::pause();
-        create_file_structure();
+        filesystem::create_file_structure();
 
         let mut has_more_warehouses = true;
         let mut is_first_warehouse = true;
