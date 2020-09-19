@@ -1,13 +1,13 @@
-# Metaframe
+# Whale
 
-![](docs/.gitbook/assets/image%20%2810%29%20%281%29%20%281%29.png)
+![](docs/whale_logo.svg)
 
 ![](https://github.com/rsyi/metaframe/workflows/CD/badge.svg) ![](https://github.com/rsyi/metaframe/workflows/CI/badge.svg) ![codecov](https://codecov.io/gh/rsyi/metaframe/branch/master/graph/badge.svg)
 
-`metaframe` is a blazingly fast CLI **data discovery + documentation tool**, built using [fzf](https://github.com/junegunn/fzf) and [amundsen](https://github.com/lyft/amundsen). It allows you to:
+`whale` is a blazingly fast CLI **data discovery + documentation tool**. It allows you to:
 
-* Collect all table + column information from data warehouses with **`mf etl`**.
-* Search for this info with **`mf`**.
+* Collect all table + column information from data warehouses with **`wh etl`**.
+* Search for this info with **`wh`**.
 * Write documentation that sits next to these table stubs.
 
 Metaframe is built primarily for users who want to write documentation on their tables, but we've found that it can also be useful for: organizations with &lt; 100k tables and want to stand up a git-based data catalog, or hacker data scientists at larger companies who live and run queries in the terminal, to enable more streamlined workflows.
