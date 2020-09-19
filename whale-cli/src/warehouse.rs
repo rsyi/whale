@@ -3,9 +3,12 @@ extern crate names;
 use colored::*;
 use names::{Generator, Name};
 use std::{env, fmt};
+use std::fs::OpenOptions;
+use std::path::Path;
 use std::str::FromStr;
 
 use crate::utils;
+use crate::filesystem;
 
 const GOOGLE_ENV_VAR: &str = "GOOGLE_APPLICATION_CREDENTIALS";
 
@@ -115,9 +118,23 @@ fn get_name() -> String {
     name
 }
 
+pub trait YamlWriter {
+    fn register_config(&self) {
 
-fn register_config() {
-    
+        // TODO: refer to filesystem.rs instead of hard-coding
+        let base_path = shellexpand::tilde("~");
+        let base_path = Path::new(&*base_path);
+        let connections_path = base_path
+            .join(".whale")
+            .join("config")
+            .join("connections.yaml");
+
+        // Open yaml file
+        let file = OpenOptions::new().write(true)
+                                 .create_new(true)
+                                 .open(connections_path);
+
+    }
 }
 
 
@@ -129,6 +146,8 @@ pub struct GenericWarehouse {
     username: Option<String>,
     password: Option<String>
 }
+
+impl YamlWriter for GenericWarehouse {}
 
 impl GenericWarehouse {
     pub fn prompt_add_details(metadata_source: MetadataSource) {
@@ -151,7 +170,7 @@ impl GenericWarehouse {
         // username
         let username: Option<String>;
         let username_msg = "Username? [default: None]";
-        let mut username_tmp = utils::get_input_with_message(username_msg);
+        let username_tmp = utils::get_input_with_message(username_msg);
         if username_tmp == "\n" {
             username = None;
         }
@@ -161,7 +180,7 @@ impl GenericWarehouse {
 
         let password: Option<String>;
         let password_msg = "Password? [default: None]";
-        let mut password_tmp = utils::get_input_with_message(password_msg);
+        let password_tmp = utils::get_input_with_message(password_msg);
         if password_tmp == "\n" {
             password = None;
         }
@@ -178,11 +197,11 @@ impl GenericWarehouse {
             password: password
         };
 
-        register_config(compiled_config);
+        compiled_config.register_config();
 
-        println!("{} {} {}",
+        println!("{} {:?} {}",
                  "Added warehouse:",
-                 compiled_config.name.yellow(),
+                 compiled_config.name,
                  "to ~/.whale/config/connections.yaml.",
                  );
     }
@@ -191,10 +210,13 @@ impl GenericWarehouse {
 
 
 pub struct Bigquery {
+    metadata_source: MetadataSource,
     credentials_path: Option<String>,
     credentials_key: Option<String>,
     project_id: Option<String>,
 }
+
+impl YamlWriter for Bigquery {}
 
 impl Bigquery {
     fn check_for_env_var() -> Option<String> {
@@ -207,7 +229,6 @@ impl Bigquery {
     pub fn prompt_add_details() {
         println!("Starting warehouse detail onboarding sequence for {}.", "Google BigQuery".yellow());
 
-        let mut name: String;
         let mut credentials_path: Option<String>;
         let mut credentials_key: Option<String>;
         let mut project_id: Option<String>;
@@ -255,16 +276,17 @@ impl Bigquery {
         project_id = Some(Bigquery::prompt_project_id());
 
         let compiled_config = Bigquery {
+            metadata_source: MetadataSource::Bigquery,
             credentials_path: credentials_path,
             credentials_key: credentials_key,
             project_id: project_id
         };
 
-        register_config(compiled_config);
+        compiled_config.register_config();
 
-        println!("{} {} {}",
+        println!("{} {:?} {}",
                  "Added warehouse:",
-                 compiled_config.project_id.yellow(),
+                 compiled_config.project_id,
                  "to ~/.whale/config/connections.yaml.",
                  );
 
@@ -280,7 +302,7 @@ impl Bigquery {
         let mut input = 0;
         let acceptable_values = vec![1, 2];
         while !acceptable_values.contains(&input) {
-            println!("Enter {} or {}.", "1".green(), "2".green());
+            println!("Enter {} or {}.", "1".green(), "2".red());
             input = utils::get_integer_input();
         }
         input
@@ -288,27 +310,30 @@ impl Bigquery {
 
     fn get_credentials(method: i32) -> String {
         let mut credentials: String;
-        if method == 1 {
-            println!("\n{}",
-                     "Enter the path where your credentials json is located.".purple());
-            credentials = utils::get_input();
-        }
-        else if method == 2 {
+        if method == 2 {
             println!("\n{}",
                      "Enter your credentials key.".purple());
             credentials = utils::get_input();
         }
         else {
-            println!("Invalid! How did you get here?");
-            credentials = "".to_string();
+            println!("\n{}",
+                     "Enter the path where your credentials json is located.".purple());
+            credentials = utils::get_input();
         }
         credentials
     }
 
-
     fn prompt_project_id() -> String {
         println!("\n{}",
                  "Enter the project_id you want to pull metadata from.".purple());
-        utils::get_input()
+        let project_id = utils::get_input();
+        if project_id == "\n" {
+            println!("You must specify a project_id.");
+            return Bigquery::prompt_project_id();
+        }
+        else {
+            return project_id
+        }
     }
+
 }
