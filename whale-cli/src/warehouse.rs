@@ -1,15 +1,25 @@
 extern crate colored;
+extern crate names;
 use colored::*;
-use std::env;
+use names::{Generator, Name};
+use std::{env, fmt};
 use std::str::FromStr;
-use std::string::ParseError;
 
 use crate::utils;
 
 const GOOGLE_ENV_VAR: &str = "GOOGLE_APPLICATION_CREDENTIALS";
 
+#[derive(Debug, Clone)]
+pub struct ParseMetadataSourceError {}
 
-pub enum Warehouse {
+impl fmt::Display for ParseMetadataSourceError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Invalid metadata source.")
+    }
+}
+
+
+pub enum MetadataSource {
     Bigquery,
     Hive,
     HiveMetastore,
@@ -17,48 +27,288 @@ pub enum Warehouse {
     Snowflake
 }
 
-// impl FromStr for Warehouse {
-//     type Err = ParseError;
-//     fn from_str(warehouse: &str) -> Result<Self, ParseError> {
-//         match warehouse {
-//             "bigquery" => Ok(Warehouse::Bigquery),
-//             "hive" => Ok(Warehouse::Hive),
-//             "hive_metastore" => Ok(Warehouse::HiveMetastore),
-//             "presto" => Ok(Warehouse::Presto),
-//             "snowflake" => Ok(Warehouse::Snowflake),
-//             _ => Err(()),
-//         }
-//     }
-// }
+impl FromStr for MetadataSource {
+    type Err = ParseMetadataSourceError;
+    fn from_str(warehouse: &str) -> Result<Self, Self::Err> {
+        match warehouse {
+            "bigquery" | "bq" => Ok(MetadataSource::Bigquery),
+            "hive" | "h" => Ok(MetadataSource::Hive),
+            "hive_metastore" | "hive-metastore" | "hive metastore"  | "hm" => Ok(MetadataSource::HiveMetastore),
+            "presto" | "p" => Ok(MetadataSource::Presto),
+            "snowflake" | "s" => Ok(MetadataSource::Snowflake),
+            _ => Err(ParseMetadataSourceError {}),
+        }
+    }
+}
 
+impl fmt::Display for MetadataSource {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+       match *self {
+           MetadataSource::Bigquery => write!(f, "Bigquery"),
+           MetadataSource::Hive => write!(f, "Hive"),
+           MetadataSource::HiveMetastore => write!(f, "Hive Metastore"),
+           MetadataSource::Presto => write!(f, "Presto"),
+           MetadataSource::Snowflake => write!(f, "Snowflake"),
+       }
+    }
+}
 
-pub struct Bigquery {}
+pub fn prompt_add_warehouse(is_first_time: bool) {
 
-impl Bigquery {
-    fn check_for_env_var() -> bool {
-        match env::var(GOOGLE_ENV_VAR) {
-            Ok(_) => true,
-            Err(_) => false
+    // Text
+
+    if !is_first_time {
+        println!("{} [{}/{}]",
+                 "\nAdd another warehouse?".purple(),
+                 "Y".green(),
+                 "n".red());
+        let has_warehouse_to_add: bool = utils::get_input_as_bool();
+        if !has_warehouse_to_add {
+            return ()
         }
     }
 
-    pub fn prompt() -> bool {
-        if Bigquery::check_for_env_var() {
-            println!("GOOGLE_APPLICATION_CREDENTIALS found. Use this? [{}/{}]",
-                     "Y".green(),
-                     "n".red());
-            let can_use_bigquery_env_var = utils::get_input_as_bool();
-            if !can_use_bigquery_env_var {
-                Bigquery::prompt_choose_credential_method();
-            }
-        }
-        true
+    println!("{}", "What type of warehouse would you like to add?".purple());
+    println!(" {}:", "Options".bold());
+
+    let supported_warehouse_types = [
+        "bigquery",
+        "hive",
+        "hive_metastore",
+        "presto",
+        "snowflake"
+    ];
+    for supported_warehouse_type in supported_warehouse_types.iter() {
+        println!(" * {}", supported_warehouse_type)
     }
 
-    fn prompt_choose_credential_method() -> &'static str {
-        println!("Choose credential method.");
-        "string"
+    // Get input
+
+    let raw_warehouse_type_input: String = utils::get_input();
+    let warehouse_type = raw_warehouse_type_input.trim();
+    let warehouse_enum = MetadataSource::from_str(warehouse_type);
+    println!("You entered: {}", warehouse_type.yellow());
+
+    match warehouse_enum {
+        Ok(MetadataSource::Bigquery) => Bigquery::prompt_add_details(),
+        Ok(MetadataSource::Hive)
+            | Ok(MetadataSource::HiveMetastore)
+            | Ok(MetadataSource::Presto)
+            | Ok(MetadataSource::Snowflake)
+            => GenericWarehouse::prompt_add_details(warehouse_enum.unwrap()),
+        Err(e) => eprintln!("{}", e),
+    };
+
+    prompt_add_warehouse(false);
+
+}
+
+
+fn get_name() -> String {
+    println!("\n{}", "Input a name for your warehouse (e.g. silver-1)".purple());
+    let mut name = utils::get_input();
+    if name == "\n" {
+        let mut generator = Generator::with_naming(Name::Plain);
+        name = generator.next().unwrap();
+        println!("Using randomly generated name: {}", name.green());
+    }
+    name
+}
+
+
+fn register_config() {
+    
+}
+
+
+pub struct GenericWarehouse {
+    name: String,
+    metadata_source: MetadataSource,
+    uri: String,
+    port: i32,
+    username: Option<String>,
+    password: Option<String>
+}
+
+impl GenericWarehouse {
+    pub fn prompt_add_details(metadata_source: MetadataSource) {
+        let metadata_source_str = metadata_source.to_string();
+        println!("Starting warehouse detail onboarding sequence for {}.",
+                 metadata_source_str.yellow());
+
+        // name
+        let name: String = get_name();
+
+        // uri
+        let uri_msg = "What is the URI for this warehouse?";
+        let uri: String = utils::get_input_with_message(uri_msg);
+
+        // port
+        let port_msg = "Port?";
+        let port_str: String = utils::get_input_with_message(port_msg);
+        let port: i32 = port_str.parse::<i32>().unwrap();
+
+        // username
+        let username: Option<String>;
+        let username_msg = "Username? [default: None]";
+        let mut username_tmp = utils::get_input_with_message(username_msg);
+        if username_tmp == "\n" {
+            username = None;
+        }
+        else {
+            username = Some(username_tmp);
+        }
+
+        let password: Option<String>;
+        let password_msg = "Password? [default: None]";
+        let mut password_tmp = utils::get_input_with_message(password_msg);
+        if password_tmp == "\n" {
+            password = None;
+        }
+        else {
+            password = Some(password_tmp);
+        }
+
+        let compiled_config = GenericWarehouse {
+            name: name,
+            metadata_source: metadata_source,
+            uri: uri,
+            port: port,
+            username: username,
+            password: password
+        };
+
+        register_config(compiled_config);
+
+        println!("{} {} {}",
+                 "Added warehouse:",
+                 compiled_config.name.yellow(),
+                 "to ~/.whale/config/connections.yaml.",
+                 );
     }
 
 }
 
+
+pub struct Bigquery {
+    credentials_path: Option<String>,
+    credentials_key: Option<String>,
+    project_id: Option<String>,
+}
+
+impl Bigquery {
+    fn check_for_env_var() -> Option<String> {
+        match env::var(GOOGLE_ENV_VAR) {
+            Ok(env_var) => Some(env_var),
+            Err(_) => None
+        }
+    }
+
+    pub fn prompt_add_details() {
+        println!("Starting warehouse detail onboarding sequence for {}.", "Google BigQuery".yellow());
+
+        let mut name: String;
+        let mut credentials_path: Option<String>;
+        let mut credentials_key: Option<String>;
+        let mut project_id: Option<String>;
+
+        // Credentials
+
+        let mut can_use_bigquery_env_var = false;
+        let env_var: Option<String> = Bigquery::check_for_env_var();
+        if let Some(_) = env_var {
+            println!("Environment variable {} found.",
+                     "GOOGLE_APPLICATION_CREDENTIALS".yellow());
+
+            println!("\n{} [{}/{}]",
+                     "Use GOOGLE_APPLICATION_CREDENTIALS for authentication?".purple(),
+                     "Y".green(),
+                     "n".red());
+            can_use_bigquery_env_var = utils::get_input_as_bool();
+        }
+
+        if can_use_bigquery_env_var {
+            let unwrapped_env_var = env_var.unwrap();
+            println!("Using credentials file located at:\n{}", unwrapped_env_var.yellow());
+            credentials_path = Some(unwrapped_env_var);
+            credentials_key = None;
+        }
+        else {
+            let method = Bigquery::prompt_choose_credential_method();
+            let credentials = Bigquery::get_credentials(method);
+            if method == 1 {
+                credentials_path = Some(credentials);
+                credentials_key = None;
+            }
+            else if method == 2 {
+                credentials_path = None;
+                credentials_key = Some(credentials);
+            }
+            else {  // shouldn't happen, but covering all cases.
+                credentials_path = None;
+                credentials_key = None;
+            }
+        }
+
+        // Project_id
+
+        project_id = Some(Bigquery::prompt_project_id());
+
+        let compiled_config = Bigquery {
+            credentials_path: credentials_path,
+            credentials_key: credentials_key,
+            project_id: project_id
+        };
+
+        register_config(compiled_config);
+
+        println!("{} {} {}",
+                 "Added warehouse:",
+                 compiled_config.project_id.yellow(),
+                 "to ~/.whale/config/connections.yaml.",
+                 );
+
+    }
+
+    fn prompt_choose_credential_method() -> i32 {
+        println!("{}", "Which credential method?".purple());
+        println!(" {}", "Options:".bold());
+        println!(" [1] Path (specify the path where your credentials json file is located)");
+        println!(" [2] Key (directly pass the credential key)");
+        println!("Enter {} or {}.", "1".green(), "2".green());
+
+        let mut input = 0;
+        let acceptable_values = vec![1, 2];
+        while !acceptable_values.contains(&input) {
+            println!("Enter {} or {}.", "1".green(), "2".green());
+            input = utils::get_integer_input();
+        }
+        input
+    }
+
+    fn get_credentials(method: i32) -> String {
+        let mut credentials: String;
+        if method == 1 {
+            println!("\n{}",
+                     "Enter the path where your credentials json is located.".purple());
+            credentials = utils::get_input();
+        }
+        else if method == 2 {
+            println!("\n{}",
+                     "Enter your credentials key.".purple());
+            credentials = utils::get_input();
+        }
+        else {
+            println!("Invalid! How did you get here?");
+            credentials = "".to_string();
+        }
+        credentials
+    }
+
+
+    fn prompt_project_id() -> String {
+        println!("\n{}",
+                 "Enter the project_id you want to pull metadata from.".purple());
+        utils::get_input()
+    }
+}
