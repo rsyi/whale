@@ -1,9 +1,12 @@
 extern crate colored;
 use colored::*;
-use std::io;
+use std::io::{self, Write};
 
 
 pub fn get_input() -> String {
+    let _ = io::stdout().flush();
+    print!("{}", ":".cyan());
+    let _ = io::stdout().flush();
     let mut buffer: String = String::new();
     io::stdin().read_line(&mut buffer).unwrap();
     buffer
