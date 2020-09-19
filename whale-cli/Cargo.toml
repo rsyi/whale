@@ -9,5 +9,7 @@ edition = "2018"
 [dependencies]
 clap = "2.33.3"
 colored = "2"
+names = "0.10.0"
 shellexpand = "2.0.0"
 skim = "0.8.2"
+yaml-rust = "0.4"

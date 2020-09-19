@@ -1,14 +1,15 @@
 extern crate colored;
 extern crate names;
+// extern crate yaml_rust;
 use colored::*;
 use names::{Generator, Name};
-use std::{env, fmt};
+use std::{env, fmt, io};
+use std::io::Write;
 use std::fs::OpenOptions;
 use std::path::Path;
 use std::str::FromStr;
 
 use crate::utils;
-use crate::filesystem;
 
 const GOOGLE_ENV_VAR: &str = "GOOGLE_APPLICATION_CREDENTIALS";
 
@@ -119,7 +120,7 @@ fn get_name() -> String {
 }
 
 pub trait YamlWriter {
-    fn register_config(&self) {
+    fn register_config(&self) -> Result<(), io::Error>{
 
         // TODO: refer to filesystem.rs instead of hard-coding
         let base_path = shellexpand::tilde("~");
@@ -129,12 +130,21 @@ pub trait YamlWriter {
             .join("config")
             .join("connections.yaml");
 
+
+        // Format yaml docs
+        let new_docs = self.generate_yaml();
+
         // Open yaml file
-        let file = OpenOptions::new().write(true)
-                                 .create_new(true)
-                                 .open(connections_path);
+        let mut file = OpenOptions::new().write(true)
+                                 .create(true)
+                                 .append(true)
+                                 .open(connections_path)?;
+        file.write_all(new_docs.as_bytes());
+        Ok(())
 
     }
+
+    fn generate_yaml(&self) -> String;
 }
 
 
@@ -204,6 +214,12 @@ impl GenericWarehouse {
                  compiled_config.name,
                  "to ~/.whale/config/connections.yaml.",
                  );
+    }
+
+    pub fn generate_yaml(&self) -> String {
+        let mut config_as_yaml = "- name:".to_string();
+        config_as_yaml.push_str(&self.name);
+        config_as_yaml
     }
 
 }
@@ -286,7 +302,7 @@ impl Bigquery {
 
         println!("{} {:?} {}",
                  "Added warehouse:",
-                 compiled_config.project_id,
+                 &compiled_config.project_id.unwrap(),
                  "to ~/.whale/config/connections.yaml.",
                  );
 
@@ -327,13 +343,24 @@ impl Bigquery {
         println!("\n{}",
                  "Enter the project_id you want to pull metadata from.".purple());
         let project_id = utils::get_input();
+        let mut trimmed_project_id: String;
         if project_id == "\n" {
             println!("You must specify a project_id.");
             return Bigquery::prompt_project_id();
         }
         else {
-            return project_id
+            trimmed_project_id = project_id
+                .to_string()
+                .trim()
+                .to_string();
+            trimmed_project_id
         }
+    }
+
+    pub fn generate_yaml(&self) -> String {
+        let mut config_as_yaml = "- project_id:".to_string();
+        config_as_yaml.push_str(&self.project_id.unwrap());
+        config_as_yaml
     }
 
 }
