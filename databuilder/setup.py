@@ -4,12 +4,12 @@ from setuptools import find_packages
 DEFAULT_DIRECTORY_NAME = '.metaframe'
 
 setuptools.setup(
-    name='metaframe-databuilder',
+    name='whalebuilder',
     version='0.0.0a32',
     author='Robert Yi',
     author_email='robert@ryi.me',
     description="A pared-down metadata ETL library.",
-    url='https://github.com/rsyi/metaframe',
+    url='https://github.com/rsyi/whale',
     python_requires='>=3.6',
     packages=find_packages(),
     install_requires=[
