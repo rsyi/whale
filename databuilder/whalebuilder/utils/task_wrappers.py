@@ -22,7 +22,7 @@ def create_and_run_tasks_from_yaml(
         is_full_extraction_enabled=False,
         verbose=True):
     with open(CONNECTION_PATH) as f:
-        raw_connection_dicts = yaml.safe_load(f)
+        raw_connection_dicts = yaml.safe_load_all(f)
 
     for raw_connection_dict in raw_connection_dicts:
         connection = dump_connection_config_in_schema(raw_connection_dict)
