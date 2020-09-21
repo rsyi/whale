@@ -9,7 +9,7 @@ pub fn get_input() -> String {
     let _ = io::stdout().flush();
     let mut buffer: String = String::new();
     io::stdin().read_line(&mut buffer).unwrap();
-    buffer
+    buffer.trim().to_string()
 }
 
 

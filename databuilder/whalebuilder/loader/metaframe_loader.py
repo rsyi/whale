@@ -10,10 +10,10 @@ from whalebuilder.utils import get_table_file_path_base
 
 class MetaframeLoader(Loader):
     """
-    Loader class to format metadata as as a markdown doc for metaframe.
+    Loader class to format metadata as as a markdown doc for whale.
     """
     DEFAULT_CONFIG = ConfigFactory.from_dict({
-        'base_directory': os.path.join(Path.home(), '.metaframe/metadata/')
+        'base_directory': os.path.join(Path.home(), '.whale/metadata/')
     })
 
     def init(self, conf: ConfigTree):

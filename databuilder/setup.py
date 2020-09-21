@@ -1,8 +1,6 @@
 import setuptools
 from setuptools import find_packages
 
-DEFAULT_DIRECTORY_NAME = '.metaframe'
-
 setuptools.setup(
     name='whalebuilder',
     version='0.0.0a32',

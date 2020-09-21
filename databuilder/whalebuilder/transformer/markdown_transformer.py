@@ -1,5 +1,5 @@
 from databuilder.transformer.base_transformer import Transformer
-import metaframe.models.table_metadata as metadata_model_metaframe
+import whalebuilder.models.table_metadata as metadata_model_whale
 import databuilder.models.table_metadata as metadata_model_amundsen
 
 import textwrap
@@ -51,7 +51,7 @@ class MarkdownTransformer(Transformer):
             description=description,
             tabulated_columns=tabulated_columns)
 
-        return metadata_model_metaframe.TableMetadata(
+        return metadata_model_whale.TableMetadata(
             database=database,
             catalog=catalog,
             schema=schema,
@@ -68,7 +68,7 @@ class MarkdownTransformer(Transformer):
         # and adds is_partition_column to the ColumnMetadata class.
         # Format all markdown statements.
         record_type = type(record)
-        if record_type == metadata_model_metaframe.TableMetadata:
+        if record_type == metadata_model_whale.TableMetadata:
             columns_processed_for_tabulation \
                 .append(MarkdownTransformer.PARTITIONED_TABLE_HEADER)
         elif record_type == metadata_model_amundsen.TableMetadata:

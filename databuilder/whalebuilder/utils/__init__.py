@@ -10,7 +10,7 @@ def get_table_file_path_base(
         catalog,
         schema,
         table,
-        base_directory=os.path.join(Path.home(), '.metaframe/metadata/')
+        base_directory=os.path.join(Path.home(), '.whale/metadata/')
         ):
 
     if catalog is not None:

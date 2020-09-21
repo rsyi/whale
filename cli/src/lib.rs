@@ -3,6 +3,7 @@ extern crate colored;
 extern crate shellexpand;
 use clap::{ArgMatches};
 use colored::*;
+use std::process::Command;
 
 pub mod warehouse;
 pub mod skimmer;
@@ -57,6 +58,7 @@ impl Whale {
     }
 
     pub fn etl() {
-        println!("Running ETL job manually...")
+        println!("Running ETL job manually...");
+        Command::new("~/.whale/libexec/dist/build_script/build_script");
     }
 }
