@@ -13,9 +13,9 @@ jobs:
         submodules: true
     - name: Build Release
       run: |
-        pip3 install -r requirements.txt
-        python3 -m PyInstaller build_script.py --clean --hidden-import='pkg_resources.py2_warn' --additional-hooks-dir='./hooks/'
-        tar -zcvf /tmp/metaframe-mac.tar.gz .
+        pip3 install -r databuilder/requirements.txt
+        python3 -m PyInstaller databuilder/build_script.py --clean --hidden-import='pkg_resources.py2_warn' --additional-hooks-dir='./hooks/'
+        tar -zcvf /tmp/whale-mac.tar.gz .
 
     - name: Get version
       id: get_version
@@ -24,7 +24,7 @@ jobs:
     - name: Set SHA
       id: shasum
       run: |
-        echo ::set-output name=sha::"$(shasum -a 256 /tmp/metaframe-mac.tar.gz | awk '{printf $1}')"
+        echo ::set-output name=sha::"$(shasum -a 256 /tmp/whale-mac.tar.gz | awk '{printf $1}')"
 
     - name: Create Release
       id: create_release
@@ -43,8 +43,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /tmp/metaframe-mac.tar.gz
-        asset_name: metaframe-mac.tar.gz
+        asset_path: /tmp/whale-mac.tar.gz
+        asset_name: whale-mac.tar.gz
         asset_content_type: application/gzip
 
     - name: Bump Brew
@@ -54,5 +54,5 @@ jobs:
         brew tap rsyi/tap
         brew bump-formula-pr -f --version=${{ steps.get_version.outputs.version }} --no-browse --no-audit \
         --sha256=${{ steps.shasum.outputs.sha }} \
-        --url="https://github.com/rsyi/metaframe/releases/download/${{ steps.get_version.outputs.version }}/metaframe-mac.tar.gz" \
+        --url="https://github.com/rsyi/metaframe/releases/download/${{ steps.get_version.outputs.version }}/whale-mac.tar.gz" \
         rsyi/tap/metaframe
