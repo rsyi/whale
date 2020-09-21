@@ -114,12 +114,12 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
 fn get_name() -> String {
     println!("\n{}", "Input a name for your warehouse (e.g. silver-1)".purple());
     let mut name = utils::get_input();
-    if name == "\n" {
+    if name == "" {
         let mut generator = Generator::with_naming(Name::Plain);
         name = generator.next().unwrap();
         println!("Using randomly generated name: {}", name.green());
     }
-    name
+    name.trim().to_string()
 }
 
 pub trait YamlWriter {
@@ -150,8 +150,16 @@ pub trait YamlWriter {
     }
 
     fn generate_yaml(&self) -> String;
+
 }
 
+impl<T> YamlWriter for T
+    where T: Serialize {
+    fn generate_yaml(&self) -> String {
+        serde_yaml::to_string(&self)
+            .unwrap()
+    }
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct GenericWarehouse {
@@ -161,15 +169,6 @@ pub struct GenericWarehouse {
     port: i32,
     username: Option<String>,
     password: Option<String>
-}
-
-impl YamlWriter for GenericWarehouse {
-    fn generate_yaml(&self) -> String {
-        let mut config_as_yaml = "- name:".to_string();
-        config_as_yaml.push_str(&self.name);
-        config_as_yaml
-    }
-
 }
 
 impl GenericWarehouse {
@@ -187,14 +186,17 @@ impl GenericWarehouse {
 
         // port
         let port_msg = "Port?";
-        let port_str: String = utils::get_input_with_message(port_msg);
+        let port_str: String = utils::get_input_with_message(port_msg)
+            .to_string()
+            .trim()
+            .to_string();
         let port: i32 = port_str.parse::<i32>().unwrap();
 
         // username
         let username: Option<String>;
         let username_msg = "Username? [default: None]";
         let username_tmp = utils::get_input_with_message(username_msg);
-        if username_tmp == "\n" {
+        if username_tmp == "" {
             username = None;
         }
         else {
@@ -204,7 +206,7 @@ impl GenericWarehouse {
         let password: Option<String>;
         let password_msg = "Password? [default: None]";
         let password_tmp = utils::get_input_with_message(password_msg);
-        if password_tmp == "\n" {
+        if password_tmp == "" {
             password = None;
         }
         else {
@@ -234,17 +236,11 @@ impl GenericWarehouse {
 
 #[derive(Serialize, Deserialize)]
 pub struct Bigquery {
+    name: String,
     metadata_source: MetadataSource,
-    credentials_path: Option<String>,
-    credentials_key: Option<String>,
+    key_path: Option<String>,
+    project_credentials: Option<String>,
     project_id: Option<String>,
-}
-
-impl YamlWriter for Bigquery {
-    fn generate_yaml(&self) -> String {
-        serde_yaml::to_string(&self)
-            .unwrap()
-    }
 }
 
 impl Bigquery {
@@ -258,9 +254,13 @@ impl Bigquery {
     pub fn prompt_add_details() {
         println!("Starting warehouse detail onboarding sequence for {}.", "Google BigQuery".yellow());
 
-        let mut credentials_path: Option<String>;
-        let mut credentials_key: Option<String>;
+        let mut key_path: Option<String>;
+        let mut project_credentials: Option<String>;
         let mut project_id: Option<String>;
+
+
+        // name
+        let name: String = get_name();
 
         // Credentials
 
@@ -280,23 +280,23 @@ impl Bigquery {
         if can_use_bigquery_env_var {
             let unwrapped_env_var = env_var.unwrap();
             println!("Using credentials file located at:\n{}", unwrapped_env_var.yellow());
-            credentials_path = Some(unwrapped_env_var);
-            credentials_key = None;
+            key_path = Some(unwrapped_env_var);
+            project_credentials = None;
         }
         else {
             let method = Bigquery::prompt_choose_credential_method();
             let credentials = Bigquery::get_credentials(method);
             if method == 1 {
-                credentials_path = Some(credentials);
-                credentials_key = None;
+                key_path = Some(credentials);
+                project_credentials = None;
             }
             else if method == 2 {
-                credentials_path = None;
-                credentials_key = Some(credentials);
+                key_path = None;
+                project_credentials = Some(credentials);
             }
             else {  // shouldn't happen, but covering all cases.
-                credentials_path = None;
-                credentials_key = None;
+                key_path = None;
+                project_credentials = None;
             }
         }
 
@@ -305,9 +305,10 @@ impl Bigquery {
         project_id = Some(Bigquery::prompt_project_id());
 
         let compiled_config = Bigquery {
+            name: name,
             metadata_source: MetadataSource::Bigquery,
-            credentials_path: credentials_path,
-            credentials_key: credentials_key,
+            key_path: key_path,
+            project_credentials: project_credentials,
             project_id: project_id
         };
 
@@ -357,7 +358,7 @@ impl Bigquery {
                  "Enter the project_id you want to pull metadata from.".purple());
         let project_id = utils::get_input();
         let mut trimmed_project_id: String;
-        if project_id == "\n" {
+        if project_id == "" {
             println!("You must specify a project_id.");
             return Bigquery::prompt_project_id();
         }

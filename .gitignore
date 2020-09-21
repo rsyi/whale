@@ -7,4 +7,6 @@ build_script.spec
 *.pyc
 .coverage
 coverage.xml
-metaframe_databuilder.egg-info/
+whalebuilder.egg-info/
+.vim/
+dist.spec

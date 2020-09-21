@@ -4,8 +4,9 @@ from typing import Optional, List
 class ConnectionConfigSchema(object):
     def __init__(
             self,
-            type: str,
-            host: Optional[str] = None,
+            metadata_source: str,
+            uri: Optional[str] = None,
+            port: Optional[int] = None,
             username: Optional[str] = None,
             password: Optional[str] = None,
             name: Optional[str] = None,
@@ -26,8 +27,9 @@ class ConnectionConfigSchema(object):
             filter_key: Optional[str] = None,
             **kwargs):
 
-        self.host = host
-        self.type = type
+        self.uri = uri
+        self.port = port
+        self.metadata_source = metadata_source
         self.username = username
         self.password = password
         self.name = name
@@ -43,6 +45,7 @@ class ConnectionConfigSchema(object):
         self.python_binary = python_binary
         self.key_path = key_path
         self.project_id = project_id
+        self.key_path = key_path
         self.project_credentials = project_credentials
         self.page_size = page_size
         self.filter_key = filter_key

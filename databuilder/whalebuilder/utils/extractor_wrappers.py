@@ -29,6 +29,7 @@ def configure_bigquery_extractor(connection: ConnectionConfigSchema):
         '{}.filter_key'.format(scope): connection.filter_key,
     })
 
+    print(conf)
     return extractor, conf
 
 
@@ -43,10 +44,10 @@ def configure_presto_extractor(
         '{}:{}'.format(connection.username, connection.password) \
         if connection.password is not None else ''
 
-    conn_string = '{connection_type}://{username_password}@{host}'.format(
-        connection_type=connection.type,
+    conn_string = 'presto://{username_password}@{uri}:{port}'.format(
         username_password=username_password_placeholder,
-        host=connection.host)
+        uri=connection.uri,
+        port=connection.port)
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
@@ -69,7 +70,7 @@ def configure_neo4j_extractor(connection: ConnectionConfigSchema):
     extractor = AmundsenNeo4jMetadataExtractor()
     scope = extractor.get_scope()
     conf = ConfigFactory.from_dict({
-        '{}.graph_url'.format(scope): 'bolt://' + connection.host,
+        '{}.graph_url'.format(scope): 'bolt://' + connection.uri,
         '{}.neo4j_auth_user'.format(scope): connection.username,
         '{}.neo4j_auth_pw'.format(scope): connection.password,
         '{}.included_keys'.format(scope): connection.included_keys,
@@ -92,10 +93,11 @@ def configure_snowflake_extractor(connection: ConnectionConfigSchema):
         '{}:{}'.format(connection.username, connection.password) \
         if connection.password is not None else ''
 
-    conn_string = '{connection_type}://{username_password}@{host}'.format(
+    conn_string = '{connection_type}://{username_password}@{uri}:{port}'.format(
         connection_type=connection.type,
         username_password=username_password_placeholder,
-        host=connection.host)
+        uri=connection.uri,
+        port=connection.port)
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
