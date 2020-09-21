@@ -1,4 +1,4 @@
-prefix='~/.metaframe/metaframe'
+prefix='~/.whale/whale'
 update_config=1
 shells="bash zsh"
 
