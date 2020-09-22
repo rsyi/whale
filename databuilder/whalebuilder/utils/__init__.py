@@ -28,3 +28,17 @@ def get_table_file_path_base(
         )
 
     return os.path.join(base_directory, relative_file_path)
+
+
+def safe_write(file_path_to_write, text_to_write, tmp_extension=".bak"):
+    backup_file_path = file_path_to_write + tmp_extension
+
+    with open(backup_file_path, "w") as f:
+        f.write(text_to_write)
+        f.flush()
+        os.fsync(f.fileno())
+
+    os.rename(backup_file_path, file_path_to_write)
+
+
+
