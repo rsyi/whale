@@ -8,7 +8,7 @@ from databuilder.loader.base_loader import Loader
 from whalebuilder.utils import get_table_file_path_base
 
 
-class MetaframeLoader(Loader):
+class WhaleLoader(Loader):
     """
     Loader class to format metadata as as a markdown doc for whale.
     """
@@ -17,7 +17,7 @@ class MetaframeLoader(Loader):
     })
 
     def init(self, conf: ConfigTree):
-        self.conf = conf.with_fallback(MetaframeLoader.DEFAULT_CONFIG)
+        self.conf = conf.with_fallback(WhaleLoader.DEFAULT_CONFIG)
         self.base_directory = self.conf.get_string('base_directory')
         self.database_name = self.conf.get_string('database_name', None)
         Path(self.base_directory).mkdir(parents=True, exist_ok=True)
@@ -34,18 +34,17 @@ class MetaframeLoader(Loader):
 
         table_file_path_base = get_table_file_path_base(
             database=self.database_name or record.database,
-            catalog=record.catalog,
+            cluster=record.cluster,
             schema=record.schema,
             table=record.name,
             base_directory=self.conf.get('base_directory')
         )
 
         file_path = table_file_path_base + '.md'
-        file_path_docs = table_file_path_base + '.docs.md'
         subdirectory = '/'.join(file_path.split('/')[:-1])
         Path(subdirectory).mkdir(parents=True, exist_ok=True)
 
-        Path(file_path_docs).touch()
+        Path(file_path).touch()
         with open(file_path, 'w') as f:
             f.write(record.markdown_blob)
 

@@ -29,7 +29,7 @@ class PrestoLoopExtractor(PrestoEngine):
     CONN_STRING_KEY = 'conn_string'
     EXCLUDED_SCHEMAS_KEY = 'excluded_schemas'
     INCLUDED_SCHEMAS_KEY = 'included_schemas'
-    CATALOG_KEY = 'catalog'
+    CLUSTER_KEY = 'cluster'
     DATABASE_KEY = 'database'
     IS_FULL_EXTRACTION_ENABLED_KEY = 'is_full_extraction_enabled'
     IS_WATERMARK_ENABLED_KEY = 'is_watermark_enabled'
@@ -42,7 +42,7 @@ class PrestoLoopExtractor(PrestoEngine):
         CONN_STRING_KEY: None,
         EXCLUDED_SCHEMAS_KEY: None,
         INCLUDED_SCHEMAS_KEY: None,
-        CATALOG_KEY: None,
+        CLUSTER_KEY: None,
         DATABASE_KEY: 'presto',
         IS_FULL_EXTRACTION_ENABLED_KEY: False,
         IS_WATERMARK_ENABLED_KEY: False,
@@ -55,7 +55,7 @@ class PrestoLoopExtractor(PrestoEngine):
     def init(self, conf):
         super().init(conf)
         self.conf = conf.with_fallback(self.DEFAULT_CONFIG)
-        self._catalog = self.conf.get(PrestoLoopExtractor.CATALOG_KEY)
+        self._cluster = self.conf.get(PrestoLoopExtractor.CLUSTER_KEY)
         self._database = self.conf.get_string(PrestoLoopExtractor.DATABASE_KEY)
 
         self._extract_iter = None
@@ -65,7 +65,7 @@ class PrestoLoopExtractor(PrestoEngine):
             self.conf.get(PrestoLoopExtractor.INCLUDED_SCHEMAS_KEY) or []
 
         self._sql_stmt_schemas = \
-            ' in '.join(filter(None, ['show schemas', self._catalog]))
+            ' in '.join(filter(None, ['show schemas', self._cluster]))
         self._is_table_metadata_enabled = \
             self.conf.get(PrestoLoopExtractor.IS_TABLE_METADATA_ENABLED_KEY)
         self._is_stats_enabled = \
@@ -97,7 +97,7 @@ class PrestoLoopExtractor(PrestoEngine):
                     (schema in self._included_schemas)
                     or not self._included_schemas):
                 full_schema_address = \
-                    '.'.join(filter(None, [self._catalog, schema]))
+                    '.'.join(filter(None, [self._cluster, schema]))
                 tables = list(
                     self.execute(
                         'show tables in {}'
@@ -113,7 +113,7 @@ class PrestoLoopExtractor(PrestoEngine):
                     table = table_row[0]
                     file_name = get_table_file_path_base(
                         database=self._database,
-                        catalog=self._catalog,
+                        cluster=self._cluster,
                         schema=schema,
                         table=table,
                     )
@@ -125,17 +125,17 @@ class PrestoLoopExtractor(PrestoEngine):
                                 self.get_table_metadata(
                                     schema,
                                     table,
-                                    catalog=self._catalog,
+                                    cluster=self._cluster,
                                     is_view_query_enabled
                                         =self._is_view_query_enabled)
                             yield table_metadata
 
                         if self._is_analyze_enabled:
-                            self.get_analyze(schema, table, self._catalog)
+                            self.get_analyze(schema, table, self._cluster)
 
                         if self._is_stats_enabled:
                             stats_generator = \
-                                self.get_stats(schema, table, self._catalog)
+                                self.get_stats(schema, table, self._cluster)
                             yield from stats_generator
                     else:
                         LOGGER.info(

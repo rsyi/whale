@@ -3,7 +3,7 @@ import yaml
 
 from pathlib import Path
 from databuilder.task.task import DefaultTask
-from whalebuilder.loader.metaframe_loader import MetaframeLoader
+from whalebuilder.loader.whale_loader import WhaleLoader
 from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
 from whalebuilder.utils.connections import dump_connection_config_in_schema
 
@@ -16,6 +16,7 @@ from whalebuilder.utils.extractor_wrappers import \
 
 BASE_DIR = os.path.join(Path.home(), '.whale/')
 CONNECTION_PATH = os.path.join(BASE_DIR, 'config/connections.yaml')
+MANIFEST_PATH = os.path.join(BASE_DIR, 'manifest.csv')
 
 
 def create_and_run_tasks_from_yaml(
@@ -23,10 +24,8 @@ def create_and_run_tasks_from_yaml(
         verbose=True):
     with open(CONNECTION_PATH) as f:
         raw_connection_dicts = list(yaml.safe_load_all(f))
-
-    for raw_connection_dict in raw_connection_dicts:
+for raw_connection_dict in raw_connection_dicts:
         connection = dump_connection_config_in_schema(raw_connection_dict)
-        print(connection.metadata_source)
 
         if connection.metadata_source == 'Presto':
             extractor, conf = configure_presto_extractor(
@@ -46,11 +45,12 @@ def create_and_run_tasks_from_yaml(
 
         conf.put('loader.metaframe.database_name',
             connection.name or connection.metadata_source)
+        conf.put('loader.filesystem.csv.file_path', MANIFEST_PATH)
 
         task = DefaultTask(
             extractor=extractor,
             transformer=MarkdownTransformer(),
-            loader=MetaframeLoader(),
+            loader=WhaleLoader(),
         )
         task.init(conf)
         task.run()

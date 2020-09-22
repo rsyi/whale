@@ -80,7 +80,7 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
 
                 table_meta = TableMetadata(
                     database='bigquery',
-                    catalog=tableRef['projectId'],
+                    cluster=tableRef['projectId'],
                     schema=tableRef['datasetId'],
                     name=table_id,
                     description=table.get('description', ''),
