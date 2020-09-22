@@ -8,7 +8,7 @@ from tabulate import tabulate
 
 class FormatterMixin():
 
-    UGC_DEMARCATOR = "-"*79
+    UGC_DELIMITER = "-"*79
 
     def format_table_metadata(self, record) -> metadata_model_whale.TableMetadata:
         block_template = textwrap.dedent(
@@ -35,7 +35,7 @@ class FormatterMixin():
             cluster=record.cluster,
             description = record.description,
             columns=formatted_columns,
-            demarcator=FormatterMixin.UGC_DEMARCATOR,
+            demarcator=FormatterMixin.UGC_DELIMITER,
         )
 
         return metadata_model_whale.TableMetadata(
