@@ -33,15 +33,15 @@ class SnowflakeMetadataExtractor(Extractor):
         lower(c.data_type) AS col_type,
         lower(c.ordinal_position) AS col_sort_order,
         lower('{database}') AS database,
-        lower(c.table_catalog) AS catalog,
+        lower(c.table_catalog) AS cluster,
         lower(c.table_schema) AS schema,
         lower(c.table_name) AS name,
         t.comment AS description,
         decode(lower(t.table_type), 'view', 'true', 'false') AS is_view
     FROM
-        {catalog}.INFORMATION_SCHEMA.COLUMNS AS c
+        {cluster}.INFORMATION_SCHEMA.COLUMNS AS c
     LEFT JOIN
-        {catalog}.INFORMATION_SCHEMA.TABLES t
+        {cluster}.INFORMATION_SCHEMA.TABLES t
             ON c.TABLE_NAME = t.TABLE_NAME
             AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
     {where_clause_suffix};
@@ -49,23 +49,23 @@ class SnowflakeMetadataExtractor(Extractor):
 
     WHERE_CLAUSE_SUFFIX_KEY = 'where_clause_suffix'
     DATABASE_KEY = 'database'
-    CATALOG_KEY = 'catalog'
+    CLUSTER_KEY = 'cluster'
 
     DEFAULT_CONFIG = ConfigFactory.from_dict({
         WHERE_CLAUSE_SUFFIX_KEY: '',
         DATABASE_KEY: 'snowflake',
-        CATALOG_KEY: 'master',
+        CLUSTER_KEY: 'master',
     })
 
     def init(self, conf: ConfigTree) -> None:
         self.conf = conf.with_fallback(
             SnowflakeMetadataExtractor.DEFAULT_CONFIG)
         self._database = self.conf.get_string(SnowflakeMetadataExtractor.DATABASE_KEY)
-        self._catalog = '{}'.format(self.conf.get_string(SnowflakeMetadataExtractor.CATALOG_KEY))
+        self._cluster = '{}'.format(self.conf.get_string(SnowflakeMetadataExtractor.CLUSTER_KEY))
 
         self.sql_stmt = SnowflakeMetadataExtractor.SQL_STATEMENT.format(
             where_clause_suffix=self.conf.get_string('where_clause_suffix'),
-            catalog=self._catalog,
+            cluster=self._cluster,
             database=self._database
         )
 
@@ -109,7 +109,7 @@ class SnowflakeMetadataExtractor(Extractor):
 
             yield TableMetadata(
                     database=self._database,
-                    catalog=last_row['catalog'],
+                    cluster=last_row['cluster'],
                     schema=last_row['schema'],
                     name=last_row['name'],
                     description=unidecode(last_row['description']) if last_row['description'] else None,

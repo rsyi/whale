@@ -4,7 +4,7 @@ from typing import Iterable, List, Optional
 
 
 class ColumnMetadata:
-    COLUMN_KEY_FORMAT = '{db}://{catalog}.{schema}.{tbl}/{col}'
+    COLUMN_KEY_FORMAT = '{db}://{cluster}.{schema}.{tbl}/{col}'
 
     def __init__(self,
                  name: str,
@@ -44,16 +44,16 @@ class TableMetadata(object):
     Simplified table metadata that contains columns, extended with
     markdown_blob.
     """
-    TABLE_KEY_FORMAT = '{db}://{catalog}.{schema}.{tbl}'
+    TABLE_KEY_FORMAT = '{db}://{cluster}.{schema}.{tbl}'
 
     DATABASE_KEY_FORMAT = 'database://{db}'
 
-    CATALOG_KEY_FORMAT = '{db}://{catalog}'
+    CATALOG_KEY_FORMAT = '{db}://{cluster}'
 
     def __init__(
             self,
             database: str,
-            catalog: str,
+            cluster: str,
             schema: str,
             name: str,
             description: Optional[str] = None,
@@ -67,7 +67,7 @@ class TableMetadata(object):
         # type: (...) -> None
         """
         :param database:
-        :param catalog:
+        :param cluster:
         :param schema:
         :param name:
         :param description:
@@ -77,7 +77,7 @@ class TableMetadata(object):
         :param kwargs:
         """
         self.database = database
-        self.catalog = catalog
+        self.cluster = cluster
         self.schema = schema
         self.name = name
         self.description = description
@@ -98,7 +98,7 @@ class TableMetadata(object):
         # type: () -> str
         return 'TableMetadata({!r}, {!r}, {!r}, {!r} ' \
                '{!r}, {!r}, {!r}, {!r})'.format(self.database,
-                                                self.catalog,
+                                                self.cluster,
                                                 self.schema,
                                                 self.name,
                                                 self.description,
@@ -110,7 +110,7 @@ class TableMetadata(object):
         # type: () -> str
         return TableMetadata.TABLE_KEY_FORMAT.format(
             db=self.database,
-            catalog=self.catalog,
+            cluster=self.cluster,
             schema=self.schema,
             tbl=self.name)
 
@@ -118,17 +118,17 @@ class TableMetadata(object):
         # type: () -> str
         return TableMetadata.DATABASE_KEY_FORMAT.format(db=self.database)
 
-    def _get_catalog_key(self):
+    def _get_cluster_key(self):
         # type: () -> str
         return TableMetadata.CATALOG_KEY_FORMAT.format(
             db=self.database,
-            catalog=self.catalog)
+            cluster=self.cluster)
 
     def _get_col_key(self, col):
         # type: (ColumnMetadata) -> str
         return ColumnMetadata.COLUMN_KEY_FORMAT.format(
             db=self.database,
-            catalog=self.catalog,
+            cluster=self.cluster,
             schema=self.schema,
             tbl=self.name,
             col=col.name)
@@ -139,7 +139,7 @@ class TableColumnStats:
     Table stats model.
     """
     LABEL = 'Stat'
-    KEY_FORMAT = '{db}://{catalog}.{schema}' \
+    KEY_FORMAT = '{db}://{cluster}.{schema}' \
                  '.{table}/{col}/{stat_name}/'
     STAT_Column_RELATION_TYPE = 'STAT_OF'
     Column_STAT_RELATION_TYPE = 'STAT'
@@ -152,7 +152,7 @@ class TableColumnStats:
             start_epoch: str,
             end_epoch: str,
             db: str = 'hive',
-            catalog: str = 'gold',
+            cluster: str = 'gold',
             schema: str = None
     ):
         if schema is None:
@@ -164,14 +164,14 @@ class TableColumnStats:
         self.col_name = col_name.lower()
         self.start_epoch = start_epoch
         self.end_epoch = end_epoch
-        self.catalog = catalog
+        self.cluster = cluster
         self.stat_name = stat_name
         self.stat_val = stat_val
 
     def get_table_stat_model_key(self):
         # type: (...) -> str
         return TableColumnStats.KEY_FORMAT.format(db=self.db,
-            catalog=self.catalog,
+            cluster=self.cluster,
             schema=self.schema,
             table=self.table,
             col=self.col_name,
@@ -179,9 +179,9 @@ class TableColumnStats:
 
     def get_col_key(self):
         # type: (...) -> str
-        # no catalog, schema info from the input
+        # no cluster, schema info from the input
         return ColumnMetadata.COLUMN_KEY_FORMAT.format(db=self.db,
-            catalog=self.catalog,
+            cluster=self.cluster,
             schema=self.schema,
             tbl=self.table,
             col=self.col_name)

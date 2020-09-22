@@ -1,22 +1,22 @@
 import os
 from pathlib import Path
 
-TABLE_RELATIVE_FILE_PATH = '{database}/{catalog}.{schema}.{table}'
+TABLE_RELATIVE_FILE_PATH = '{database}/{cluster}.{schema}.{table}'
 CLUSTERLESS_TABLE_RELATIVE_FILE_PATH = '{database}/{schema}.{table}'
 
 
 def get_table_file_path_base(
         database,
-        catalog,
+        cluster,
         schema,
         table,
         base_directory=os.path.join(Path.home(), '.whale/metadata/')
         ):
 
-    if catalog is not None:
+    if cluster is not None:
         relative_file_path = TABLE_RELATIVE_FILE_PATH.format(
             database=database,
-            catalog=catalog,
+            cluster=cluster,
             schema=schema,
             table=table
         )

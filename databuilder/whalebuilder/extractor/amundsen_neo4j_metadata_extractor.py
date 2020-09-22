@@ -151,7 +151,7 @@ class AmundsenNeo4jMetadataExtractor(Neo4jExtractor):
 
                 yield TableMetadata(
                     database=result['database'],
-                    catalog=result['cluster'],
+                    cluster=result['cluster'],
                     schema=result['schema'],
                     name=result['name'],
                     description=result['description'],

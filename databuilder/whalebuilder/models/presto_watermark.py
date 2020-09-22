@@ -9,7 +9,7 @@ class PrestoWatermark(object):
     Table watermark result model.
     Each instance represents one row of table watermark result.
     """
-    KEY_FORMAT = '{database}://{catalog}.{schema}' \
+    KEY_FORMAT = '{database}://{cluster}.{schema}' \
                  '/{table}/{part_type}/'
 
     def __init__(
@@ -19,7 +19,7 @@ class PrestoWatermark(object):
             table_name: str,
             parts: list,
             part_type: str = 'high_watermark',
-            catalog: str = 'gold',
+            cluster: str = 'gold',
             ) -> None:
         self.database = database.lower()
         self.schema = schema.lower()
@@ -28,27 +28,27 @@ class PrestoWatermark(object):
         # currently we don't consider nested partitions
         self.parts = parts
         self.part_type = part_type.lower()
-        self.catalog = catalog.lower()
+        self.cluster = cluster.lower()
 
     def get_watermark_model_key(self) -> str:
         return PrestoWatermark.KEY_FORMAT.format(
             database=self.database,
-            catalog=self.catalog,
+            cluster=self.cluster,
             schema=self.schema,
             table=self.table,
             part_type=self.part_type)
 
     def get_metadata_model_key(self) -> str:
-        return '{database}://{catalog}.{schema}/{table}'.format(
+        return '{database}://{cluster}.{schema}/{table}'.format(
             database=self.database,
-            catalog=self.catalog,
+            cluster=self.cluster,
             schema=self.schema,
             table=self.table)
 
     def get_col_key(self, col: str) -> str:
         return ColumnMetadata.COLUMN_KEY_FORMAT.format(
             db=self.database,
-            catalog=self.catalog,
+            cluster=self.cluster,
             schema=self.schema,
             tbl=self.table,
             col=col)

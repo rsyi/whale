@@ -49,18 +49,18 @@ def _calculate_watermarks(
 
 
 class PrestoCommandsMixin:
-    def _get_full_schema_address(self, catalog, schema):
-        return '.'.join(filter(None, [catalog, schema]))
+    def _get_full_schema_address(self, cluster, schema):
+        return '.'.join(filter(None, [cluster, schema]))
 
     def get_all_table_metadata_from_information_schema(
             self,
-            catalog: Optional[str] = None,
+            cluster: Optional[str] = None,
             where_clause_suffix = '',
             ):
 
         unformatted_query = """
         SELECT
-          a.table_catalog AS catalog
+          a.table_catalog AS cluster
           , a.table_schema AS schema
           , a.table_name AS name
           , NULL AS description
@@ -70,8 +70,8 @@ class PrestoCommandsMixin:
           , a.comment AS col_description
           , a.data_type AS col_type
           , IF(b.table_name is not null, 1, 0) AS is_view
-        FROM {catalog_prefix}information_schema.columns a
-        LEFT JOIN {catalog_prefix}information_schema.views b
+        FROM {cluster_prefix}information_schema.columns a
+        LEFT JOIN {cluster_prefix}information_schema.views b
             ON a.table_catalog = b.table_catalog
             and a.table_schema = b.table_schema
             and a.table_name = b.table_name
@@ -80,15 +80,15 @@ class PrestoCommandsMixin:
 
         LOGGER.info(
             'Pulling all table metadata in bulk from' +
-            'information_schema in catalog name: {}'.format(catalog))
+            'information_schema in cluster name: {}'.format(cluster))
 
-        if catalog is not None:
-            catalog_prefix = catalog + '.'
+        if cluster is not None:
+            cluster_prefix = cluster + '.'
         else:
-            catalog_prefix = ''
+            cluster_prefix = ''
 
         formatted_query = unformatted_query.format(
-            catalog_prefix=catalog_prefix,
+            cluster_prefix=cluster_prefix,
             where_clause_suffix=where_clause_suffix
         )
 
@@ -113,7 +113,7 @@ class PrestoCommandsMixin:
 
             yield TableMetadata(
                 self._database,
-                catalog or self._default_catalog_name,
+                cluster or self._default_cluster_name,
                 last_row['schema'],
                 last_row['name'],
                 last_row['description'],
@@ -125,11 +125,11 @@ class PrestoCommandsMixin:
             self,
             schema: str,
             table: str,
-            catalog: Optional[str] = None,
+            cluster: Optional[str] = None,
             is_view_query_enabled: Optional[bool] = False
             ):
         # Format table and schema addresses for queries.
-        full_schema_address = self._get_full_schema_address(catalog, schema)
+        full_schema_address = self._get_full_schema_address(cluster, schema)
         full_table_address = '{}.{}'.format(full_schema_address, table)
 
         # Execute query that gets column type + partition information.
@@ -163,7 +163,7 @@ class PrestoCommandsMixin:
 
         return TableMetadata(
              database=self._database,
-             catalog=catalog,
+             cluster=cluster,
              schema=schema,
              name=table,
              description=None,
@@ -175,7 +175,7 @@ class PrestoCommandsMixin:
             self,
             schema: str,
             table: str,
-            catalog: Optional[str] = None,
+            cluster: Optional[str] = None,
             n_rows: int = 10) -> Iterator[Dict]:
         """
         For partitioned tables, find the approximate latest partition and
@@ -184,7 +184,7 @@ class PrestoCommandsMixin:
         result is formatted as a dictionary of {column name: value} pairs, and
         returned as an iterator.
         """
-        full_schema_address = self._get_full_schema_address(catalog, schema)
+        full_schema_address = self._get_full_schema_address(cluster, schema)
         partition_table_name = \
             '{}."{}$partitions"'.format(full_schema_address, table)
         # Hack: since partitions are usually date, this should usually get the
@@ -258,11 +258,11 @@ class PrestoCommandsMixin:
             self,
             schema: str,
             table: str,
-            catalog: str = None) -> Iterator[PrestoWatermark]:
+            cluster: str = None) -> Iterator[PrestoWatermark]:
         """
         Get watermarks, which are high/low values of partition columns.
         """
-        full_schema_address = self._get_full_schema_address(catalog, schema)
+        full_schema_address = self._get_full_schema_address(cluster, schema)
         partition_table_name = \
             '{}."{}$partitions"' \
             .format(full_schema_address, table)
@@ -284,7 +284,7 @@ class PrestoCommandsMixin:
 
             yield PrestoWatermark(
                 database=self._database,
-                catalog=catalog or self._default_catalog_name,
+                cluster=cluster or self._default_cluster_name,
                 schema=schema,
                 table_name=table,
                 parts=watermarks_high,
@@ -292,7 +292,7 @@ class PrestoCommandsMixin:
 
             yield PrestoWatermark(
                 database=self._database,
-                catalog=catalog or self._default_catalog_name,
+                cluster=cluster or self._default_cluster_name,
                 schema=schema,
                 table_name=table,
                 parts=watermarks_low,
@@ -304,12 +304,12 @@ class PrestoCommandsMixin:
             self,
             schema: str,
             table: str,
-            catalog: str = None) -> Optional[int]:
+            cluster: str = None) -> Optional[int]:
         """
         Run `analyze table`, which calculates statistics for the table in
         preparation for `show stats`, while also returning the number of rows.
         """
-        full_schema_address = self._get_full_schema_address(catalog, schema)
+        full_schema_address = self._get_full_schema_address(cluster, schema)
         full_table_address = full_schema_address + '.' + table
         analyze_query = 'analyze {}'.format(full_table_address)
 
@@ -323,12 +323,12 @@ class PrestoCommandsMixin:
             self,
             schema: str,
             table: str,
-            catalog: str = None):
+            cluster: str = None):
         """
         Run `show stats for table`, which returns some statistics for hive
         tables.
         """
-        full_schema_address = self._get_full_schema_address(catalog, schema)
+        full_schema_address = self._get_full_schema_address(cluster, schema)
         full_table_address = full_schema_address + '.' + table
         stats_query = 'show stats for {}'.format(full_table_address)
 
@@ -353,7 +353,7 @@ class PrestoCommandsMixin:
                                 start_epoch=0,
                                 end_epoch=int(time.time()),
                                 db=self._database,
-                                catalog=catalog or self._default_catalog_name,
+                                cluster=cluster or self._default_cluster_name,
                                 schema=schema,
                             )
 

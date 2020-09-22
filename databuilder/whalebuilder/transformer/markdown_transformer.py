@@ -6,143 +6,97 @@ import textwrap
 
 from tabulate import tabulate
 
+class FormatterMixin():
 
-class MarkdownTransformer(Transformer):
-    """
-    Transforms a TableMetadata record into a Markdown string.
-    """
+    UGC_DEMARCATOR = "-"*79
 
-    HEADER_TEMPLATE = '{schema}.{name} {view_statement}'
-    SUBHEADER_TEMPLATE = \
-        'Database: {database} | Cluster: {catalog}'
-    DESCRIPTION_TEMPLATE = textwrap.dedent("""    # Description
-    {description}\n
-    """)
-    METAFRAME_DOC_TEMPLATE = textwrap.dedent("""    {header}
-    {subheader}
+    def format_table_metadata(self, record) -> metadata_model_whale.TableMetadata:
+        block_template = textwrap.dedent(
+            """            # `{schema}.{name}` {view_statement}
+            {database} | {cluster}
 
-    {description}{columns}
-    """)
-    GENERIC_TABLE_HEADER = ['column', 'type', 'description']
-    PARTITIONED_TABLE_HEADER = ['column', 'type', 'partition', 'description']
+            {description}
 
-    def init(self, conf):
-        self.conf = conf
+            {columns}
 
-    def transform(self, record):
-        if not record:
-            return
+            {demarcator}
+            *Edits above this line will be overwritten.*
 
-        database = record.database
-        catalog = record.catalog
-        schema = record.schema
-        table_name = record.name
-        view_statement = '[view]' if record.is_view else ''
-        description = record.description
+            # README
+            """)
 
-        tabulated_columns = self.parse_columns(record)
+        formatted_columns = self.format_columns(record)
 
-        markdown_blob = self.format_templates(
-            database=database,
-            catalog=catalog,
-            schema=schema,
-            table_name=table_name,
-            view_statement=view_statement,
-            description=description,
-            tabulated_columns=tabulated_columns)
+        markdown_blob = block_template.format(
+            schema=record.schema,
+            name=record.name,
+            view_statement="[view]" if record.is_view else "",
+            database=record.database,
+            cluster=record.cluster,
+            description = record.description,
+            columns=formatted_columns,
+            demarcator=FormatterMixin.UGC_DEMARCATOR,
+        )
 
         return metadata_model_whale.TableMetadata(
-            database=database,
-            catalog=catalog,
-            schema=schema,
-            name=table_name,
+            database=record.database,
+            cluster=record.cluster,
+            schema=record.schema,
+            name=record.name,
             markdown_blob=markdown_blob,
         )
 
-    def parse_columns(self, record):
+    def format_columns(self, record) -> str:
+        max_type_length = 9
         columns = record.columns
-        columns_processed_for_tabulation = []
 
-        # Check if the extractor is returning metaframe's or amundsen's
-        # TableMetadata class. The metaframe class removes all neo4j methods
-        # and adds is_partition_column to the ColumnMetadata class.
-        # Format all markdown statements.
-        record_type = type(record)
-        if record_type == metadata_model_whale.TableMetadata:
-            columns_processed_for_tabulation \
-                .append(MarkdownTransformer.PARTITIONED_TABLE_HEADER)
-        elif record_type == metadata_model_amundsen.TableMetadata:
-            columns_processed_for_tabulation \
-                .append(MarkdownTransformer.GENERIC_TABLE_HEADER)
+        column_template_no_desc = "{buffered_type} `{name}`"
+        column_template = \
+            column_template_no_desc + "\n - {description}"
+        formatted_columns_list = []
 
-        # Loop through all columns and format ColumnMetadata as a list of
-        # lists.
         for column in columns:
-            if hasattr(column, 'is_partition_column'):
-                if column.is_partition_column:
-                    partition_flag = 'x'
-                else:
-                    partition_flag = ''
+            buffer_length = max_type_length - len(column.type)
+            buffered_type = "[" + column.type + "]" + " "*buffer_length
 
-                columns_processed_for_tabulation.append([
-                    column.name,
-                    column.type,
-                    partition_flag,
-                    column.description])
+            if column.description:
+                template = column_template
             else:
-                columns_processed_for_tabulation.append([
-                    column.name,
-                    column.type,
-                    column.description])
+                template = column_template_no_desc
 
-        if columns_processed_for_tabulation:
-            tabulated_columns = \
-                tabulate(
-                    columns_processed_for_tabulation,
-                    headers="firstrow",
-                    tablefmt="github")
-        else:
-            tabulated_columns = ''
-        return tabulated_columns
-
-    def format_templates(
-            self,
-            database,
-            catalog,
-            schema,
-            table_name,
-            view_statement,
-            description,
-            tabulated_columns):
-
-        header = MarkdownTransformer.HEADER_TEMPLATE.format(
-            schema=schema,
-            name=table_name,
-            view_statement=view_statement,
-        )
-        header += \
-            '\n' + '-'*(
-                len(table_name) +
-                len(schema) +
-                len(view_statement) +
-                2)
-        subheader = MarkdownTransformer.SUBHEADER_TEMPLATE.format(
-            database=database,
-            catalog=catalog,
-        )
-        if description is not None:
-            description_statement = \
-                MarkdownTransformer.DESCRIPTION_TEMPLATE.format(
-                    description=description
+            formatted_column_text = template.format(
+                column_template.format(
+                    buffered_type=buffered_type,
+                    name=column.name,
+                    description=column.description,
                 )
-        else:
-            description_statement = ''
+            )
+            formatted_columns_list.append(formatted_column_text)
 
-        return MarkdownTransformer.METAFRAME_DOC_TEMPLATE.format(
-            header=header,
-            subheader=subheader,
-            description=description_statement,
-            columns=tabulated_columns)
+        formatted_columns = "\n".join(formatted_columns_list)
+        return formatted_columns
+
+    def format_null(self):
+        return None
+
+
+class MarkdownTransformer(Transformer, FormatterMixin):
+    """
+    Transforms a TableMetadata record into a Markdown string.
+    """
+    def init(self, conf):
+        self.conf = conf
+        self.formatters = {
+            metadata_model_amundsen.TableMetadata: self.format_table_metadata,
+            metadata_model_whale.TableMetadata: self.format_table_metadata,
+        }
+
+    def transform(self, record):
+        formatter = self.formatters.get(type(record), self.format_null)
+        if not record:
+            return None
+        else:
+            return formatter(record)
 
     def get_scope(self):
         return "transformer.markdown"

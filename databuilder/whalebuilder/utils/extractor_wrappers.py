@@ -29,7 +29,6 @@ def configure_bigquery_extractor(connection: ConnectionConfigSchema):
         '{}.filter_key'.format(scope): connection.filter_key,
     })
 
-    print(conf)
     return extractor, conf
 
 
@@ -58,7 +57,7 @@ def configure_presto_extractor(
         '{}.is_stats_enabled'.format(scope): False,
         '{}.is_analyze_enabled'.format(scope): False,
         '{}.database'.format(scope): connection.name,
-        '{}.catalog'.format(scope): connection.catalog,
+        '{}.cluster'.format(scope): connection.cluster,
         '{}.included_schemas'.format(scope): connection.included_schemas,
         '{}.excluded_schemas'.format(scope): connection.excluded_schemas,
     })
@@ -102,7 +101,7 @@ def configure_snowflake_extractor(connection: ConnectionConfigSchema):
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
         '{}.database'.format(scope): connection.name,
-        '{}.catalog'.format(scope): connection.catalog,
+        '{}.cluster'.format(scope): connection.cluster,
     })
 
     return extractor, conf
