@@ -3,26 +3,28 @@ import os
 from pathlib import Path
 from pyhocon import ConfigFactory, ConfigTree
 import re
+import textwrap
 from typing import Any  # noqa: F401
 
 from databuilder.loader.base_loader import Loader
-from whalebuilder.utils import get_table_file_path_base, safe_write
-from whalebuilder.transformer.markdown_transformer import FormatterMixin
+from whalebuilder.utils import create_base_table_stub, get_table_file_path_base, safe_write
+from whalebuilder.utils.markdown_delimiters import (
+    COLUMN_DETAILS_DELIMITER,
+    PARTITIONS_DELIMITER,
+    USAGE_DELIMITER,
+    UGC_DELIMITER
+)
 import whalebuilder.models.table_metadata as metadata_model_whale
 
 HEADER_SECTION = 'header'
 COLUMN_DETAILS_SECTION = 'column_details'
 PARTITION_SECTION = 'partition'
 USAGE_SECTION = 'usage'
-COLUMN_DETAILS_DELIMITER = "## Column Details"
-PARTITIONS_DELIMITER = "## Partition info"
-USAGE_DELIMITER = "## Usage info"
-
+UGC_SECTION = 'ugc'
 
 def _parse_programmatic_blob(programmatic_blob):
 
-    regex_to_match = "(" + COLUMN_DETAILS_DELIMITER + "|" + partitions_delimiter + "|" + usage_delimiter + ")"
-
+    regex_to_match = "(" + COLUMN_DETAILS_DELIMITER + "|" + PARTITIONS_DELIMITER + "|" + USAGE_DELIMITER + ")"
 
     splits = re.split(regex_to_match, programmatic_blob)
 
@@ -37,9 +39,9 @@ def _parse_programmatic_blob(programmatic_blob):
     for clause in splits:
         if clause == COLUMN_DETAILS_DELIMITER:
             state = COLUMN_DETAILS_SECTION
-        elif clause == partitions_delimiter:
+        elif clause == PARTITIONS_DELIMITER:
             state = PARTITION_SECTION
-        elif clause == usage_delimiter:
+        elif clause == USAGE_DELIMITER:
             state = USAGE_SECTION
 
         sections[state].append(clause)
@@ -54,7 +56,7 @@ def sections_from_markdown(file_path):
     with open(file_path, "r") as f:
         old_file_text = "".join(f.readlines())
 
-    file_strings = old_file_text.split(FormatterMixin.UGC_DELIMITER)
+    file_strings = old_file_text.split(UGC_DELIMITER)
 
     programmatic_blob = file_strings[0]
 
@@ -63,27 +65,19 @@ def sections_from_markdown(file_path):
     ugc = "".join(file_strings[1:])
 
     sections = {
-        "ugc": ugc,
+        UGC_SECTION: ugc,
     }
     sections.update(programmatic_sections)
     return sections
 
+def markdown_from_sections(sections: dict):
+    programmatic_blob = sections[HEADER_SECTION] \
+        + COLUMN_DETAILS_DELIMITER + sections[COLUMN_DETAILS_SECTION]\
+        + PARTITIONS_DELIMITER + sections[PARTITION_SECTION]\
+        + USAGE_DELIMITER + sections[USAGE_SECTION]
 
-def markdown_from_sections(
-        header_blob="",
-        column_details_blob="",
-        partition_blob="",
-        usage_blob="",
-        ugc_blob="\n# README",
-        ):
-
-    programmatic_blob = "\n".join([
-        header_blob,
-        column_details_blob,
-        partition_blob,
-        usage_blob])
-
-    final_blob = FormatterMixin.UGC_DELIMITER.join([programmatic_blob, ugc_blob])
+    ugc_blob = sections[UGC_SECTION]
+    final_blob = UGC_DELIMITER.join([programmatic_blob, ugc_blob])
     return final_blob
 
 
@@ -102,10 +96,10 @@ class WhaleLoader(Loader):
         Path(self.base_directory).mkdir(parents=True, exist_ok=True)
 
 
-    def load(self, record):
-        # type: (Any) -> None
+    def load(self, record) -> None:
         """
-        Write record object as csv to file
+        Creates a table stub if it does not exist, updates this template with
+        information in `record`.
         :param record:
         :return:
         """
@@ -124,11 +118,17 @@ class WhaleLoader(Loader):
         subdirectory = '/'.join(file_path.split('/')[:-1])
         Path(subdirectory).mkdir(parents=True, exist_ok=True)
 
-        Path(file_path).touch()
-        self.modify_section(file_path, record)
+        if not os.path.exists(file_path):
+            create_base_table_stub(
+                file_path,
+                record.database,
+                record.cluster,
+                record.schema,
+                record.name)
 
+        self.update_markdown(file_path, record)
 
-    def modify_section(self, file_path, record):
+    def update_markdown(self, file_path, record):
         # Key (on record type) functions that take actions on a table stub
         section_dict = {
         }

@@ -1,28 +1,22 @@
 from databuilder.transformer.base_transformer import Transformer
 import whalebuilder.models.table_metadata as metadata_model_whale
 import databuilder.models.table_metadata as metadata_model_amundsen
+from whalebuilder.utils.markdown_delimiters import (
+    COLUMN_DETAILS_DELIMITER
+)
 
 import textwrap
 
-from tabulate import tabulate
 
 class FormatterMixin():
-
-    UGC_DELIMITER = "-"*79
 
     def format_table_metadata(self, record) -> metadata_model_whale.TableMetadata:
         block_template = textwrap.dedent(
             """            # `{schema}.{name}` {view_statement}
             {database} | {cluster}
-
             {description}
-
+            {column_details_delimiter}
             {columns}
-
-            {demarcator}
-            *Edits above this line will be overwritten.*
-
-            # README
             """)
 
         formatted_columns = self.format_columns(record)
@@ -33,9 +27,10 @@ class FormatterMixin():
             view_statement="[view]" if record.is_view else "",
             database=record.database,
             cluster=record.cluster,
-            description = record.description,
+            description=record.description + "\n"
+                if record.description else None,
+            column_details_delimiter=COLUMN_DETAILS_DELIMITER,
             columns=formatted_columns,
-            demarcator=FormatterMixin.UGC_DELIMITER,
         )
 
         return metadata_model_whale.TableMetadata(
@@ -50,31 +45,34 @@ class FormatterMixin():
         max_type_length = 9
         columns = record.columns
 
-        column_template_no_desc = "{buffered_type} `{name}`"
-        column_template = \
-            column_template_no_desc + "\n - {description}"
-        formatted_columns_list = []
+        if columns:
+            column_template_no_desc = "{buffered_type} `{name}`"
+            column_template = \
+                column_template_no_desc + "\n - {description}"
+            formatted_columns_list = []
 
-        for column in columns:
-            buffer_length = max_type_length - len(column.type)
-            buffered_type = "[" + column.type + "]" + " "*buffer_length
+            for column in columns:
+                buffer_length = max_type_length - len(column.type)
+                buffered_type = "[" + column.type + "]" + " "*buffer_length
 
-            if column.description:
-                template = column_template
-            else:
-                template = column_template_no_desc
+                if column.description:
+                    formatted_column_text = column_template.format(
+                        buffered_type=buffered_type,
+                        name=column.name,
+                        description=column.description,
+                    )
+                else:
+                    formatted_column_text = column_template_no_desc.format(
+                        buffered_type=buffered_type,
+                        name=column.name,
+                    )
 
-            formatted_column_text = template.format(
-                column_template.format(
-                    buffered_type=buffered_type,
-                    name=column.name,
-                    description=column.description,
-                )
-            )
-            formatted_columns_list.append(formatted_column_text)
+                formatted_columns_list.append(formatted_column_text)
 
-        formatted_columns = "\n".join(formatted_columns_list)
-        return formatted_columns
+            formatted_columns = "\n".join(formatted_columns_list)
+            return formatted_columns
+        else:
+            return ""
 
     def format_null(self):
         return None

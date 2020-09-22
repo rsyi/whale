@@ -24,7 +24,8 @@ def create_and_run_tasks_from_yaml(
         verbose=True):
     with open(CONNECTION_PATH) as f:
         raw_connection_dicts = list(yaml.safe_load_all(f))
-for raw_connection_dict in raw_connection_dicts:
+
+    for raw_connection_dict in raw_connection_dicts:
         connection = dump_connection_config_in_schema(raw_connection_dict)
 
         if connection.metadata_source == 'Presto':
