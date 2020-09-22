@@ -15,6 +15,7 @@ class FormatterMixin():
             """            # `{schema}.{name}` {view_statement}
             {database} | {cluster}
             {description}
+
             {column_details_delimiter}
             {columns}
             """)
@@ -27,8 +28,7 @@ class FormatterMixin():
             view_statement="[view]" if record.is_view else "",
             database=record.database,
             cluster=record.cluster,
-            description=record.description + "\n"
-                if record.description else None,
+            description=record.description or "No description found.",
             column_details_delimiter=COLUMN_DETAILS_DELIMITER,
             columns=formatted_columns,
         )

@@ -72,9 +72,9 @@ def sections_from_markdown(file_path):
 
 def markdown_from_sections(sections: dict):
     programmatic_blob = sections[HEADER_SECTION] \
-        + COLUMN_DETAILS_DELIMITER + sections[COLUMN_DETAILS_SECTION]\
-        + PARTITIONS_DELIMITER + sections[PARTITION_SECTION]\
-        + USAGE_DELIMITER + sections[USAGE_SECTION]
+        + sections[COLUMN_DETAILS_SECTION]\
+        + sections[PARTITION_SECTION]\
+        + sections[USAGE_SECTION]
 
     ugc_blob = sections[UGC_SECTION]
     final_blob = UGC_DELIMITER.join([programmatic_blob, ugc_blob])
@@ -134,7 +134,6 @@ class WhaleLoader(Loader):
         }
 
         sections = sections_from_markdown(file_path)
-
         # The table metadata record has both a header and column details. Add
         # custom logic to handle both.
         if type(record) == metadata_model_whale.TableMetadata:
@@ -142,14 +141,15 @@ class WhaleLoader(Loader):
             header = table_details[0]
             column_details = "".join(table_details[1:])
             sections[HEADER_SECTION] = header
-            sections[COLUMN_DETAILS_SECTION] = column_details
+            # Since we split on COLUMN_DETAILS_DELIMITER, reintroduce it
+            sections[COLUMN_DETAILS_SECTION] = \
+                COLUMN_DETAILS_DELIMITER + column_details
         else:
             section_to_update = section_dict[type(record)]
             sections[section_to_update] = record.markdown_blob + "\n"
 
         new_file_text = markdown_from_sections(sections)
         safe_write(file_path, new_file_text)
-
 
     def sync_manifest(self, manifest):
         pass

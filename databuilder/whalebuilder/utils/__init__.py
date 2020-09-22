@@ -55,4 +55,3 @@ def safe_write(file_path_to_write, text_to_write, tmp_extension=".bak"):
 
     os.rename(backup_file_path, file_path_to_write)
 
-
