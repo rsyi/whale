@@ -10,7 +10,9 @@ fn main() {
         .subcommand(SubCommand::with_name("init")
             .about("Initializes the scheduler and extraction pipeline"))
         .subcommand(SubCommand::with_name("etl")
-            .about("Manually runs the metadata extraction job"));
+            .about("Manually runs the metadata extraction job"))
+        .subcommand(SubCommand::with_name("schedule")
+            .about("Register metadata scraping job with crontab"));
 
     let matches = app.get_matches();
 
@@ -20,6 +22,10 @@ fn main() {
 
     else if let Some(etl_matches) = matches.subcommand_matches("etl") {
         let output = whale::Whale::etl();
+    }
+
+    else if let Some(schedule_matches) = matches.subcommand_matches("schedule") {
+        let output = whale::Whale::schedule();
     }
 
     else {

@@ -9,6 +9,7 @@ use std::{env, fmt, io};
 use std::io::Write;
 use std::fs::OpenOptions;
 use std::path::Path;
+use std::process;
 use std::str::FromStr;
 
 use crate::utils;
@@ -75,7 +76,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         }
     }
 
-    println!("{}", "What type of warehouse would you like to add?".purple());
+    println!("\n{}", "What type of warehouse would you like to add?".purple());
     println!(" {}:", "Options".bold());
 
     let supported_warehouse_types = [
@@ -103,16 +104,22 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
             | Ok(MetadataSource::Presto)
             | Ok(MetadataSource::Snowflake)
             => GenericWarehouse::prompt_add_details(warehouse_enum.unwrap()),
-        Err(e) => eprintln!("{}", e),
+        Err(e) => handle_error(e),
     };
 
+    fn handle_error(e: ParseMetadataSourceError) {
+        eprintln!("{} {}", "WARNING:".red(), e);
+        println!("Try again.");
+        prompt_add_warehouse(true);
+        process::exit(1)
+    }
     prompt_add_warehouse(false);
 
 }
 
 
 fn get_name() -> String {
-    println!("\n{}", "Input a name for your warehouse (e.g. silver-1)".purple());
+    println!("\n{}", "Input a name for your warehouse (e.g. bq-1)".purple());
     let mut name = utils::get_input();
     if name == "" {
         let mut generator = Generator::with_naming(Name::Plain);
