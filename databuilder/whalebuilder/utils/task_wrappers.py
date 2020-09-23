@@ -1,11 +1,17 @@
 import os
 import yaml
 
+from whalebuilder.utils.paths import (
+    BASE_DIR,
+    CONNECTION_PATH,
+    MANIFEST_PATH
+)
 from pathlib import Path
 from databuilder.task.task import DefaultTask
 from whalebuilder.loader.whale_loader import WhaleLoader
 from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
 from whalebuilder.utils.connections import dump_connection_config_in_schema
+from whalebuilder.utils import transfer_manifest
 
 from whalebuilder.utils.extractor_wrappers import \
         configure_bigquery_extractors, \
@@ -14,13 +20,9 @@ from whalebuilder.utils.extractor_wrappers import \
         configure_snowflake_extractors, \
         run_build_script
 
-BASE_DIR = os.path.join(Path.home(), '.whale/')
-CONNECTION_PATH = os.path.join(BASE_DIR, 'config/connections.yaml')
-MANIFEST_PATH = os.path.join(BASE_DIR, 'manifest.csv')
-
 
 def create_and_run_tasks_from_yaml(
-        is_full_extraction_enabled=False,
+        is_full_extraction_enabled=True,
         verbose=True):
     with open(CONNECTION_PATH) as f:
         raw_connection_dicts = list(yaml.safe_load_all(f))
@@ -57,3 +59,4 @@ def create_and_run_tasks_from_yaml(
             task.init(conf)
             task.run()
 
+        transfer_manifest()

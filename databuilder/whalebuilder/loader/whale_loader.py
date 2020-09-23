@@ -7,13 +7,19 @@ import textwrap
 from typing import Any  # noqa: F401
 
 from databuilder.loader.base_loader import Loader
-from whalebuilder.utils import create_base_table_stub, get_table_file_path_base, safe_write
+from whalebuilder.utils import (
+    create_base_table_stub,
+    get_table_file_path_base,
+    get_table_file_path_relative,
+    safe_write
+)
 from whalebuilder.utils.markdown_delimiters import (
     COLUMN_DETAILS_DELIMITER,
     PARTITIONS_DELIMITER,
     USAGE_DELIMITER,
     UGC_DELIMITER
 )
+from whalebuilder.utils.paths import TMP_MANIFEST_PATH
 import whalebuilder.models.table_metadata as metadata_model_whale
 
 HEADER_SECTION = 'header'
@@ -49,6 +55,17 @@ def _parse_programmatic_blob(programmatic_blob):
     for state, clauses in sections.items():
         sections[state] = "".join(clauses)
     return sections
+
+
+def _append_to_temp_manifest(record):
+    relative_file_path = get_table_file_path_relative(
+        record.database,
+        record.cluster,
+        record.schema,
+        record.name
+    )
+    with open(TMP_MANIFEST_PATH, "a") as f:
+        f.write(relative_file_path + "\n")
 
 
 def sections_from_markdown(file_path):
@@ -127,6 +144,7 @@ class WhaleLoader(Loader):
                 record.name)
 
         self.update_markdown(file_path, record)
+        _append_to_temp_manifest(record)
 
     def update_markdown(self, file_path, record):
         # Key (on record type) functions that take actions on a table stub
@@ -150,9 +168,6 @@ class WhaleLoader(Loader):
 
         new_file_text = markdown_from_sections(sections)
         safe_write(file_path, new_file_text)
-
-    def sync_manifest(self, manifest):
-        pass
 
     def close(self):
         pass
