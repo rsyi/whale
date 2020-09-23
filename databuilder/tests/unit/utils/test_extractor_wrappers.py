@@ -10,9 +10,9 @@ from whalebuilder.models.connection_config import ConnectionConfigSchema
 from whalebuilder.engine.sql_alchemy_engine import SQLAlchemyEngine
 from whalebuilder.extractor.bigquery_metadata_extractor import BaseBigQueryExtractor
 from whalebuilder.utils.extractor_wrappers import \
-    configure_bigquery_extractor, \
-    configure_neo4j_extractor, \
-    configure_presto_extractor
+    configure_bigquery_extractors, \
+    configure_neo4j_extractors, \
+    configure_presto_extractors
 from databuilder.extractor.neo4j_extractor import Neo4jExtractor
 
 TEST_PRESTO_CONNECTION_CONFIG = ConnectionConfigSchema(
@@ -52,7 +52,7 @@ def test_configure_presto_extractor(mock_settings):
     Test that the extractor can initialize.
     """
     extractor, conf = \
-        configure_presto_extractor(TEST_PRESTO_CONNECTION_CONFIG)
+        configure_presto_extractors(TEST_PRESTO_CONNECTION_CONFIG)
     scoped_conf = Scoped.get_scoped_conf(conf, extractor.get_scope())
     assert extractor.init(scoped_conf) == None
 
@@ -63,7 +63,7 @@ def test_configure_bigquery_extractor(*mock_settings):
     Test that the extractor can initialize.
     """
     extractor, conf = \
-        configure_bigquery_extractor(TEST_BIGQUERY_CONNECTION_CONFIG)
+        configure_bigquery_extractors(TEST_BIGQUERY_CONNECTION_CONFIG)
     scoped_conf = Scoped.get_scoped_conf(conf, extractor.get_scope())
     assert extractor.init(scoped_conf) == None
 
@@ -74,6 +74,6 @@ def test_configure_neo4j_extractor(mock_settings):
     Test that the extractor can initialize.
     """
     extractor, conf = \
-        configure_neo4j_extractor(TEST_NEO4J_CONNECTION_CONFIG)
+        configure_neo4j_extractors(TEST_NEO4J_CONNECTION_CONFIG)
     scoped_conf = Scoped.get_scoped_conf(conf, extractor.get_scope())
     assert extractor.init(scoped_conf) == None

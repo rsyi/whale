@@ -8,10 +8,10 @@ from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
 from whalebuilder.utils.connections import dump_connection_config_in_schema
 
 from whalebuilder.utils.extractor_wrappers import \
-        configure_bigquery_extractor, \
-        configure_neo4j_extractor, \
-        configure_presto_extractor, \
-        configure_snowflake_extractor, \
+        configure_bigquery_extractors, \
+        configure_neo4j_extractors, \
+        configure_presto_extractors, \
+        configure_snowflake_extractors, \
         run_build_script
 
 BASE_DIR = os.path.join(Path.home(), '.whale/')
@@ -29,15 +29,15 @@ def create_and_run_tasks_from_yaml(
         connection = dump_connection_config_in_schema(raw_connection_dict)
 
         if connection.metadata_source == 'Presto':
-            extractor, conf = configure_presto_extractor(
+            extractors, conf = configure_presto_extractors(
                     connection,
                     is_full_extraction_enabled=is_full_extraction_enabled)
         elif connection.metadata_source == 'Neo4j':
-            extractor, conf = configure_neo4j_extractor(connection)
+            extractors, conf = configure_neo4j_extractors(connection)
         elif connection.metadata_source == 'Bigquery':
-            extractor, conf = configure_bigquery_extractor(connection)
+            extractors, conf = configure_bigquery_extractors(connection)
         elif connection.metadata_source == 'Snowflake':
-            extractor, conf = configure_snowflake_extractor(connection)
+            extractors, conf = configure_snowflake_extractors(connection)
         elif connection.metadata_source == 'build_script':
             run_build_script(connection)
             break
@@ -48,11 +48,12 @@ def create_and_run_tasks_from_yaml(
             connection.name or connection.metadata_source)
         conf.put('loader.filesystem.csv.file_path', MANIFEST_PATH)
 
-        task = DefaultTask(
-            extractor=extractor,
-            transformer=MarkdownTransformer(),
-            loader=WhaleLoader(),
-        )
-        task.init(conf)
-        task.run()
+        for extractor in extractors:
+            task = DefaultTask(
+                extractor=extractor,
+                transformer=MarkdownTransformer(),
+                loader=WhaleLoader(),
+            )
+            task.init(conf)
+            task.run()
 

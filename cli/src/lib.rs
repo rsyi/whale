@@ -3,6 +3,7 @@ extern crate colored;
 extern crate shellexpand;
 use clap::{ArgMatches};
 use colored::*;
+use std::path::Path;
 use std::process::Command;
 
 pub mod warehouse;
@@ -37,7 +38,6 @@ We'll check if this exists and make it if it doesn't.")
 }
 
 
-
 pub struct Whale {}
 
 impl Whale {
@@ -50,15 +50,21 @@ impl Whale {
         utils::pause();
         filesystem::create_file_structure();
 
-        let mut has_more_warehouses = true;
-        let mut is_first_warehouse = true;
-
+        let is_first_warehouse = true;
         warehouse::prompt_add_warehouse(is_first_warehouse);
-        is_first_warehouse = false;
     }
 
     pub fn etl() {
-        println!("Running ETL job manually...");
-        Command::new("~/.whale/libexec/dist/build_script/build_script");
+        let base_path = shellexpand::tilde("~");
+        let build_script_path = Path::new(&*base_path)
+            .join(".whale")
+            .join("libexec")
+            .join("dist")
+            .join("build_script")
+            .join("build_script");
+        println!("Running ETL job manually.");
+        Command::new(build_script_path)
+            .output()
+            .expect("ETL failed.");
     }
 }

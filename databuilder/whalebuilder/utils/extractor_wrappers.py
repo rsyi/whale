@@ -18,7 +18,7 @@ BUILD_SCRIPT_TEMPLATE = \
 SQL_ALCHEMY_SCOPE = SQLAlchemyExtractor().get_scope()
 
 
-def configure_bigquery_extractor(connection: ConnectionConfigSchema):
+def configure_bigquery_extractors(connection: ConnectionConfigSchema):
     extractor = BigQueryMetadataExtractor()
     scope = extractor.get_scope()
     conf = ConfigFactory.from_dict({
@@ -29,10 +29,12 @@ def configure_bigquery_extractor(connection: ConnectionConfigSchema):
         '{}.filter_key'.format(scope): connection.filter_key,
     })
 
-    return extractor, conf
+    extractors = [extractor]
+
+    return extractors, conf
 
 
-def configure_presto_extractor(
+def configure_presto_extractors(
         connection: ConnectionConfigSchema,
         is_full_extraction_enabled: bool = False):
     extractor = PrestoLoopExtractor()
@@ -62,10 +64,12 @@ def configure_presto_extractor(
         '{}.excluded_schemas'.format(scope): connection.excluded_schemas,
     })
 
-    return extractor, conf
+    extractors = [extractor]
+
+    return extractors, conf
 
 
-def configure_neo4j_extractor(connection: ConnectionConfigSchema):
+def configure_neo4j_extractors(connection: ConnectionConfigSchema):
     extractor = AmundsenNeo4jMetadataExtractor()
     scope = extractor.get_scope()
     conf = ConfigFactory.from_dict({
@@ -78,10 +82,12 @@ def configure_neo4j_extractor(connection: ConnectionConfigSchema):
         '{}.excluded_key_regex'.format(scope): connection.excluded_key_regex,
     })
 
-    return extractor, conf
+    extractors = [extractor]
+
+    return extractors, conf
 
 
-def configure_snowflake_extractor(connection: ConnectionConfigSchema):
+def configure_snowflake_extractors(connection: ConnectionConfigSchema):
     extractor = SnowflakeMetadataExtractor()
     scope = extractor.get_scope()
 
@@ -104,7 +110,9 @@ def configure_snowflake_extractor(connection: ConnectionConfigSchema):
         '{}.cluster'.format(scope): connection.cluster,
     })
 
-    return extractor, conf
+    extractors = [extractor]
+
+    return extractors, conf
 
 
 def run_build_script(connection: ConnectionConfigSchema):
