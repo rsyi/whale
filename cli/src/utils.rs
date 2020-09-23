@@ -1,6 +1,8 @@
 extern crate colored;
 use colored::*;
+use regex::Regex;
 use std::io::{self, Write};
+use std::process::Command;
 
 
 pub fn get_input() -> String {
@@ -46,3 +48,24 @@ pub fn pause() {
     let _ = get_input();
 }
 
+
+pub fn is_valid_cron_expression(expression: &str) -> bool {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r#"(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|s|m|h))+)|(((([\d]+,)+\d+|(\d+(/|-)\d+)|\d+|\*|(\d|/|\*)) ?){5,7})"#).unwrap();
+    }
+    RE.is_match(expression)
+}
+
+pub fn is_cron_expression_registered() -> bool {
+    let result = Command::new("sh")
+        .args(&["-c", "crontab -l | fgrep \"whale etl\""])
+        .output().expect("Fgrep failed.");
+    let stdout = String::from_utf8(result.stdout)
+        .unwrap();
+    if !stdout.trim().is_empty() {
+        true
+    }
+    else {
+        false
+    }
+}
