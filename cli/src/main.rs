@@ -25,7 +25,7 @@ fn main() {
     }
 
     else if let Some(schedule_matches) = matches.subcommand_matches("schedule") {
-        let output = whale::Whale::schedule();
+        let output = whale::Whale::schedule(true);
     }
 
     else {

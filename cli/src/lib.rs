@@ -70,10 +70,10 @@ impl Whale {
                      "Y".green(),
                      "n".red()
                      );
-            println!("This is very, very resource light, and can always be removed by editing the file at `crontab -e`.");
+            println!("This is resource-light and can be manually deleted by editing the file at {}.", "crontab -e".magenta());
             let is_scheduling_requested: bool = utils::get_input_as_bool();
             if is_scheduling_requested {
-                Whale::schedule();
+                Whale::schedule(false);
             }
         }
 
@@ -95,7 +95,7 @@ impl Whale {
             .expect("ETL failed.");
     }
 
-    pub fn schedule() {
+    pub fn schedule(ask_for_permission: bool) {
         print_scheduler_header();
         let mut cron_string = utils::get_input();
         if cron_string.is_empty() {
@@ -118,31 +118,43 @@ impl Whale {
                 );
         }
 
-        println!("{}", "Register metadata scraping job at this schedule in crontab?".purple());
-        println!("This will excise and replace any whale-based cron job you've already registered through this interface.");
-        println!("You can manually delete this later by editing the file accessed by `crontab -e`.");
+        let mut can_add_crontab = true;
+        if ask_for_permission {
+            println!("{} [{}, {}]", "Register metadata scraping job at this schedule in crontab?".purple(), "Y".green(), "n".red());
+            println!("This will excise and replace any whale-based cron job you've already registered through this interface.");
+            println!("You can manually delete this later by editing the file accessed by `crontab -e`.");
 
-        utils::pause();
+            can_add_crontab = utils::get_input_as_bool();
+        }
 
-        let whale_etl_command = format!("{} {}", shellexpand::tilde("~/.whale/libexec/whale"), "etl");
-        let whale_logs_path = shellexpand::tilde("~/.whale/logs/cron.log");
+        if can_add_crontab {
+            let whale_etl_command = format!("{} {}", shellexpand::tilde("~/.whale/libexec/whale"), "etl");
+            let whale_logs_path = shellexpand::tilde("~/.whale/logs/cron.log");
 
-        let whale_cron_expression = format!(
-            "{} {} >> {}",
-            cron_string,
-            whale_etl_command,
-            whale_logs_path);
-        let scheduler_command = format!("(crontab -l | fgrep -v \"{}\"; echo \"{}\") | crontab -", whale_etl_command, whale_cron_expression);
+            let whale_cron_expression = format!(
+                "{} {} >> {}",
+                cron_string,
+                whale_etl_command,
+                whale_logs_path);
+            let scheduler_command = format!("(crontab -l | fgrep -v \"{}\"; echo \"{}\") | crontab -", whale_etl_command, whale_cron_expression);
 
-        Command::new("sh")
-            .args(&["-c", &scheduler_command])
-            .spawn()
-            .expect("Crontab registration failed.");
+            Command::new("sh")
+                .args(&["-c", &scheduler_command])
+                .spawn()
+                .expect("Crontab registration failed.");
 
-        if utils::is_cron_expression_registered() {
             println!("If you are prompted for permissions, allow and continue. [Press {} to continue]", "enter".green());
             utils::get_input();
-            println!("Cron expression successfully registered.");
+
+            if utils::is_cron_expression_registered() {
+                println!("{}", "Cron expression successfully registered.".cyan());
+            }
+            else {
+                println!("{} {}", "WARNING:".red(), "Cron tab failed to register.");
+                println!("If failures persist, manually add the following line to your crontab (accessed through {}).", "crontab -e".magenta());
+                println!("{}", whale_cron_expression.magenta());
+            }
+
         }
     }
 }

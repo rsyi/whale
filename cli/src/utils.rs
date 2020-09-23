@@ -25,7 +25,7 @@ pub fn get_integer_input() -> i32 {
 pub fn get_input_as_bool() -> bool {
     let raw_input = get_input();
     let buffer: &str = raw_input.as_str().trim();
-    let negative_inputs = ["n", "N"];
+    let negative_inputs = ["n", "N", "f", "false", "False"];
 
     if negative_inputs.contains(&buffer) {
         false
