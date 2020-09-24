@@ -23,6 +23,7 @@ jobs:
         pip install databuilder/.
         pip install flake8
         pip install pytest-cov
+        pip install pytest
     - name: Run tests
       run: |
         make test
