@@ -82,6 +82,7 @@ impl Whale {
 
     pub fn etl() {
         print_etl_header();
+
         let base_path = shellexpand::tilde("~");
         let build_script_path = Path::new(&*base_path)
             .join(".whale")
@@ -92,6 +93,9 @@ impl Whale {
         Command::new(build_script_path)
             .output()
             .expect("ETL failed.");
+
+        let manifest_path = shellexpand::tilde("~/.whale/manifest.txt");
+        filesystem::deduplicate_file(&manifest_path);
     }
 
     pub fn schedule(ask_for_permission: bool) {

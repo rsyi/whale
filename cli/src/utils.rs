@@ -1,10 +1,12 @@
 extern crate colored;
 use colored::*;
 use regex::Regex;
-use std::io::{self, Write};
-use std::process::Command;
-use std::fs::OpenOptions;
-use std::path::Path;
+use std::{
+    fs::{OpenOptions},
+    io::{self, Write},
+    path::Path,
+    process::Command,
+};
 
 
 pub fn get_input() -> String {
