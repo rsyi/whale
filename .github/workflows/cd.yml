@@ -54,5 +54,5 @@ jobs:
         brew tap rsyi/tap
         brew bump-formula-pr -f --version=${{ steps.get_version.outputs.version }} --no-browse --no-audit \
         --sha256=${{ steps.shasum.outputs.sha }} \
-        --url="https://github.com/rsyi/metaframe/releases/download/${{ steps.get_version.outputs.version }}/whale-mac.tar.gz" \
-        rsyi/tap/metaframe
+        --url="https://github.com/rsyi/whale/releases/download/${{ steps.get_version.outputs.version }}/whale-mac.tar.gz" \
+        rsyi/tap/whale
