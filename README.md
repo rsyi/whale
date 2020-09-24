@@ -4,7 +4,7 @@
 
 `whale` is a blazingly fast CLI **data discovery + documentation tool**. It periodically pulls table and column info from your warehouse and makes it locally searchable and documentable.
 
-![](https://raw.githubusercontent.com/rsyi/metaframe/master/docs/demo.gif)
+![](docs/demo.gif)
 
 ## Installation
 
