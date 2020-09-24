@@ -52,7 +52,7 @@ class FormatterMixin():
             formatted_columns_list = []
 
             for column in columns:
-                buffer_length = max_type_length - len(column.type)
+                buffer_length = max(max_type_length - len(column.type), 0)
                 buffered_type = "[" + column.type + "]" + " "*buffer_length
 
                 if column.description:
