@@ -9,14 +9,14 @@ from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
 
 
 DATABASE = 'mock_database'
-CATALOG = 'mock_catalog'
+CLUSTER = 'mock_cluster'
 SCHEMA = 'mock_schema'
 TABLE = 'mock_table'
 COLUMN = 'mock_column'
 COLUMN_DESCRIPTION = 'mock_column_description'
 
 
-class TestMetaframeLoader(unittest.TestCase):
+class TestMarkdownTransformer(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.INFO)
         self._conf = ConfigFactory.from_dict({
@@ -28,20 +28,20 @@ class TestMetaframeLoader(unittest.TestCase):
         """
         column = ColumnMetadata(
             name=COLUMN,
-            col_type=int,
+            col_type="Integer",
             sort_order=0,
             description=COLUMN_DESCRIPTION,
         )
         record = TableMetadata(
             database=DATABASE,
-            catalog=CATALOG,
+            cluster=CLUSTER,
             schema=SCHEMA,
             name=TABLE,
             columns=[column]
         )
         components = [
             DATABASE,
-            CATALOG,
+            CLUSTER,
             SCHEMA,
             TABLE,
             COLUMN,
