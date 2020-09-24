@@ -17,8 +17,6 @@ pub fn table_skim() {
     let table_manifest = fs::read_to_string(manifest_file_path)
         .expect("Failed to read file.");
 
-    println!("Manifest: {}", table_manifest);
-
     let metadata_path = shellexpand::tilde("~/.whale/metadata/");
     let preview_command = format!("cat {}{}.md", metadata_path, "{}");
     let options = SkimOptionsBuilder::default()
@@ -38,7 +36,6 @@ pub fn table_skim() {
     for item in selected_items.iter() {
         let table_name = item.text().into_owned();
         let filename = utils::convert_table_name_to_file_name(&table_name);
-        println!("{}", filename);
 
         let editor = match std::env::var("EDITOR") {
                 Ok(val) => val,
