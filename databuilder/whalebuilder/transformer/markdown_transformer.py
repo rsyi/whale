@@ -12,7 +12,7 @@ class FormatterMixin():
 
     def format_table_metadata(self, record) -> metadata_model_whale.TableMetadata:
         block_template = textwrap.dedent(
-            """            # `{schema}.{name}` {view_statement}
+            """            # `{schema}.{name}`{view_statement}
             {database} | {cluster}
             {description}
 
@@ -25,7 +25,7 @@ class FormatterMixin():
         markdown_blob = block_template.format(
             schema=record.schema,
             name=record.name,
-            view_statement="[view]" if record.is_view else "",
+            view_statement=" [view]" if record.is_view else "",
             database=record.database,
             cluster=record.cluster,
             description=record.description or "No description found.",
