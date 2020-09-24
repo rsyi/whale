@@ -17,8 +17,11 @@ pub fn table_skim() {
 
     println!("Manifest: {}", table_manifest);
 
+    let metadata_path = shellexpand::tilde("~/.whale/metadata/");
+    let preview_command = format!("cat {}{}.md", metadata_path, "{}");
     let options = SkimOptionsBuilder::default()
-        .preview(Some("head -10 {}"))
+        .preview(Some(&preview_command))
+        .color(Some("fg:241,prompt:5,border:5"))
         .build()
         .unwrap();
 
@@ -29,5 +32,9 @@ pub fn table_skim() {
     let selected_items = Skim::run_with(&options, Some(items))
         .map(|out| out.selected_items)
         .unwrap_or_else(|| Vec::new());
+
+    for item in selected_items.iter() {
+        println!("{}", item.text());
+    }
 
 }
