@@ -144,6 +144,7 @@ class WhaleLoader(Loader):
                 record.cluster,
                 record.schema,
                 record.name)
+        Path(TMP_MANIFEST_PATH).touch()
 
         self.update_markdown(file_path, record)
         _append_to_temp_manifest(record)
