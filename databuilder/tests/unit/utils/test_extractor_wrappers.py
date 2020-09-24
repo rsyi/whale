@@ -19,15 +19,15 @@ TEST_PRESTO_CONNECTION_CONFIG = ConnectionConfigSchema(
     name='test_connection',
     username='mock_username',
     password='mock_password',
-    host='mock_host',
-    type='presto',
+    uri='mock_uri',
+    metadata_source='presto',
     cluster='mock_cluster',
     included_schemas='mock_schema_included',
-    excludde_schemas='mock_schema_excluded',
+    excluded_schemas='mock_schema_excluded',
 )
 
 TEST_BIGQUERY_CONNECTION_CONFIG = ConnectionConfigSchema(
-    type='bigquery',
+    metadata_source='bigquery',
     key_path='mock_key_path',
     project_id='mock_project_id',
     page_size=10,
@@ -38,8 +38,8 @@ TEST_NEO4J_CONNECTION_CONFIG = ConnectionConfigSchema(
     name='test_connection',
     username='mock_username',
     password='mock_password',
-    host='mock_host',
-    type='presto',
+    uri='mock_uri',
+    metadata_source='presto',
     cluster='mock_cluster',
     included_keys=['mock_key_included'],
     excluded_keys=['mock_key_excluded'],
@@ -51,8 +51,9 @@ def test_configure_presto_extractor(mock_settings):
     """
     Test that the extractor can initialize.
     """
-    extractor, conf = \
+    extractors, conf = \
         configure_presto_extractors(TEST_PRESTO_CONNECTION_CONFIG)
+    extractor = extractors[0]
     scoped_conf = Scoped.get_scoped_conf(conf, extractor.get_scope())
     assert extractor.init(scoped_conf) == None
 
@@ -62,8 +63,9 @@ def test_configure_bigquery_extractor(*mock_settings):
     """
     Test that the extractor can initialize.
     """
-    extractor, conf = \
+    extractors, conf = \
         configure_bigquery_extractors(TEST_BIGQUERY_CONNECTION_CONFIG)
+    extractor = extractors[0]
     scoped_conf = Scoped.get_scoped_conf(conf, extractor.get_scope())
     assert extractor.init(scoped_conf) == None
 
@@ -73,7 +75,8 @@ def test_configure_neo4j_extractor(mock_settings):
     """
     Test that the extractor can initialize.
     """
-    extractor, conf = \
+    extractors, conf = \
         configure_neo4j_extractors(TEST_NEO4J_CONNECTION_CONFIG)
+    extractor = extractors[0]
     scoped_conf = Scoped.get_scoped_conf(conf, extractor.get_scope())
     assert extractor.init(scoped_conf) == None

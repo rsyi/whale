@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from whalebuilder.transformer.markdown_transformer import FormatterMixin
 from whalebuilder.utils.markdown_delimiters import UGC_DELIMITER
 from whalebuilder.utils.paths import MANIFEST_PATH, TMP_MANIFEST_PATH
 
