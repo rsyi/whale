@@ -54,7 +54,7 @@ def create_base_table_stub(
         table,
     ):
     text_to_write = f"# `{schema}.{table}`\n{database} | {cluster}\n" \
-        + UGC_DELIMITER \
+        + "\n" + UGC_DELIMITER \
         + "\n*Edits above this line will be overwritten.*\n"
     safe_write(file_path, text_to_write)
 
