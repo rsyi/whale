@@ -61,8 +61,7 @@ impl Whale {
 
     pub fn init() {
         print_initialization_header();
-        // utils::pause();
-        // filesystem::create_file_structure();
+        filesystem::create_file_structure();
 
         if !utils::is_cron_expression_registered() {
             println!("\n{} [{}/{}]",
@@ -128,7 +127,7 @@ impl Whale {
         }
 
         if can_add_crontab {
-            let whale_etl_command = format!("{} {}", shellexpand::tilde("~/.whale/libexec/whale"), "etl");
+            let whale_etl_command = format!("{} {}", shellexpand::tilde("~/.whale/bin/whale"), "etl");
             let whale_logs_path = shellexpand::tilde("~/.whale/logs/cron.log");
 
             let whale_cron_expression = format!(

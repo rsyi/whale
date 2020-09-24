@@ -3,6 +3,8 @@ use colored::*;
 use regex::Regex;
 use std::io::{self, Write};
 use std::process::Command;
+use std::fs::OpenOptions;
+use std::path::Path;
 
 
 pub fn get_input() -> String {
@@ -74,6 +76,14 @@ pub fn is_cron_expression_registered() -> bool {
 pub fn convert_table_name_to_file_name(table_name: &str) -> String {
     let metadata_path = shellexpand::tilde("~/.whale/metadata/");
     format!("{}{}.md", metadata_path, table_name)
+}
+
+
+pub fn touch(path: &Path) -> io::Result<()> {
+    match OpenOptions::new().create(true).write(true).open(path) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e),
+    }
 }
 
 

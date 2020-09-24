@@ -13,9 +13,22 @@ pub fn table_skim() {
     let base_path = Path::new(&*base_path);
     let whale_base_path = base_path.join(".whale");
     let manifest_file_path = whale_base_path.join("manifest.txt");
+    let tmp_manifest_file_path = whale_base_path.join("tmp_manifest.txt");
 
-    let table_manifest = fs::read_to_string(manifest_file_path)
-        .expect("Failed to read file.");
+    // If manifest does not exist, use tmp manifest
+    // If tmp manifest doesn't exist, use an empty string
+    let table_manifest;
+    if Path::new(&manifest_file_path).exists() {
+        table_manifest = fs::read_to_string(manifest_file_path)
+            .expect("Failed to read manifest.");
+    }
+    else if Path::new(&tmp_manifest_file_path).exists() {
+        table_manifest = fs::read_to_string(tmp_manifest_file_path)
+            .expect("Failed to read manifest or tmp manifest.");
+    }
+    else {
+        table_manifest = "No tables yet! Run `wh etl` if you're feeling impatient.".to_string();
+    }
 
     let metadata_path = shellexpand::tilde("~/.whale/metadata/");
     let preview_command = format!("cat {}{}.md", metadata_path, "{}");

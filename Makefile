@@ -17,7 +17,7 @@ install:
 	mkdir -p ${install_dir}
 	chmod +x ${dependency_binary_dir}
 	# Rust binary
-	cp ./cli/target/release/whale ${dependency_binary_dir}
+	cp ./cli/target/release/whale ${install_dir}
 	# Python "binary"
 	cp -r ./dist ${dependency_binary_dir}
 
