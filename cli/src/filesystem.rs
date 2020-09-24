@@ -1,5 +1,10 @@
-use std::fs;
 use std::path::{Path};
+use std::{
+    collections::BTreeSet,
+    fs::{self, File},
+    io::Write,
+};
+
 
 pub fn create_file_structure() {
     let base_path = shellexpand::tilde("~");
@@ -22,5 +27,16 @@ pub fn create_file_structure() {
     for subpath in subpaths.iter() {
         fs::create_dir_all(subpath)
             .expect("Directory was not created succesfully.");
+    }
+}
+
+
+pub fn deduplicate_file(file_path_string: &str) {
+    let file_path = Path::new(file_path_string);
+    let contents = fs::read_to_string(file_path).expect("Can't read file.");
+    let lines: BTreeSet<_> = contents.lines().collect();
+    let mut file = File::open(file_path).expect("Can't open file.");
+    for line in lines {
+        writeln!(file, "{}", line);
     }
 }
