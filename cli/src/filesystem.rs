@@ -1,7 +1,7 @@
 use std::path::{Path};
 use std::{
     collections::BTreeSet,
-    fs::{self, File},
+    fs::{self, File, OpenOptions},
     io::Write,
 };
 
@@ -35,8 +35,16 @@ pub fn deduplicate_file(file_path_string: &str) {
     let file_path = Path::new(file_path_string);
     let contents = fs::read_to_string(file_path).expect("Can't read file.");
     let lines: BTreeSet<_> = contents.lines().collect();
-    let mut file = File::open(file_path).expect("Can't open file.");
-    for line in lines {
-        writeln!(file, "{}", line);
+    match OpenOptions::new()
+        .create(true)
+        .write(true)
+        .truncate(true)
+        .open(&file_path_string) {
+        Ok(ref mut file) => {
+            for line in lines {
+                writeln!(file, "{}", line).unwrap();
+            }
+        },
+        Err(err) => {panic!("Failed to open file: {}", err)}
     }
 }
