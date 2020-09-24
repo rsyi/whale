@@ -1,5 +1,4 @@
 import logging
-import six
 from collections import namedtuple
 
 from pyhocon import ConfigFactory, ConfigTree
@@ -60,8 +59,10 @@ class SnowflakeMetadataExtractor(Extractor):
     def init(self, conf: ConfigTree) -> None:
         self.conf = conf.with_fallback(
             SnowflakeMetadataExtractor.DEFAULT_CONFIG)
-        self._database = self.conf.get_string(SnowflakeMetadataExtractor.DATABASE_KEY)
-        self._cluster = '{}'.format(self.conf.get_string(SnowflakeMetadataExtractor.CLUSTER_KEY))
+        self._database = self.conf.get_string(
+            SnowflakeMetadataExtractor.DATABASE_KEY)
+        self._cluster = '{}'.format(
+            self.conf.get_string(SnowflakeMetadataExtractor.CLUSTER_KEY))
 
         self.sql_stmt = SnowflakeMetadataExtractor.SQL_STATEMENT.format(
             where_clause_suffix=self.conf.get_string('where_clause_suffix'),
@@ -92,27 +93,35 @@ class SnowflakeMetadataExtractor(Extractor):
 
     def _get_extract_iter(self) -> Iterator[TableMetadata]:
         """
-        Using itertools.groupby and raw level iterator, it groups to table and yields TableMetadata
+        Using itertools.groupby and raw level iterator, it groups to table and
+        yields TableMetadata
         :return:
         """
-        for _, group in groupby(self._get_raw_extract_iter(), self._get_table_key):
+        for _, group in groupby(
+                self._get_raw_extract_iter(), self._get_table_key):
             columns = []
-
             for row in group:
+                column_description = \
+                    unidecode(row['col_description']) \
+                    if row['col_description'] else None
                 last_row = row
                 columns.append(ColumnMetadata(
                     name=row['col_name'],
-                    description=unidecode(row['col_description']) if row['col_description'] else None,
+                    description=column_description,
                     col_type=row['col_type'],
                     sort_order=row['col_sort_order'])
                 )
+
+            description = \
+                unidecode(last_row['description']) \
+                if last_row['description'] else None
 
             yield TableMetadata(
                     database=self._database,
                     cluster=last_row['cluster'],
                     schema=last_row['schema'],
                     name=last_row['name'],
-                    description=unidecode(last_row['description']) if last_row['description'] else None,
+                    description=description,
                     columns=columns,
                     is_view=last_row['is_view'] == 'true')
 

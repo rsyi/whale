@@ -126,8 +126,7 @@ class PrestoLoopExtractor(PrestoEngine):
                                     schema,
                                     table,
                                     cluster=self._cluster,
-                                    is_view_query_enabled
-                                        =self._is_view_query_enabled)
+                                    is_view_query_enabled=self._is_view_query_enabled)  # noqa: E501
                             yield table_metadata
 
                         if self._is_analyze_enabled:

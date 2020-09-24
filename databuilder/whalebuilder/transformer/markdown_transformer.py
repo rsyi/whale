@@ -10,7 +10,9 @@ import textwrap
 
 class FormatterMixin():
 
-    def format_table_metadata(self, record) -> metadata_model_whale.TableMetadata:
+    def format_table_metadata(
+            self,
+            record) -> metadata_model_whale.TableMetadata:
         block_template = textwrap.dedent(
             """            # `{schema}.{name}`{view_statement}
             {database} | {cluster}

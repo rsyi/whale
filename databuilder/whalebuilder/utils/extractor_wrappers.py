@@ -98,11 +98,12 @@ def configure_snowflake_extractors(connection: ConnectionConfigSchema):
         '{}:{}'.format(connection.username, connection.password) \
         if connection.password is not None else ''
 
-    conn_string = '{connection_type}://{username_password}@{uri}:{port}'.format(
-        connection_type=connection.type,
-        username_password=username_password_placeholder,
-        uri=connection.uri,
-        port=connection.port)
+    conn_string = \
+        '{connection_type}://{username_password}@{uri}:{port}'.format(
+            connection_type=connection.type,
+            username_password=username_password_placeholder,
+            uri=connection.uri,
+            port=connection.port)
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,

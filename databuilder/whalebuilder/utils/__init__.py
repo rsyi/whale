@@ -44,15 +44,14 @@ def get_table_file_path_relative(
     return relative_file_path
 
 
-
 def create_base_table_stub(
         file_path,
         database,
         cluster,
         schema,
-        table,
-    ):
-    text_to_write = f"# `{schema}.{table}`\n{database} | {cluster}\n" \
+        table):
+    text_to_write = \
+        f"# `{schema}.{table}`\n{database} | {cluster}\n" \
         + "\n" + UGC_DELIMITER \
         + "\n*Edits above this line will be overwritten.*\n"
     safe_write(file_path, text_to_write)

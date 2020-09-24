@@ -56,6 +56,7 @@ def presto_engine_execute_side_effect(query, **kwargs):
         yield MOCK_INFORMATION_SCHEMA_RESULT_1
         yield MOCK_INFORMATION_SCHEMA_RESULT_2
 
+
 @patch.object(SQLAlchemyEngine, '_get_connection')
 class TestPrestoEngine(unittest.TestCase):
     def setUp(self) -> None:
@@ -75,27 +76,27 @@ class TestPrestoEngine(unittest.TestCase):
         self.engine.execute = MagicMock(
             side_effect=presto_engine_execute_side_effect
         )
-
+        mock_columns = [
+            ColumnMetadata(
+                name=MOCK_INFORMATION_SCHEMA_RESULT_1['col_name'],
+                description=MOCK_INFORMATION_SCHEMA_RESULT_1['col_description'],  # noqa: 501
+                col_type=MOCK_INFORMATION_SCHEMA_RESULT_1['col_type'],
+                sort_order=MOCK_INFORMATION_SCHEMA_RESULT_1['col_sort_order'],
+                is_partition_column=None
+            ),
+            ColumnMetadata(
+                name=MOCK_INFORMATION_SCHEMA_RESULT_2['col_name'],
+                description=MOCK_INFORMATION_SCHEMA_RESULT_2['col_description'],  # noqa: 501
+                col_type=MOCK_INFORMATION_SCHEMA_RESULT_2['col_type'],
+                sort_order=MOCK_INFORMATION_SCHEMA_RESULT_2['col_sort_order'],
+                is_partition_column=None
+            )]
         expected = TableMetadata(
                 database=MOCK_DATABASE_NAME,
                 cluster=MOCK_CLUSTER_NAME,
                 schema=MOCK_SCHEMA_NAME,
                 name=MOCK_TABLE_NAME,
-                columns=[
-                    ColumnMetadata(
-                        name=MOCK_INFORMATION_SCHEMA_RESULT_1['col_name'],
-                        description=MOCK_INFORMATION_SCHEMA_RESULT_1['col_description'],
-                        col_type=MOCK_INFORMATION_SCHEMA_RESULT_1['col_type'],
-                        sort_order=MOCK_INFORMATION_SCHEMA_RESULT_1['col_sort_order'],
-                        is_partition_column=None
-                    ),
-                    ColumnMetadata(
-                        name=MOCK_INFORMATION_SCHEMA_RESULT_2['col_name'],
-                        description=MOCK_INFORMATION_SCHEMA_RESULT_2['col_description'],
-                        col_type=MOCK_INFORMATION_SCHEMA_RESULT_2['col_type'],
-                        sort_order=MOCK_INFORMATION_SCHEMA_RESULT_2['col_sort_order'],
-                        is_partition_column=None
-                        )],
+                columns=mock_columns,
                 is_view=bool(MOCK_INFORMATION_SCHEMA_RESULT_1['is_view']),
         )
         results = self.engine.get_all_table_metadata_from_information_schema(
@@ -103,4 +104,3 @@ class TestPrestoEngine(unittest.TestCase):
         result = next(results)
         self.maxDiff = None
         self.assertEqual(result.__repr__(), expected.__repr__())
-

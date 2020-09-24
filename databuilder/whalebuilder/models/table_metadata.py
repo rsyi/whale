@@ -144,7 +144,8 @@ class TableColumnStats:
     STAT_Column_RELATION_TYPE = 'STAT_OF'
     Column_STAT_RELATION_TYPE = 'STAT'
 
-    def __init__(self,
+    def __init__(
+            self,
             table_name: str,
             col_name: str,
             stat_name: str,
@@ -170,7 +171,8 @@ class TableColumnStats:
 
     def get_table_stat_model_key(self):
         # type: (...) -> str
-        return TableColumnStats.KEY_FORMAT.format(db=self.db,
+        return TableColumnStats.KEY_FORMAT.format(
+            db=self.db,
             cluster=self.cluster,
             schema=self.schema,
             table=self.table,
@@ -180,7 +182,8 @@ class TableColumnStats:
     def get_col_key(self):
         # type: (...) -> str
         # no cluster, schema info from the input
-        return ColumnMetadata.COLUMN_KEY_FORMAT.format(db=self.db,
+        return ColumnMetadata.COLUMN_KEY_FORMAT.format(
+            db=self.db,
             cluster=self.cluster,
             schema=self.schema,
             tbl=self.table,
