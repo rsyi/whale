@@ -75,3 +75,17 @@ pub fn convert_table_name_to_file_name(table_name: &str) -> String {
     let metadata_path = shellexpand::tilde("~/.whale/metadata/");
     format!("{}{}.md", metadata_path, table_name)
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_table_file_name_conversion() {
+        let table_name = "hello";
+        let actual_file_name = shellexpand::tilde("~/.whale/metadata/hello.md");
+        let file_name = convert_table_name_to_file_name(table_name);
+        assert_eq!(file_name, actual_file_name);
+    }
+}
