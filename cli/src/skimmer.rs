@@ -3,7 +3,9 @@ extern crate skim;
 use skim::prelude::{Skim, SkimItemReader, SkimOptionsBuilder};
 use std::fs;
 use std::path::Path;
+use std::process::Command;
 use std::io::Cursor;
+use crate::utils;
 
 pub fn table_skim() {
 
@@ -34,7 +36,18 @@ pub fn table_skim() {
         .unwrap_or_else(|| Vec::new());
 
     for item in selected_items.iter() {
-        println!("{}", item.text());
-    }
+        let table_name = item.text().into_owned();
+        let filename = utils::convert_table_name_to_file_name(&table_name);
+        println!("{}", filename);
 
+        let editor = match std::env::var("EDITOR") {
+                Ok(val) => val,
+                Err(_e) => "open".to_string(),
+        };
+
+        Command::new(editor)
+            .arg(filename)
+            .status()
+            .expect("Failed to open file.");
+    }
 }

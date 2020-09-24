@@ -69,3 +69,9 @@ pub fn is_cron_expression_registered() -> bool {
         false
     }
 }
+
+
+pub fn convert_table_name_to_file_name(table_name: &str) -> String {
+    let metadata_path = shellexpand::tilde("~/.whale/metadata/");
+    format!("{}{}.md", metadata_path, table_name)
+}
