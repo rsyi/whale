@@ -1,6 +1,4 @@
-import copy
-
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional  # noqa: F401
 
 
 class TableManifest(object):

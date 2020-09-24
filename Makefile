@@ -1,6 +1,7 @@
 base_dir:=~/.whale
 install_dir:=${base_dir}/bin
 dependency_binary_dir:=${base_dir}/libexec
+python_directory:=databuilder
 
 .PHONY: all
 all: dist
@@ -22,9 +23,9 @@ install:
 
 .PHONY: test_python
 test_python:
-	python3 -b -m pytest tests
-	pytest --cov=metaframe --cov-report=xml tests/
-	flake8 . --exit-zero
+	python3 -b -m pytest ${python_directory}/tests
+	pytest --cov=whalebuilder --cov-report=xml ${python_directory}/tests/
+	flake8 ${python_directory}/whalebuilder/. --exit-zero
 
 .PHONY: test
 test: test_python

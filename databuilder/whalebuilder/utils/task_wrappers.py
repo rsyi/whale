@@ -1,12 +1,10 @@
-import os
 import yaml
 
-from whalebuilder.utils.paths import (
+from whalebuilder.utils.paths import (  # noqa: F401
     BASE_DIR,
     CONNECTION_PATH,
     MANIFEST_PATH
 )
-from pathlib import Path
 from databuilder.task.task import DefaultTask
 from whalebuilder.loader.whale_loader import WhaleLoader
 from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
@@ -46,7 +44,8 @@ def create_and_run_tasks_from_yaml(
         else:
             break
 
-        conf.put('loader.metaframe.database_name',
+        conf.put(
+            'loader.metaframe.database_name',
             connection.name or connection.metadata_source)
         conf.put('loader.filesystem.csv.file_path', MANIFEST_PATH)
 

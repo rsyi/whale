@@ -2,8 +2,13 @@ import logging
 import time
 from collections import namedtuple
 from itertools import groupby
-from pyhocon import ConfigFactory
-from typing import Dict, Iterable, Iterator, List, Optional
+from typing import (  # noqa: F821
+        Dict,
+        Iterable,
+        Iterator,
+        List,
+        Optional,
+        NamedTuple)
 
 from whalebuilder.models.presto_watermark import PrestoWatermark
 from whalebuilder.models.table_metadata import \
@@ -20,8 +25,10 @@ def _calculate_watermarks(
         partition_query_rows: List[tuple],
         watermark_type: str):
     """
-    Calculates the high and low watermarks from a SqlAlchemyEngine.execute
-    result for the query `select * from schema."table$partitions"`. This result
+
+    Calculates the high and low watermarks from theSqlAlchemyEngine.execute
+    result for the query `select * from schema."table$partitions"`. This
+    result
     has rows of the form:
 
     ('2020-02-01', 'Uplift University')
@@ -55,7 +62,7 @@ class PrestoCommandsMixin:
     def get_all_table_metadata_from_information_schema(
             self,
             cluster: Optional[str] = None,
-            where_clause_suffix = '',
+            where_clause_suffix: str = '',
             ):
 
         unformatted_query = """
@@ -360,8 +367,7 @@ class PrestoCommandsMixin:
         except Exception as e:
             LOGGER.exception(e)
 
-    def _get_table_key(self, row):
-        # type: (Dict[str, Any]) -> Union[TableKey, None]
+    def _get_table_key(self, row) -> Optional[NamedTuple]:
         """
         Table key consists of schema and table name
         :param row:
@@ -371,16 +377,3 @@ class PrestoCommandsMixin:
             TableKey = namedtuple('TableKey', ['schema', 'table_name'])
             return TableKey(schema=row['schema'], table_name=row['name'])
         return None
-
-    def _get_table_key(self, row):
-        # type: (Dict[str, Any]) -> Union[TableKey, None]
-        """
-        Table key consists of schema and table name
-        :param row:
-        :return:
-        """
-        if row:
-            TableKey = namedtuple('TableKey', ['schema', 'table_name'])
-            return TableKey(schema=row['schema'], table_name=row['name'])
-        return None
-

@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 from pyhocon import ConfigFactory, ConfigTree
 import re
-import textwrap
 from typing import Any  # noqa: F401
 
 from databuilder.loader.base_loader import Loader
@@ -28,9 +27,12 @@ PARTITION_SECTION = 'partition'
 USAGE_SECTION = 'usage'
 UGC_SECTION = 'ugc'
 
+
 def _parse_programmatic_blob(programmatic_blob):
 
-    regex_to_match = "(" + COLUMN_DETAILS_DELIMITER + "|" + PARTITIONS_DELIMITER + "|" + USAGE_DELIMITER + ")"
+    regex_to_match = "(" + COLUMN_DETAILS_DELIMITER \
+        + "|" + PARTITIONS_DELIMITER \
+        + "|" + USAGE_DELIMITER + ")"
 
     splits = re.split(regex_to_match, programmatic_blob)
 
@@ -87,6 +89,7 @@ def sections_from_markdown(file_path):
     sections.update(programmatic_sections)
     return sections
 
+
 def markdown_from_sections(sections: dict):
     programmatic_blob = sections[HEADER_SECTION] \
         + sections[COLUMN_DETAILS_SECTION]\
@@ -111,7 +114,6 @@ class WhaleLoader(Loader):
         self.base_directory = self.conf.get_string('base_directory')
         self.database_name = self.conf.get_string('database_name', None)
         Path(self.base_directory).mkdir(parents=True, exist_ok=True)
-
 
     def load(self, record) -> None:
         """
@@ -155,7 +157,8 @@ class WhaleLoader(Loader):
         # The table metadata record has both a header and column details. Add
         # custom logic to handle both.
         if type(record) == metadata_model_whale.TableMetadata:
-            table_details = re.split(COLUMN_DETAILS_DELIMITER, record.markdown_blob)
+            table_details = \
+                re.split(COLUMN_DETAILS_DELIMITER, record.markdown_blob)
             header = table_details[0]
             column_details = "".join(table_details[1:])
             sections[HEADER_SECTION] = header

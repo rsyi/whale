@@ -4,7 +4,8 @@ from collections import namedtuple
 from pyhocon import ConfigTree  # noqa: F401
 from typing import List, Any  # noqa: F401
 
-from whalebuilder.extractor.base_bigquery_extractor import BaseBigQueryExtractor
+from whalebuilder.extractor.base_bigquery_extractor import \
+    BaseBigQueryExtractor
 from whalebuilder.models.table_metadata import TableMetadata, ColumnMetadata
 
 
