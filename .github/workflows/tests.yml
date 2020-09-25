@@ -18,7 +18,7 @@ jobs:
         python-version: 3.7
     - name: Install dependencies
       run: |
-        mkdir ~/.whale
+        mkdir -p ~/.whale/manifests
         echo '${{ secrets.BIGQUERY_JSON }}' > /var/tmp/credentials.json
         pip install -r databuilder/requirements.txt
         pip install databuilder/.
