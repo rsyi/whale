@@ -59,14 +59,16 @@ def _parse_programmatic_blob(programmatic_blob):
     return sections
 
 
-def _append_to_temp_manifest(record):
+def _append_to_temp_manifest(
+        record,
+        tmp_manifest_path=TMP_MANIFEST_PATH):
     relative_file_path = get_table_file_path_relative(
         record.database,
         record.cluster,
         record.schema,
         record.name
     )
-    with open(TMP_MANIFEST_PATH, "a") as f:
+    with open(tmp_manifest_path, "a") as f:
         f.write(relative_file_path + "\n")
 
 
@@ -106,12 +108,14 @@ class WhaleLoader(Loader):
     Loader class to format metadata as as a markdown doc for whale.
     """
     DEFAULT_CONFIG = ConfigFactory.from_dict({
-        'base_directory': os.path.join(Path.home(), '.whale/metadata/')
+        'base_directory': os.path.join(Path.home(), '.whale/metadata/'),
+        'tmp_manifest_path': TMP_MANIFEST_PATH,
     })
 
     def init(self, conf: ConfigTree):
         self.conf = conf.with_fallback(WhaleLoader.DEFAULT_CONFIG)
         self.base_directory = self.conf.get_string('base_directory')
+        self.tmp_manifest_path = self.conf.get_string('tmp_manifest_path')
         self.database_name = self.conf.get_string('database_name', None)
         Path(self.base_directory).mkdir(parents=True, exist_ok=True)
 

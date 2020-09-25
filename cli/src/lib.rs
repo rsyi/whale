@@ -94,7 +94,7 @@ impl Whale {
             .output()
             .expect("ETL failed.");
 
-        let manifest_path = shellexpand::tilde("~/.whale/manifest.txt");
+        let manifest_path = shellexpand::tilde("~/.whale/manifests/manifest.txt");
         filesystem::deduplicate_file(&manifest_path);
     }
 

@@ -1,9 +1,11 @@
+import os
 import yaml
 
 from whalebuilder.utils.paths import (  # noqa: F401
     BASE_DIR,
     CONNECTION_PATH,
-    MANIFEST_PATH
+    MANIFEST_PATH,
+    TMP_MANIFEST_PATH
 )
 from databuilder.task.task import DefaultTask
 from whalebuilder.loader.whale_loader import WhaleLoader
@@ -45,9 +47,16 @@ def create_and_run_tasks_from_yaml(
             break
 
         conf.put(
-            'loader.metaframe.database_name',
+            'loader.whale.database_name',
             connection.name or connection.metadata_source)
-        conf.put('loader.filesystem.csv.file_path', MANIFEST_PATH)
+
+        # If another ETL job is running, put the manifest elsewhere
+        tmp_manifest_path = TMP_MANIFEST_PATH
+        i = 0
+        while os.path.exists(tmp_manifest_path):
+            tmp_manifest_path = os.path.join(BASE_DIR, "tmp_manifest.txt." + i)
+            i += 1
+        conf.put('loader.whale.tmp_manifest_path', tmp_manifest_path)
 
         for extractor in extractors:
             task = DefaultTask(
