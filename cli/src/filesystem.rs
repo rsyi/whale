@@ -15,6 +15,7 @@ pub fn create_file_structure() {
     let libexec_path = whale_base_path.join("libexec");
     let logs_path = whale_base_path.join("logs");
     let metadata_path = whale_base_path.join("metadata");
+    let manifests_path = whale_base_path.join("manifests");
 
     let subpaths = [
         bin_path,
@@ -22,6 +23,7 @@ pub fn create_file_structure() {
         metadata_path,
         libexec_path,
         logs_path,
+        manifests_path
     ];
 
     for subpath in subpaths.iter() {

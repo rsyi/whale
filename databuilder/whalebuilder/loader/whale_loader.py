@@ -59,19 +59,6 @@ def _parse_programmatic_blob(programmatic_blob):
     return sections
 
 
-def _append_to_temp_manifest(
-        record,
-        tmp_manifest_path=TMP_MANIFEST_PATH):
-    relative_file_path = get_table_file_path_relative(
-        record.database,
-        record.cluster,
-        record.schema,
-        record.name
-    )
-    with open(tmp_manifest_path, "a") as f:
-        f.write(relative_file_path + "\n")
-
-
 def sections_from_markdown(file_path):
 
     with open(file_path, "r") as f:
@@ -144,13 +131,13 @@ class WhaleLoader(Loader):
         if not os.path.exists(file_path):
             create_base_table_stub(
                 file_path,
-                record.database,
+                self.database_name or record.database,
                 record.cluster,
                 record.schema,
                 record.name)
 
         self.update_markdown(file_path, record)
-        _append_to_temp_manifest(record)
+        self._append_to_temp_manifest(record)
 
     def update_markdown(self, file_path, record):
         # Key (on record type) functions that take actions on a table stub
@@ -175,6 +162,20 @@ class WhaleLoader(Loader):
 
         new_file_text = markdown_from_sections(sections)
         safe_write(file_path, new_file_text)
+
+    def _append_to_temp_manifest(
+            self,
+            record,
+            tmp_manifest_path=TMP_MANIFEST_PATH):
+        relative_file_path = get_table_file_path_relative(
+            self.database_name or record.database,
+            record.cluster,
+            record.schema,
+            record.name
+        )
+        with open(tmp_manifest_path, "a") as f:
+            f.write(relative_file_path + "\n")
+
 
     def close(self):
         pass
