@@ -18,11 +18,13 @@ jobs:
         python-version: 3.7
     - name: Install dependencies
       run: |
+        mkdir -p ~/.whale/manifests
         echo '${{ secrets.BIGQUERY_JSON }}' > /var/tmp/credentials.json
-        pip install -r requirements.txt
-        pip install .
+        pip install -r databuilder/requirements.txt
+        pip install databuilder/.
         pip install flake8
         pip install pytest-cov
+        pip install pytest
     - name: Run tests
       run: |
         make test
