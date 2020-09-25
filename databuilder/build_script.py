@@ -11,4 +11,3 @@ parser.add_argument('--no-cache', action='store_true')
 args = parser.parse_args()
 create_and_run_tasks_from_yaml(
     is_full_extraction_enabled=args.no_cache)
-

@@ -137,7 +137,9 @@ class WhaleLoader(Loader):
                 record.name)
 
         self.update_markdown(file_path, record)
-        self._append_to_temp_manifest(record)
+        self._append_to_temp_manifest(
+            record,
+            tmp_manifest_path=self.tmp_manifest_path)
 
     def update_markdown(self, file_path, record):
         # Key (on record type) functions that take actions on a table stub
