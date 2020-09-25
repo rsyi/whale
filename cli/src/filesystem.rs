@@ -2,7 +2,7 @@ use std::path::{Path};
 use std::{
     collections::BTreeSet,
     fs::{self, File, OpenOptions},
-    io::Write,
+    io::{Write, BufWriter},
 };
 
 
@@ -40,10 +40,13 @@ pub fn deduplicate_file(file_path_string: &str) {
         .write(true)
         .truncate(true)
         .open(&file_path_string) {
-        Ok(ref mut file) => {
+        Ok(mut file) => {
+            let mut writer = BufWriter::new(&file);
             for line in lines {
-                writeln!(file, "{}", line).unwrap();
+                //writer.write(format!(b"{}", line));
+                writeln!(writer, "{}", line).unwrap();
             }
+            writer.flush();
         },
         Err(err) => {panic!("Failed to open file: {}", err)}
     }
