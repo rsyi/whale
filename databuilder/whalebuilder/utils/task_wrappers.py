@@ -50,7 +50,9 @@ def create_and_run_tasks_from_yaml(
         tmp_manifest_path = TMP_MANIFEST_PATH
         i = 0
         while os.path.exists(tmp_manifest_path):
-            tmp_manifest_path = os.path.join(BASE_DIR, "manifests/tmp_manifest.txt." + i)
+            tmp_manifest_path = os.path.join(
+                BASE_DIR,
+                "manifests/tmp_manifest_" + str(i) + ".txt")
             i += 1
         conf.put('loader.whale.database_name', connection.name)
         conf.put('loader.whale.tmp_manifest_path', tmp_manifest_path)
