@@ -12,8 +12,12 @@ pub fn table_skim() {
     let base_path = shellexpand::tilde("~");
     let base_path = Path::new(&*base_path);
     let whale_base_path = base_path.join(".whale");
-    let manifest_file_path = whale_base_path.join("manifest.txt");
-    let tmp_manifest_file_path = whale_base_path.join("tmp_manifest.txt");
+    let manifest_file_path = whale_base_path
+        .join("manifests")
+        .join("manifest.txt");
+    let tmp_manifest_file_path = whale_base_path
+        .join("manifests")
+        .join("tmp_manifest.txt");
 
     // If manifest does not exist, use tmp manifest
     // If tmp manifest doesn't exist, use an empty string
