@@ -334,12 +334,11 @@ impl Bigquery {
         println!(" {}", "Options:".bold());
         println!(" [1] Path (specify the path where your credentials json file is located)");
         println!(" [2] Key (directly pass the credential key)");
-        println!("Enter {} or {}.", "1".green(), "2".green());
 
         let mut input = 0;
         let acceptable_values = vec![1, 2];
         while !acceptable_values.contains(&input) {
-            println!("Enter {} or {}.", "1".green(), "2".red());
+            println!("Enter 1 or 2");
             input = utils::get_integer_input();
         }
         input

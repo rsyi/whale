@@ -22,20 +22,51 @@ pub fn table_skim() {
     // If manifest does not exist, use tmp manifest
     // If tmp manifest doesn't exist, use an empty string
     let table_manifest;
+    let is_manifest_found: bool;
     if Path::new(&manifest_file_path).exists() {
         table_manifest = fs::read_to_string(manifest_file_path)
             .expect("Failed to read manifest.");
+        is_manifest_found = true;
     }
     else if Path::new(&tmp_manifest_file_path).exists() {
         table_manifest = fs::read_to_string(tmp_manifest_file_path)
             .expect("Failed to read manifest or tmp manifest.");
+        is_manifest_found = true;
     }
     else {
-        table_manifest = "No tables yet! Run `wh etl` if you're feeling impatient.".to_string();
+        table_manifest = "No tables found.".to_string();
+        is_manifest_found = false;
     }
 
+    let preview_command: String;
     let metadata_path = shellexpand::tilde("~/.whale/metadata/");
-    let preview_command = format!("cat {}{}.md", metadata_path, "{}");
+    if is_manifest_found {
+        preview_command = format!("cat {}{}.md", metadata_path, "{}");
+    }
+    else {
+        preview_command = "cat << EOF
+    ___=____
+  ,^        ^.      _
+  |  x        |____| |
+ ~^~^~^~^~^~^~^~^~^~^~^~
+
+ “It is not down on any map; true places never are.”
+
+ No table manifest found.
+
+ This probably means either:
+
+ (a) You have not initialized whale yet.
+     Run 'wh init'.
+
+ (b) You have not run your first scraping job.
+     Run 'wh etl' or wait for your cron job to run.
+
+ Good luck, and happy whaling!
+
+        ".to_string();
+    }
+
     let options = SkimOptionsBuilder::default()
         .preview(Some(&preview_command))
         .color(Some("fg:241,prompt:5,border:5"))
