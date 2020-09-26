@@ -16,19 +16,11 @@ fn main() {
 
     let matches = app.get_matches();
 
-    if let Some(_init_matches) = matches.subcommand_matches("init") {
-        let _output = whale::Whale::init();
+    match matches.subcommand_name() {
+        Some("init") => whale::Whale::init(),
+        Some("etl") => whale::Whale::etl(),
+        Some("schedule") => whale::Whale::schedule(true),
+        _ => whale::Whale::run_with(matches)
     }
 
-    else if let Some(_etl_matches) = matches.subcommand_matches("etl") {
-        let _output = whale::Whale::etl();
-    }
-
-    else if let Some(_schedule_matches) = matches.subcommand_matches("schedule") {
-        let _output = whale::Whale::schedule(true);
-    }
-
-    else {
-        let _output = whale::Whale::run_with(matches);
-    }
 }
