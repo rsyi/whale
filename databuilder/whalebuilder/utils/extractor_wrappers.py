@@ -10,6 +10,7 @@ from whalebuilder.extractor.bigquery_metadata_extractor \
 from whalebuilder.extractor.snowflake_metadata_extractor \
     import SnowflakeMetadataExtractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
+from databuilder.extractor.bigquery_watermark_extractor import BigQueryWatermarkExtractor
 
 
 BUILD_SCRIPT_TEMPLATE = \
@@ -21,15 +22,20 @@ SQL_ALCHEMY_SCOPE = SQLAlchemyExtractor().get_scope()
 def configure_bigquery_extractors(connection: ConnectionConfigSchema):
     extractor = BigQueryMetadataExtractor()
     scope = extractor.get_scope()
+    watermark_extractor = BigQueryWatermarkExtractor()
+    watermark_scope = watermark_extractor.get_scope()
     conf = ConfigFactory.from_dict({
         '{}.key_path'.format(scope): connection.key_path,
         '{}.project_id'.format(scope): connection.project_id,
         '{}.project_credentials'.format(scope): connection.project_credentials,
         '{}.page_size'.format(scope): connection.page_size,
         '{}.filter_key'.format(scope): connection.filter_key,
+        '{}.key_path'.format(watermark_scope): connection.key_path,
+        '{}.project_id'.format(watermark_scope): connection.project_id,
+        '{}.project_credentials'.format(watermark_scope): connection.project_credentials,
     })
 
-    extractors = [extractor]
+    extractors = [extractor, watermark_extractor]
 
     return extractors, conf
 

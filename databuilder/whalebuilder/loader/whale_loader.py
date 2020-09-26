@@ -1,4 +1,5 @@
 import os
+import yaml
 
 from pathlib import Path
 from pyhocon import ConfigFactory, ConfigTree
@@ -20,6 +21,7 @@ from whalebuilder.utils.markdown_delimiters import (
 )
 from whalebuilder.utils.paths import TMP_MANIFEST_PATH
 import whalebuilder.models.table_metadata as metadata_model_whale
+from databuilder.models.watermark import Watermark
 
 HEADER_SECTION = 'header'
 COLUMN_DETAILS_SECTION = 'column_details'
@@ -116,11 +118,20 @@ class WhaleLoader(Loader):
         if not record:
             return
 
+        if type(record) == Watermark:
+            table = record.table
+        else:
+            table = record.name
+
+        schema = record.schema
+        cluster = record.cluster
+        database = self.database_name or record.database
+
         table_file_path_base = get_table_file_path_base(
-            database=self.database_name or record.database,
-            cluster=record.cluster,
-            schema=record.schema,
-            table=record.name,
+            database=database,
+            cluster=cluster,
+            schema=schema,
+            table=table,
             base_directory=self.conf.get('base_directory')
         )
 
@@ -130,20 +141,24 @@ class WhaleLoader(Loader):
 
         if not os.path.exists(file_path):
             create_base_table_stub(
-                file_path,
-                self.database_name or record.database,
-                record.cluster,
-                record.schema,
-                record.name)
+                file_path=file_path,
+                database=database,
+                cluster=cluster,
+                schema=schema,
+                table=table)
 
         self.update_markdown(file_path, record)
         self._append_to_temp_manifest(
-            record,
+            database=database,
+            cluster=cluster,
+            schema=schema,
+            table=table,
             tmp_manifest_path=self.tmp_manifest_path)
 
     def update_markdown(self, file_path, record):
         # Key (on record type) functions that take actions on a table stub
-        section_dict = {
+        section_methods = {
+            Watermark: self._update_watermark
         }
 
         sections = sections_from_markdown(file_path)
@@ -157,23 +172,53 @@ class WhaleLoader(Loader):
             sections[HEADER_SECTION] = header
             # Since we split on COLUMN_DETAILS_DELIMITER, reintroduce it
             sections[COLUMN_DETAILS_SECTION] = \
-                COLUMN_DETAILS_DELIMITER + column_details
+                COLUMN_DETAILS_DELIMITER + column_details + "\n"
         else:
-            section_to_update = section_dict[type(record)]
-            sections[section_to_update] = record.markdown_blob + "\n"
+            section_method = section_methods[type(record)]
+            sections = section_method(sections, record)
 
         new_file_text = markdown_from_sections(sections)
         safe_write(file_path, new_file_text)
 
+    def _update_watermark(self, sections, record):
+        part_type = 'high' if record.part_type=='high_watermark' \
+            else 'low'
+        section_to_update = sections[PARTITION_SECTION]
+
+        existing_watermarks = self._get_watermarks_from_section(section_to_update)
+        if not existing_watermarks:
+            existing_watermarks = {}
+
+        for part in record.parts:
+            name, value = part
+            if name not in existing_watermarks:
+                existing_watermarks[name] = {}
+            existing_watermarks[name][part_type] = value
+
+        sections[PARTITION_SECTION] = PARTITIONS_DELIMITER + "\n" \
+            + self._get_section_from_watermarks(existing_watermarks) + "\n"
+        return sections
+
+    def _get_watermarks_from_section(self, section):
+        watermarks = yaml.safe_load(section)
+        return watermarks
+
+    def _get_section_from_watermarks(self, watermarks):
+        section = yaml.dump(watermarks)
+        return section
+
     def _append_to_temp_manifest(
             self,
-            record,
+            database,
+            cluster,
+            schema,
+            table,
             tmp_manifest_path=TMP_MANIFEST_PATH):
         relative_file_path = get_table_file_path_relative(
-            self.database_name or record.database,
-            record.cluster,
-            record.schema,
-            record.name
+            database,
+            cluster,
+            schema,
+            table
         )
         with open(tmp_manifest_path, "a") as f:
             f.write(relative_file_path + "\n")
