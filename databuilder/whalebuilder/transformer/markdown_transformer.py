@@ -4,6 +4,7 @@ import databuilder.models.table_metadata as metadata_model_amundsen
 from whalebuilder.utils.markdown_delimiters import (
     COLUMN_DETAILS_DELIMITER
 )
+from databuilder.models.watermark import Watermark
 
 import textwrap
 
@@ -76,8 +77,9 @@ class FormatterMixin():
         else:
             return ""
 
-    def format_null(self):
-        return None
+    def no_op_format(self, record):
+        # No formatting required
+        return record
 
 
 class MarkdownTransformer(Transformer, FormatterMixin):
@@ -89,10 +91,11 @@ class MarkdownTransformer(Transformer, FormatterMixin):
         self.formatters = {
             metadata_model_amundsen.TableMetadata: self.format_table_metadata,
             metadata_model_whale.TableMetadata: self.format_table_metadata,
+            Watermark: self.no_op_format,
         }
 
     def transform(self, record):
-        formatter = self.formatters.get(type(record), self.format_null)
+        formatter = self.formatters.get(type(record), None)
         if not record:
             return None
         else:
