@@ -5,5 +5,5 @@
 * [Developer's guide](developers-guide/README.md)
   * [~/.whale file structure](developers-guide/file-structure-overview.md)
   * [Connection configuration](developers-guide/connection-configuration.md)
-  * [Code structure](developers-guide/code-structure.md)
+  * [Code/repository structure](developers-guide/code-structure.md)
 

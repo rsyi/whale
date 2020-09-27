@@ -1,2 +1,2 @@
-# Code structure
+# Code/repository structure
 
