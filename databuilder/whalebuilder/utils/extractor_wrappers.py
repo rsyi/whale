@@ -78,8 +78,11 @@ def configure_presto_extractors(
 def configure_neo4j_extractors(connection: ConnectionConfigSchema):
     extractor = AmundsenNeo4jMetadataExtractor()
     scope = extractor.get_scope()
+    conn_string = 'bolt://{uri}:{port}'.format(
+        uri=connection.uri,
+        port=connection.port)
     conf = ConfigFactory.from_dict({
-        '{}.graph_url'.format(scope): 'bolt://' + connection.uri,
+        '{}.graph_url'.format(scope): conn_string,
         '{}.neo4j_auth_user'.format(scope): connection.username,
         '{}.neo4j_auth_pw'.format(scope): connection.password,
         '{}.included_keys'.format(scope): connection.included_keys,
