@@ -1,7 +1,7 @@
 use std::path::{Path};
 use std::{
     collections::BTreeSet,
-    fs::{self, File, OpenOptions},
+    fs::{self, OpenOptions},
     io::{Write, BufWriter},
 };
 
@@ -42,14 +42,117 @@ pub fn deduplicate_file(file_path_string: &str) {
         .write(true)
         .truncate(true)
         .open(&file_path_string) {
-        Ok(mut file) => {
+        Ok(file) => {
             let mut writer = BufWriter::new(&file);
             for line in lines {
                 //writer.write(format!(b"{}", line));
                 writeln!(writer, "{}", line).unwrap();
             }
-            writer.flush();
+            writer.flush().expect("Unable to write to file.");
         },
         Err(err) => {panic!("Failed to open file: {}", err)}
     }
+}
+
+
+pub fn get_base_dirname() -> std::string::String {
+    shellexpand::tilde("~/.whale").into_owned()
+}
+
+
+pub fn get_build_script_filename() -> std::string::String {
+    let path = format!("{}/{}/{}/{}/{}",
+                       get_base_dirname(),
+                       "libexec",
+                       "dist",
+                       "build_script",
+                       "build_script");
+    path
+}
+
+
+pub fn get_config_dirname() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_base_dirname(),
+                       "config");
+    path
+}
+
+
+pub fn get_connections_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_config_dirname(),
+                       "connections.yaml");
+    path
+}
+
+
+pub fn get_cron_log_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_logs_dir(),
+                       "cron.log");
+    path
+}
+
+
+pub fn get_etl_command() -> std::string::String {
+    let path = format!("{}/{}/{}",
+                       get_base_dirname(),
+                       "bin",
+                       "whale");
+    if Path::new(&*path).exists() {
+        format!("{} etl", path)
+    }
+    else {
+        "wh etl".to_string()
+    }
+}
+
+
+pub fn get_logs_dir() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_base_dirname(),
+                       "logs");
+    path
+}
+
+
+pub fn get_manifest_dirname() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_base_dirname(),
+                       "manifests");
+    path
+}
+
+
+pub fn get_manifest_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_manifest_dirname(),
+                       "manifest.txt");
+    path
+}
+
+
+pub fn get_metadata_dirname() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_base_dirname(),
+                       "metadata");
+    path
+}
+
+
+pub fn get_tmp_manifest_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_manifest_dirname(),
+                       "tmp_manifest.txt");
+    path
+}
+
+
+pub fn get_open_command() -> std::string::String {
+    let editor = match std::env::var("EDITOR") {
+        Ok(val) => val,
+        Err(_e) => "open".to_string(),
+    };
+    editor
 }

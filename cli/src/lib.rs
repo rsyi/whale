@@ -1,10 +1,8 @@
 #[macro_use] extern crate lazy_static;
 extern crate clap;
 extern crate colored;
-extern crate shellexpand;
 use clap::{ArgMatches};
 use colored::*;
-use std::fmt;
 use std::path::Path;
 use std::process::Command;
 
@@ -55,7 +53,7 @@ fn print_scheduler_header() {
 pub struct Whale {}
 
 impl Whale {
-    pub fn run_with(matches: ArgMatches) {
+    pub fn run_with(_matches: ArgMatches) {
         skimmer::table_skim();
     }
 
@@ -80,21 +78,27 @@ impl Whale {
         warehouse::prompt_add_warehouse(is_first_warehouse);
     }
 
+    pub fn connections() {
+        let connections_config_file = filesystem::get_connections_filename();
+        let editor = filesystem::get_open_command();
+
+        Command::new(editor)
+            .arg(connections_config_file)
+            .status()
+            .expect("Failed to open file.");
+
+    }
+
     pub fn etl() {
         print_etl_header();
 
-        let base_path = shellexpand::tilde("~");
-        let build_script_path = Path::new(&*base_path)
-            .join(".whale")
-            .join("libexec")
-            .join("dist")
-            .join("build_script")
-            .join("build_script");
+        let build_script_path = filesystem::get_build_script_filename();
+        let build_script_path = Path::new(&*build_script_path);
         Command::new(build_script_path)
             .output()
             .expect("ETL failed.");
 
-        let manifest_path = shellexpand::tilde("~/.whale/manifests/manifest.txt");
+        let manifest_path = filesystem::get_manifest_filename();
         filesystem::deduplicate_file(&manifest_path);
     }
 
@@ -131,8 +135,8 @@ impl Whale {
         }
 
         if can_add_crontab {
-            let whale_etl_command = format!("{} {}", shellexpand::tilde("~/.whale/bin/whale"), "etl");
-            let whale_logs_path = shellexpand::tilde("~/.whale/logs/cron.log");
+            let whale_etl_command = filesystem::get_etl_command();
+            let whale_logs_path = filesystem::get_cron_log_filename();
 
             let whale_cron_expression = format!(
                 "{} {} >> {}",
