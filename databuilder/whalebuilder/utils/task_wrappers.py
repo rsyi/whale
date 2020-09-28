@@ -66,4 +66,4 @@ def create_and_run_tasks_from_yaml(
             task.init(conf)
             task.run()
 
-        transfer_manifest()
+        transfer_manifest(tmp_manifest_path)
