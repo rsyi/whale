@@ -68,5 +68,10 @@ def safe_write(file_path_to_write, text_to_write, tmp_extension=".bak"):
     os.rename(backup_file_path, file_path_to_write)
 
 
-def transfer_manifest():
-    os.rename(TMP_MANIFEST_PATH, MANIFEST_PATH)
+def transfer_manifest(tmp_manifest_path):
+    os.rename(tmp_manifest_path, MANIFEST_PATH)
+
+
+def format_time(datetime_object):
+    return datetime_object.strftime("%Y-%m-%d %H:%M:%S")
+

@@ -94,9 +94,10 @@ impl Whale {
 
         let build_script_path = filesystem::get_build_script_filename();
         let build_script_path = Path::new(&*build_script_path);
-        Command::new(build_script_path)
-            .output()
+        let output = Command::new(build_script_path)
+            .spawn()
             .expect("ETL failed.");
+        println!("{:?}", output);
 
         let manifest_path = filesystem::get_manifest_filename();
         filesystem::deduplicate_file(&manifest_path);
@@ -139,7 +140,7 @@ impl Whale {
             let whale_logs_path = filesystem::get_cron_log_filename();
 
             let whale_cron_expression = format!(
-                "{} {} >> {}",
+                "{} {} > {}",
                 cron_string,
                 whale_etl_command,
                 whale_logs_path);
