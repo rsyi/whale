@@ -5,19 +5,13 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 use std::io::Cursor;
+use crate::filesystem;
 use crate::utils;
 
 pub fn table_skim() {
 
-    let base_path = shellexpand::tilde("~");
-    let base_path = Path::new(&*base_path);
-    let whale_base_path = base_path.join(".whale");
-    let manifest_file_path = whale_base_path
-        .join("manifests")
-        .join("manifest.txt");
-    let tmp_manifest_file_path = whale_base_path
-        .join("manifests")
-        .join("tmp_manifest.txt");
+    let manifest_file_path = filesystem::get_manifest_filename();
+    let tmp_manifest_file_path = filesystem::get_tmp_manifest_filename();
 
     // If manifest does not exist, use tmp manifest
     // If tmp manifest doesn't exist, use an empty string
@@ -39,9 +33,9 @@ pub fn table_skim() {
     }
 
     let preview_command: String;
-    let metadata_path = shellexpand::tilde("~/.whale/metadata/");
+    let metadata_path = filesystem::get_metadata_dirname();
     if is_manifest_found {
-        preview_command = format!("cat {}{}.md", metadata_path, "{}");
+        preview_command = format!("cat {}/{}.md", metadata_path, "{}");
     }
     else {
         preview_command = "cat << EOF
@@ -85,14 +79,10 @@ pub fn table_skim() {
         let table_name = item.text().into_owned();
         let filename = utils::convert_table_name_to_file_name(&table_name);
 
-        let editor = match std::env::var("EDITOR") {
-                Ok(val) => val,
-                Err(_e) => "open".to_string(),
-        };
-
-        Command::new(editor)
-            .arg(filename)
-            .status()
-            .expect("Failed to open file.");
+    let editor = filesystem::get_open_command();
+    Command::new(editor)
+        .arg(filename)
+        .status()
+        .expect("Failed to open file.");
     }
 }
