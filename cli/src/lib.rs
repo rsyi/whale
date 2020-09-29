@@ -2,9 +2,15 @@
 use clap::{ArgMatches};
 use colored::*;
 use std::{
+    io::self,
     path::Path,
     process::Command,
 };
+use tui::{
+    Terminal,
+    backend::TermionBackend
+};
+use termion::raw::IntoRawMode;
 
 pub mod warehouse;
 pub mod skimmer;
@@ -53,11 +59,12 @@ fn print_scheduler_header() {
 pub struct Whale {}
 
 impl Whale {
-    pub fn run_with(_matches: ArgMatches) {
+    pub fn run_with(_matches: ArgMatches) -> Result<(), io::Error> {
         skimmer::table_skim();
+        Ok(())
     }
 
-    pub fn init() {
+    pub fn init() -> Result<(), io::Error> {
         print_initialization_header();
         filesystem::create_file_structure();
 
@@ -70,40 +77,43 @@ impl Whale {
             println!("This is resource-light and can be manually deleted by editing the file at {}.", "crontab -e".magenta());
             let is_scheduling_requested: bool = utils::get_input_as_bool();
             if is_scheduling_requested {
-                Whale::schedule(false);
+                Whale::schedule(false)?;
             }
         }
 
         let is_first_warehouse = true;
         warehouse::prompt_add_warehouse(is_first_warehouse);
+
+        Ok(())
     }
 
-    pub fn connections() {
+    pub fn connections() -> Result<(), io::Error> {
         let connections_config_file = filesystem::get_connections_filename();
         let editor = filesystem::get_open_command();
 
         Command::new(editor)
             .arg(connections_config_file)
-            .status()
-            .expect("Failed to open file.");
+            .status()?;
 
+        Ok(())
     }
 
-    pub fn etl() {
+    pub fn etl() -> Result<(), io::Error> {
         print_etl_header();
 
         let build_script_path = filesystem::get_build_script_filename();
         let build_script_path = Path::new(&*build_script_path);
         let mut child = Command::new(build_script_path)
-            .spawn()
-            .expect("ETL failed.");
-        child.wait().expect("ETL failed.");
+            .spawn()?;
+        child.wait()?;
 
         let manifest_path = filesystem::get_manifest_filename();
         filesystem::deduplicate_file(&manifest_path);
+
+        Ok(())
     }
 
-    pub fn schedule(ask_for_permission: bool) {
+    pub fn schedule(ask_for_permission: bool) -> Result<(), io::Error> {
         print_scheduler_header();
         let mut cron_string = utils::get_input();
         if cron_string.is_empty() {
@@ -146,8 +156,7 @@ impl Whale {
 
             Command::new("sh")
                 .args(&["-c", &scheduler_command])
-                .spawn()
-                .expect("Crontab registration failed.");
+                .spawn()?;
 
             println!("If you are prompted for permissions, allow and continue. [Press {} to continue]", "enter".green());
             utils::get_input();
@@ -162,5 +171,15 @@ impl Whale {
             }
 
         }
+
+        Ok(())
+    }
+
+
+    pub fn dash() -> Result<(), io::Error> {
+        let stdout = io::stdout().into_raw_mode()?;
+        let backend = TermionBackend::new(stdout);
+        let mut terminal = Terminal::new(backend)?;
+        Ok(())
     }
 }

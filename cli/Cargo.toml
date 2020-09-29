@@ -16,3 +16,5 @@ serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 shellexpand = "2.0.0"
 skim = "0.8.2"
+termion = "1.5.5"
+tui = "0.12.0"
