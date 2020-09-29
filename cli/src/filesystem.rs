@@ -55,6 +55,17 @@ pub fn deduplicate_file(file_path_string: &str) {
 }
 
 
+pub fn append_to_file(contents: String, path: &str) {
+    let mut file = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .append(true)
+        .open(path)
+        .expect("Failed to open file.");
+    writeln!(file, "{}", contents).expect("Failed to write to file.");
+}
+
+
 pub fn get_base_dirname() -> std::string::String {
     shellexpand::tilde("~/.whale").into_owned()
 }
@@ -89,7 +100,7 @@ pub fn get_connections_filename() -> std::string::String {
 
 pub fn get_cron_log_filename() -> std::string::String {
     let path = format!("{}/{}",
-                       get_logs_dir(),
+                       get_logs_dirname(),
                        "cron.log");
     path
 }
@@ -109,7 +120,7 @@ pub fn get_etl_command() -> std::string::String {
 }
 
 
-pub fn get_logs_dir() -> std::string::String {
+pub fn get_logs_dirname() -> std::string::String {
     let path = format!("{}/{}",
                        get_base_dirname(),
                        "logs");
@@ -155,4 +166,20 @@ pub fn get_open_command() -> std::string::String {
         Err(_e) => "open".to_string(),
     };
     editor
+}
+
+
+pub fn get_recently_used_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_logs_dirname(),
+                       "recenty_used.txt");
+    path
+}
+
+
+pub fn get_usage_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_logs_dirname(),
+                       "usage.csv");
+    path
 }

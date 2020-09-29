@@ -75,14 +75,21 @@ pub fn table_skim() {
         .map(|out| out.selected_items)
         .unwrap_or_else(|| Vec::new());
 
+    let recently_used_filename = filesystem::get_recently_used_filename();
     for item in selected_items.iter() {
         let table_name = item.text().into_owned();
         let filename = utils::convert_table_name_to_file_name(&table_name);
 
-    let editor = filesystem::get_open_command();
-    Command::new(editor)
-        .arg(filename)
-        .status()
-        .expect("Failed to open file.");
+        let editor = filesystem::get_open_command();
+        Command::new(editor)
+            .arg(filename)
+            .status()
+            .expect("Failed to open file.");
+
+        let contents = format!("{}", table_name);
+        filesystem::append_to_file(contents, &recently_used_filename)
     }
+
+    filesystem::deduplicate_file(&recently_used_filename)
+
 }
