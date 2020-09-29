@@ -7,7 +7,7 @@ use std::{
     path::Path,
     process::Command,
 };
-
+use crate::filesystem;
 
 pub fn get_input() -> String {
     let _ = io::stdout().flush();
@@ -76,8 +76,8 @@ pub fn is_cron_expression_registered() -> bool {
 
 
 pub fn convert_table_name_to_file_name(table_name: &str) -> String {
-    let metadata_path = shellexpand::tilde("~/.whale/metadata/");
-    format!("{}{}.md", metadata_path, table_name)
+    let metadata_path = filesystem::get_metadata_dirname();
+    format!("{}/{}.md", metadata_path, table_name)
 }
 
 

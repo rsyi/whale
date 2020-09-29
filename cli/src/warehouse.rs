@@ -32,7 +32,8 @@ pub enum MetadataSource {
     Hive,
     HiveMetastore,
     Presto,
-    Snowflake
+    Snowflake,
+    AmundsenNeo4j
 }
 
 impl FromStr for MetadataSource {
@@ -44,6 +45,7 @@ impl FromStr for MetadataSource {
             "hive_metastore" | "hive-metastore" | "hive metastore"  | "hm" => Ok(MetadataSource::HiveMetastore),
             "presto" | "p" => Ok(MetadataSource::Presto),
             "snowflake" | "s" => Ok(MetadataSource::Snowflake),
+            "amundsen-neo4j" | "a" => Ok(MetadataSource::AmundsenNeo4j),
             _ => Err(ParseMetadataSourceError {}),
         }
     }
@@ -57,6 +59,7 @@ impl fmt::Display for MetadataSource {
            MetadataSource::HiveMetastore => write!(f, "Hive Metastore"),
            MetadataSource::Presto => write!(f, "Presto"),
            MetadataSource::Snowflake => write!(f, "Snowflake"),
+           MetadataSource::AmundsenNeo4j => write!(f, "Amundsen Neo4j"),
        }
     }
 }
@@ -76,15 +79,14 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         }
     }
 
-    println!("\n{}", "What type of warehouse would you like to add?".purple());
+    println!("\n{}", "What type of connection would you like to add?".purple());
     println!(" {}:", "Options".bold());
 
     let supported_warehouse_types = [
         "bigquery",
-        "hive",
-        "hive_metastore",
         "presto",
-        "snowflake"
+        "snowflake",
+        "amundsen-neo4j"
     ];
     for supported_warehouse_type in supported_warehouse_types.iter() {
         println!(" * {}", supported_warehouse_type)
@@ -103,6 +105,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
             | Ok(MetadataSource::HiveMetastore)
             | Ok(MetadataSource::Presto)
             | Ok(MetadataSource::Snowflake)
+            | Ok(MetadataSource::AmundsenNeo4j)
             => GenericWarehouse::prompt_add_details(warehouse_enum.unwrap()),
         Err(e) => handle_error(e),
     };
@@ -229,7 +232,7 @@ impl GenericWarehouse {
             password: password
         };
 
-        compiled_config.register_config();
+        compiled_config.register_config().expect("Failed to register warehouse configuration");
 
         println!("{} {:?} {}",
                  "Added warehouse:",
@@ -261,9 +264,9 @@ impl Bigquery {
     pub fn prompt_add_details() {
         println!("Starting warehouse detail onboarding sequence for {}.", "Google BigQuery".yellow());
 
-        let mut key_path: Option<String>;
-        let mut project_credentials: Option<String>;
-        let mut project_id: Option<String>;
+        let key_path: Option<String>;
+        let project_credentials: Option<String>;
+        let project_id: Option<String>;
 
 
         // name
@@ -319,7 +322,7 @@ impl Bigquery {
             project_id: project_id
         };
 
-        compiled_config.register_config();
+        compiled_config.register_config().expect("Failed to register warehouse configuration");
 
         println!("{} {:?} {}",
                  "Added warehouse:",
@@ -345,7 +348,7 @@ impl Bigquery {
     }
 
     fn get_credentials(method: i32) -> String {
-        let mut credentials: String;
+        let credentials: String;
         if method == 2 {
             println!("\n{}",
                      "Enter your credentials key.".purple());
@@ -363,7 +366,7 @@ impl Bigquery {
         println!("\n{}",
                  "Enter the project_id you want to pull metadata from.".purple());
         let project_id = utils::get_input();
-        let mut trimmed_project_id: String;
+        let trimmed_project_id: String;
         if project_id == "" {
             println!("You must specify a project_id.");
             return Bigquery::prompt_project_id();
