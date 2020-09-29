@@ -7,25 +7,65 @@ We provide access to warehouse configuration through the `~/.whale/config/connec
 ```text
 ---
 name: bq-1
- 
+metadata_source: ~
 
 ```
 
 * **name** Unique warehouse name. This will be used to name the subdirectory within `~/.whale/metadata` that stores metadata and UGC for each table.
-* **metadata\_source** The type of connection that this yaml section describes. See warehouse-specific implementation details for valid values for this field.
+* **metadata\_source** The type of connection that this yaml section describes. These are case sensitive and can be one of the following:
+  * Bigquery
+  * Neo4j
+  * Presto
+  * Snowflake
 
 ## Bigquery
 
 ```text
 ---
-name: bq1
-metadata_source: bigquery
+name: 
+metadata_source: Bigquery
 key_path: /Users/robert/gcp-credentials.json
-project_credentials: ~
-project_id: bigquery-db-10394103
+project_credentials:  # Only one of key_path or project_credentials needed
+project_id:
 ```
 
 Only one of `key_path` and `project_credentials` are required.
 
+## Neo4j
 
+We provide support to scrape metadata from Amundsen's neo4j backend.
+
+```text
+---
+name: 
+metadata_source: Neo4j
+uri:
+port:
+username:  # Optional
+password:  # Optional
+```
+
+## Presto
+
+```text
+---
+name: 
+metadata_source: Presto
+uri:
+port:
+username:  # Optional
+password:  # Optional
+```
+
+## Snowflake
+
+```text
+---
+name:
+metadata_source: Snowflake
+uri:
+port:
+username:  # Optional
+password:  # Optional
+```
 
