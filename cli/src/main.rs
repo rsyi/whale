@@ -1,5 +1,3 @@
-extern crate clap;
-
 use whale;
 use clap::{App, SubCommand};
 

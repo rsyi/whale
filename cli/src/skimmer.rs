@@ -1,5 +1,3 @@
-extern crate skim;
-
 use skim::prelude::{Skim, SkimItemReader, SkimOptionsBuilder};
 use std::fs;
 use std::path::Path;

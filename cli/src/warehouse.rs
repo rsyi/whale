@@ -1,7 +1,3 @@
-extern crate colored;
-extern crate names;
-extern crate serde;
-extern crate serde_yaml;
 use colored::*;
 use names::{Generator, Name};
 use serde::{Serialize, Deserialize};

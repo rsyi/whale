@@ -1,6 +1,4 @@
 #[macro_use] extern crate lazy_static;
-extern crate clap;
-extern crate colored;
 use clap::{ArgMatches};
 use colored::*;
 use std::{
