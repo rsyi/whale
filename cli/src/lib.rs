@@ -96,10 +96,10 @@ impl Whale {
 
         let build_script_path = filesystem::get_build_script_filename();
         let build_script_path = Path::new(&*build_script_path);
-        let output = Command::new(build_script_path)
+        let mut child = Command::new(build_script_path)
             .spawn()
             .expect("ETL failed.");
-        println!("{:?}", output);
+        child.wait().expect("ETL failed.");
 
         let manifest_path = filesystem::get_manifest_filename();
         filesystem::deduplicate_file(&manifest_path);
