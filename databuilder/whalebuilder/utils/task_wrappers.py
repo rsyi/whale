@@ -7,7 +7,7 @@ from whalebuilder.utils.paths import (  # noqa: F401
     MANIFEST_PATH,
     TMP_MANIFEST_PATH
 )
-from databuilder.task.task import DefaultTask
+from whalebuilder.task import WhaleTask
 from whalebuilder.loader.whale_loader import WhaleLoader
 from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
 from whalebuilder.utils.connections import dump_connection_config_in_schema
@@ -57,13 +57,17 @@ def create_and_run_tasks_from_yaml(
         conf.put('loader.whale.database_name', connection.name)
         conf.put('loader.whale.tmp_manifest_path', tmp_manifest_path)
 
-        for extractor in extractors:
-            task = DefaultTask(
+        for i, extractor in enumerate(extractors):
+            task = WhaleTask(
                 extractor=extractor,
                 transformer=MarkdownTransformer(),
                 loader=WhaleLoader(),
             )
             task.init(conf)
             task.run()
+
+            # The first extractor passes all tables, always
+            if i == 0:
+                task.save()
 
         transfer_manifest(tmp_manifest_path)
