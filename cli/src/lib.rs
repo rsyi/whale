@@ -3,8 +3,10 @@ extern crate clap;
 extern crate colored;
 use clap::{ArgMatches};
 use colored::*;
-use std::path::Path;
-use std::process::Command;
+use std::{
+    path::Path,
+    process::Command,
+};
 
 pub mod warehouse;
 pub mod skimmer;
