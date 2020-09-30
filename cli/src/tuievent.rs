@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::io;
 use std::sync::mpsc;
 use std::sync::{
