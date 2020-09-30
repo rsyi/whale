@@ -5,22 +5,32 @@
 ### Mac OS
 
 ```text
-brew install rsyi/tap/whale
+brew install rsyi/tap/whaleA
 ```
 
-### Compile and install
+### All others
 
-Clone the whale repository, activate a Python &gt;= 3.6 virtual environment, then run the following in the base directory of the repo _\(if you are updating, make sure to delete `./dist` or `pyinstaller` won't rebuild the binary\)_:
+To manually compile and install, you'll have to \(a\) clone the whale repository, \(b\) activate a Python &gt;= 3.6 virtual environment, and \(c\) run **`make && make install`** in the base directory of the repo. These steps are encapsulated in the following commands:
 
 ```text
+git clone https://github.com/rsyi/whale.git
+cd whale/
+python3 -m venv env
+source env/bin/activate
 make && make install
 ```
+
+If this does not work, make sure `python3` is aliased to a &gt;=3.6 python installation.
 
 The Makefile commands don't explicitly add an alias for the `whale` binary, so you'll want to add the following alias to your `.bash_profile` or `.zshrc` file.
 
 ```text
 alias wh=~/.whale/bin/wh
 ```
+
+{% hint style="info" %}
+_**Developer's note:** if you are developing and want to recompile, make sure to delete `./dist` on each rebuild or `pyinstaller` won't rebuild the python binary._
+{% endhint %}
 
 ## Quick start
 
