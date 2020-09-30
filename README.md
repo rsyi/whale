@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/whale_logo.svg" width="650"/></p>
+<p align="center"><img src="docs/whale_logo.svg" width="600"/></p>
 
 ![](https://github.com/rsyi/whale/workflows/CD/badge.svg) ![](https://github.com/rsyi/whale/workflows/CI/badge.svg) ![codecov](https://codecov.io/gh/rsyi/whale/branch/master/graph/badge.svg)
 

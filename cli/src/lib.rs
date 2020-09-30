@@ -1,11 +1,29 @@
+mod tuievent;
+
 #[macro_use] extern crate lazy_static;
-extern crate clap;
-extern crate colored;
 use clap::{ArgMatches};
 use colored::*;
 use std::{
+    io::{self, Write},
     path::Path,
     process::Command,
+};
+use tui::{
+    backend::TermionBackend,
+    layout::{Layout, Constraint, Direction},
+    style::{Color, Modifier, Style},
+    symbols,
+    text::Span,
+    widgets::{Axis, Block, Borders, Chart, Dataset, GraphType},
+    Terminal,
+};
+use termion::{
+    clear,
+    event::Key,
+    raw::IntoRawMode,
+};
+use crate::tuievent::{
+    {Event, Events},
 };
 
 pub mod warehouse;
@@ -55,11 +73,12 @@ fn print_scheduler_header() {
 pub struct Whale {}
 
 impl Whale {
-    pub fn run_with(_matches: ArgMatches) {
+    pub fn run_with(_matches: ArgMatches) -> Result<(), io::Error> {
         skimmer::table_skim();
+        Ok(())
     }
 
-    pub fn init() {
+    pub fn init() -> Result<(), io::Error> {
         print_initialization_header();
         filesystem::create_file_structure();
 
@@ -72,40 +91,43 @@ impl Whale {
             println!("This is resource-light and can be manually deleted by editing the file at {}.", "crontab -e".magenta());
             let is_scheduling_requested: bool = utils::get_input_as_bool();
             if is_scheduling_requested {
-                Whale::schedule(false);
+                Whale::schedule(false)?;
             }
         }
 
         let is_first_warehouse = true;
         warehouse::prompt_add_warehouse(is_first_warehouse);
+
+        Ok(())
     }
 
-    pub fn connections() {
+    pub fn connections() -> Result<(), io::Error> {
         let connections_config_file = filesystem::get_connections_filename();
         let editor = filesystem::get_open_command();
 
         Command::new(editor)
             .arg(connections_config_file)
-            .status()
-            .expect("Failed to open file.");
+            .status()?;
 
+        Ok(())
     }
 
-    pub fn etl() {
+    pub fn etl() -> Result<(), io::Error> {
         print_etl_header();
 
         let build_script_path = filesystem::get_build_script_filename();
         let build_script_path = Path::new(&*build_script_path);
         let mut child = Command::new(build_script_path)
-            .spawn()
-            .expect("ETL failed.");
-        child.wait().expect("ETL failed.");
+            .spawn()?;
+        child.wait()?;
 
         let manifest_path = filesystem::get_manifest_filename();
         filesystem::deduplicate_file(&manifest_path);
+
+        Ok(())
     }
 
-    pub fn schedule(ask_for_permission: bool) {
+    pub fn schedule(ask_for_permission: bool) -> Result<(), io::Error> {
         print_scheduler_header();
         let mut cron_string = utils::get_input();
         if cron_string.is_empty() {
@@ -148,8 +170,7 @@ impl Whale {
 
             Command::new("sh")
                 .args(&["-c", &scheduler_command])
-                .spawn()
-                .expect("Crontab registration failed.");
+                .spawn()?;
 
             println!("If you are prompted for permissions, allow and continue. [Press {} to continue]", "enter".green());
             utils::get_input();
@@ -164,5 +185,90 @@ impl Whale {
             }
 
         }
+
+        Ok(())
+    }
+
+
+    pub fn dash() -> Result<(), io::Error> {
+
+        const DATA2: [(f64, f64); 7] = [
+            (0.0, 0.0),
+            (10.0, 1.0),
+            (20.0, 0.5),
+            (30.0, 1.5),
+            (40.0, 1.0),
+            (50.0, 2.5),
+            (60.0, 3.0),
+        ];
+
+        let events = Events::new();
+        let mut stdout = io::stdout().into_raw_mode()?;
+        write!(stdout, "{}", clear::All)?;
+        let backend = TermionBackend::new(stdout);
+        let mut terminal = Terminal::new(backend)?;
+
+        loop {
+            terminal.draw(|f| {
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(1)
+                    .constraints(
+                        [
+                            Constraint::Percentage(50),
+                            Constraint::Percentage(50),
+                        ].as_ref()
+                    )
+                    .split(f.size());
+
+                let block = Block::default()
+                     .title("Block")
+                     .borders(Borders::ALL);
+
+                let datasets = vec![Dataset::default()
+                    .name("count_distinct(nulls)")
+                    .marker(symbols::Marker::Braille)
+                    .style(Style::default().fg(Color::Yellow))
+                    .graph_type(GraphType::Line)
+                    .data(&DATA2)];
+                let chart = Chart::new(datasets)
+                    .block(block)
+                    .x_axis(
+                        Axis::default()
+                            .title("X Axis")
+                            .style(Style::default().fg(Color::Gray))
+                            .bounds([0.0, 60.0])
+                    )
+                    .y_axis(
+                        Axis::default()
+                            .title("Y Axis")
+                            .style(Style::default().fg(Color::Gray))
+                            .labels(vec![
+                                Span::styled("3", Style::default().add_modifier(Modifier::BOLD)),
+                                Span::raw("0"),
+                            ])
+                            .bounds([0.0, 3.0])
+                    );
+
+                f.render_widget(chart, chunks[0]);
+
+                let block = Block::default()
+                     .title("Block 2")
+                     .borders(Borders::ALL);
+                f.render_widget(block, chunks[1]);
+            })?;
+
+            let input = events.next().unwrap();
+            match input {
+                Event::Input(input) => {
+                    if input == Key::Char('q') {
+                        break;
+                    }
+                },
+                Event::Tick => ()
+            };
+        };
+
+        Ok(())
     }
 }
