@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setuptools.setup(
     name='whalebuilder',
-    version='0.0.0b1',
+    version='0.0.0b3',
     author='Robert Yi',
     author_email='robert@ryi.me',
     description="A pared-down metadata ETL library.",
@@ -15,7 +15,8 @@ setuptools.setup(
         'pyhocon>=0.3.42',
         'tabulate',
         'pyaml',
-        'google-api-python-client'
+        'google-api-python-client',
+        'SQLAlchemy>=1.3.19'
     ],
     include_package_data=True,
 )

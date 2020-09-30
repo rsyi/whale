@@ -10,3 +10,4 @@ google-auth-httplib2
 google-auth-oauthlib
 snowflake-connector-python
 snowflake-sqlalchemy
+SQLAlchemy>=1.3
