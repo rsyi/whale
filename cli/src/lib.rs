@@ -1,16 +1,30 @@
+mod tuievent;
+
 #[macro_use] extern crate lazy_static;
 use clap::{ArgMatches};
 use colored::*;
 use std::{
-    io::self,
+    io::{self, Write},
     path::Path,
     process::Command,
 };
 use tui::{
+    backend::TermionBackend,
+    layout::{Layout, Constraint, Direction},
+    style::{Color, Modifier, Style},
+    symbols,
+    text::Span,
+    widgets::{Axis, Block, Borders, Chart, Dataset, GraphType},
     Terminal,
-    backend::TermionBackend
 };
-use termion::raw::IntoRawMode;
+use termion::{
+    clear,
+    event::Key,
+    raw::IntoRawMode,
+};
+use crate::tuievent::{
+    {Event, Events},
+};
 
 pub mod warehouse;
 pub mod skimmer;
@@ -177,9 +191,84 @@ impl Whale {
 
 
     pub fn dash() -> Result<(), io::Error> {
-        let stdout = io::stdout().into_raw_mode()?;
+
+        const DATA2: [(f64, f64); 7] = [
+            (0.0, 0.0),
+            (10.0, 1.0),
+            (20.0, 0.5),
+            (30.0, 1.5),
+            (40.0, 1.0),
+            (50.0, 2.5),
+            (60.0, 3.0),
+        ];
+
+        let events = Events::new();
+        let mut stdout = io::stdout().into_raw_mode()?;
+        write!(stdout, "{}", clear::All)?;
         let backend = TermionBackend::new(stdout);
         let mut terminal = Terminal::new(backend)?;
+
+        loop {
+            terminal.draw(|f| {
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(1)
+                    .constraints(
+                        [
+                            Constraint::Percentage(50),
+                            Constraint::Percentage(50),
+                        ].as_ref()
+                    )
+                    .split(f.size());
+
+                let block = Block::default()
+                     .title("Block")
+                     .borders(Borders::ALL);
+
+                let datasets = vec![Dataset::default()
+                    .name("count_distinct(nulls)")
+                    .marker(symbols::Marker::Braille)
+                    .style(Style::default().fg(Color::Yellow))
+                    .graph_type(GraphType::Line)
+                    .data(&DATA2)];
+                let chart = Chart::new(datasets)
+                    .block(block)
+                    .x_axis(
+                        Axis::default()
+                            .title("X Axis")
+                            .style(Style::default().fg(Color::Gray))
+                            .bounds([0.0, 60.0])
+                    )
+                    .y_axis(
+                        Axis::default()
+                            .title("Y Axis")
+                            .style(Style::default().fg(Color::Gray))
+                            .labels(vec![
+                                Span::styled("3", Style::default().add_modifier(Modifier::BOLD)),
+                                Span::raw("0"),
+                            ])
+                            .bounds([0.0, 3.0])
+                    );
+
+                f.render_widget(chart, chunks[0]);
+
+                let block = Block::default()
+                     .title("Block 2")
+                     .borders(Borders::ALL);
+                f.render_widget(block, chunks[1]);
+            })?;
+
+            let input = events.next().unwrap();
+            match input {
+                Event::Input(input) => {
+                    if input == Key::Char('q') {
+                        break;
+                    }
+                },
+                Event::Tick => ()
+            };
+        };
+
         Ok(())
     }
 }
