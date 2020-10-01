@@ -130,7 +130,7 @@ impl Whale {
         let git_server = warehouse::GitServer {
             uri: git_uri, .. Default::default()
         };
-        git_server.register_config();
+        git_server.register_config()?;
 
         Ok(())
     }

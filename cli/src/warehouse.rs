@@ -1,13 +1,9 @@
 use colored::*;
 use names::{Generator, Name};
-use std::{env, fmt, io};
-use std::io::Write;
-use std::fs::OpenOptions;
-use std::path::Path;
+use std::{env, fmt};
 use std::process;
 use std::str::FromStr;
 
-use crate::filesystem;
 use crate::serialization::{Serialize, Deserialize, YamlWriter};
 use crate::utils;
 
