@@ -5,7 +5,7 @@
 ### Mac OS
 
 ```text
-brew install rsyi/tap/whaleA
+brew install rsyi/tap/whale
 ```
 
 ### All others
