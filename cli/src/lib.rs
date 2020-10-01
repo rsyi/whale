@@ -63,21 +63,6 @@ oooo oooo    ooo  888 .oo.          :
 }
 
 
-fn print_git_header() {
-    let git_header = format!("
-{} supports git-versioning to enable teams to collaborate of a single whale repository on a hosted
-git platform (e.g. github).
-
-For more information, see https://docs.whale.cx/getting-started-for-teams.
-
-This command will set a configuration flag that causes `wh etl` and any cron jobs scheduled through the platform to reference a remote git instead.
-
-{}
-", "Whale".cyan(), "Enter git URI (e.g. git@github.com:rsyi/whale.git), or press CTRL+C to cancel.".purple());
-    println!("{}", git_header);
-}
-
-
 fn print_etl_header() {
     println!("Running ETL job manually.");
 }
@@ -124,13 +109,6 @@ impl Whale {
     }
 
     pub fn git_enable() -> Result<(), io::Error> {
-
-        print_git_header();
-        let git_uri = utils::get_input();
-        let git_server = warehouse::GitServer {
-            uri: git_uri, .. Default::default()
-        };
-        git_server.register_config()?;
 
         Ok(())
     }

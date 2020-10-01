@@ -40,6 +40,7 @@ impl FromStr for MetadataSource {
             "presto" | "p" => Ok(MetadataSource::Presto),
             "snowflake" | "s" => Ok(MetadataSource::Snowflake),
             "amundsen-neo4j" | "a" => Ok(MetadataSource::AmundsenNeo4j),
+            "git" | "g" => Ok(MetadataSource::GitServer),
             _ => Err(ParseMetadataSourceError {}),
         }
     }
@@ -65,7 +66,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
 
     if !is_first_time {
         println!("{} [{}/{}]",
-                 "\nAdd another warehouse?".purple(),
+                 "\nAdd another warehouse/source?".purple(),
                  "Y".green(),
                  "n".red());
         let has_warehouse_to_add: bool = utils::get_input_as_bool();
@@ -81,6 +82,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         "bigquery",
         "presto",
         "snowflake",
+        "git",
         "amundsen-neo4j"
     ];
     for supported_warehouse_type in supported_warehouse_types.iter() {
@@ -137,6 +139,25 @@ pub struct GitServer {
 
 impl GitServer {
     pub fn prompt_add_details() {
+        let git_header = format!("
+{} supports git-versioning to enable teams to collaborate of a single whale repository on a hosted
+git platform (e.g. github).
+
+For more information, see https://docs.whale.cx/getting-started-for-teams.
+
+This command will set a configuration flag that causes `wh etl` and any cron jobs scheduled through
+the platform to reference a remote git instead, and add a git remote address to your
+connections.yaml file.
+
+{}", "Whale".cyan(), "Enter git URI (e.g. git@github.com:rsyi/whale.git), or press CTRL+C to cancel.".purple());
+        println!("{}", git_header);
+
+        let git_uri = utils::get_input();
+        let git_server = GitServer {
+            uri: git_uri, .. Default::default()
+        };
+        git_server.register_config().expect("Failed to register git configuration");
+
     }
 }
 
