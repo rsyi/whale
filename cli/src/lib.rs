@@ -31,6 +31,8 @@ pub mod skimmer;
 pub mod utils;
 pub mod filesystem;
 
+use warehouse::YamlWriter;
+
 const DEFAULT_CRON_STRING: &str = "0 */6 * * *";
 
 
@@ -60,6 +62,21 @@ oooo oooo    ooo  888 .oo.          :
 }
 
 
+fn print_git_header() {
+    let git_header = format!("
+{} supports git-versioning to enable teams to collaborate of a single whale repository on a hosted
+git platform (e.g. github).
+
+For more information, see https://docs.whale.cx/getting-started-for-teams.
+
+This command will set a configuration flag that causes `wh etl` and any cron jobs scheduled through the platform to reference a remote git instead.
+
+{}
+", "Whale".cyan(), "Enter git URI (e.g. git@github.com:rsyi/whale.git), or press CTRL+C to cancel.".purple());
+    println!("{}", git_header);
+}
+
+
 fn print_etl_header() {
     println!("Running ETL job manually.");
 }
@@ -70,6 +87,10 @@ fn print_scheduler_header() {
 }
 
 
+/// Holds all command-line tasks.
+///
+/// The Whale struct acts as an interface containing all methods referenced and executed by the
+/// CLI. These are referenced in main.rs with a match statement on clap matches.
 pub struct Whale {}
 
 impl Whale {
@@ -97,6 +118,29 @@ impl Whale {
 
         let is_first_warehouse = true;
         warehouse::prompt_add_warehouse(is_first_warehouse);
+
+        Ok(())
+    }
+
+    pub fn git_enable() -> Result<(), io::Error> {
+
+        print_git_header();
+        let git_uri = utils::get_input();
+        let git_server = warehouse::GitServer {
+            uri: git_uri, .. Default::default()
+        };
+        git_server.register_config();
+
+        Ok(())
+    }
+
+    pub fn config() -> Result<(), io::Error>{
+        let config_file = filesystem::get_config_filename();
+        let editor = filesystem::get_open_command();
+
+        Command::new(editor)
+            .arg(config_file)
+            .status()?;
 
         Ok(())
     }

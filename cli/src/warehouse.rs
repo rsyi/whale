@@ -8,6 +8,7 @@ use std::path::Path;
 use std::process;
 use std::str::FromStr;
 
+use crate::filesystem;
 use crate::utils;
 
 const GOOGLE_ENV_VAR: &str = "GOOGLE_APPLICATION_CREDENTIALS";
@@ -25,6 +26,7 @@ impl fmt::Display for ParseMetadataSourceError {
 #[derive(Serialize, Deserialize)]
 pub enum MetadataSource {
     Bigquery,
+    GitServer,
     Hive,
     HiveMetastore,
     Presto,
@@ -56,6 +58,7 @@ impl fmt::Display for MetadataSource {
            MetadataSource::Presto => write!(f, "Presto"),
            MetadataSource::Snowflake => write!(f, "Snowflake"),
            MetadataSource::AmundsenNeo4j => write!(f, "Amundsen Neo4j"),
+           MetadataSource::GitServer => write!(f, "Git Server"),
        }
     }
 }
@@ -103,6 +106,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
             | Ok(MetadataSource::Snowflake)
             | Ok(MetadataSource::AmundsenNeo4j)
             => GenericWarehouse::prompt_add_details(warehouse_enum.unwrap()),
+        Ok(MetadataSource::GitServer) => GitServer::prompt_add_details(),
         Err(e) => handle_error(e),
     };
 
@@ -131,14 +135,8 @@ fn get_name() -> String {
 pub trait YamlWriter {
     fn register_config(&self) -> Result<(), io::Error>{
 
-        // TODO: refer to filesystem.rs instead of hard-coding
-        let base_path = shellexpand::tilde("~");
-        let base_path = Path::new(&*base_path);
-        let connections_path = base_path
-            .join(".whale")
-            .join("config")
-            .join("connections.yaml");
-
+        let connections_filename = filesystem::get_connections_filename();
+        let connections_path = Path::new(&*connections_filename);
 
         // Format yaml docs
         let mut new_docs = self.generate_yaml();
@@ -161,11 +159,41 @@ pub trait YamlWriter {
 
 impl<T> YamlWriter for T
     where T: Serialize {
+
+    /// Creates yaml out of struct.
+    ///
+    /// serde_yaml requires the Serialize trait to be implemented, so rather than implementing
+    /// this within YamlWriter, we implement YamlWriter for Serialize then bind the Serialize
+    /// trait.
     fn generate_yaml(&self) -> String {
+        // Serialize struct as yaml string
         serde_yaml::to_string(&self)
             .unwrap()
     }
 }
+
+
+
+#[derive(Serialize, Deserialize)]
+pub struct GitServer {
+    metadata_source: MetadataSource,
+    uri: String,
+}
+
+impl GitServer {
+    fn prompt_add_details() {
+    }
+}
+
+impl Default for GitServer {
+    fn default() -> Self {
+        GitServer {
+            metadata_source: MetadataSource::GitServer,
+            uri: String::from("None")
+        }
+    }
+}
+
 
 #[derive(Serialize, Deserialize)]
 pub struct GenericWarehouse {

@@ -90,6 +90,14 @@ pub fn get_config_dirname() -> std::string::String {
 }
 
 
+pub fn get_config_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_config_dirname(),
+                       "config.yaml");
+    path
+}
+
+
 pub fn get_connections_filename() -> std::string::String {
     let path = format!("{}/{}",
                        get_config_dirname(),
