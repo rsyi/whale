@@ -71,6 +71,8 @@ jobs:
 
 For illustration purposes, we've used github secrets to store our Bigquery credentials.json file, then pipe this into the path `~/.whale/config.json` file, which we reference in `config/connections.yaml`. Sensitive data \(even the entire `connections.yaml` file, if you so desire\) can be stored as a github secret, read into a file during the CI/CD process, then safely referenced by `whale` binaries for warehouse access.
 
+Take care to \(a\) change the `git config` specifications, and \(b\) choose a runner that coincides with the machine type that you used to create the python binaries \(below, we use `macos-latest`\). That said, though our instructions thus far have involved the storage of the compiled python binaries \(`libexec/`\) on github as well \(simply to reduce compute time\), it is alternatively possible to simply install `whalebuilder` and run `build_script.py` manually with each CI/CD run. In this case, specification of the machine type is irrelevant, as no `pyinstaller` compilation would need to take place.
+
 ### Schedule a local cron job to keep your local table stubs up-to-date
 
 TODO
