@@ -25,13 +25,14 @@ use termion::{
 use crate::tuievent::{
     {Event, Events},
 };
+use crate::serialization::YamlWriter;
 
 pub mod warehouse;
 pub mod skimmer;
 pub mod utils;
 pub mod filesystem;
+pub mod serialization;
 
-use warehouse::YamlWriter;
 
 const DEFAULT_CRON_STRING: &str = "0 */6 * * *";
 
