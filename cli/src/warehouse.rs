@@ -1,10 +1,15 @@
 use colored::*;
 use names::{Generator, Name};
-use std::{env, fmt};
+use std::{
+    collections::HashMap,
+    env,
+    fmt};
 use std::process;
 use std::str::FromStr;
 
-use crate::serialization::{Serialize, Deserialize, YamlWriter};
+use crate::serialization::{
+    Serialize, Deserialize, YamlWriter, self
+};
 use crate::utils;
 
 const GOOGLE_ENV_VAR: &str = "GOOGLE_APPLICATION_CREDENTIALS";
@@ -145,19 +150,31 @@ git platform (e.g. github).
 
 For more information, see https://docs.whale.cx/getting-started-for-teams.
 
-This command will set a configuration flag that causes `wh etl` and any cron jobs scheduled through
-the platform to reference a remote git instead, and add a git remote address to your
-connections.yaml file.
+This command will set a configuration flag in config/app.yaml that causes `wh etl` and any cron
+jobs scheduled through the platform to reference a remote git instead, and add a git remote address
+to your config/connections.yaml file.
 
-{}", "Whale".cyan(), "Enter git URI (e.g. git@github.com:rsyi/whale.git), or press CTRL+C to cancel.".purple());
+{} Do not do this unless you've set up a git remote server, following the documentation above. This
+will halt all non-git scraping.
+
+{}",
+        "Whale".cyan(),
+        "WARNING:".red(),
+        "Enter git URI (e.g. git@github.com:rsyi/whale.git), or press CTRL+C to cancel.
+If you just want to enable/disable git as the primary metadata source, press enter to continue.".purple());
         println!("{}", git_header);
 
         let git_uri = utils::get_input();
-        let git_server = GitServer {
-            uri: git_uri, .. Default::default()
-        };
-        git_server.register_config().expect("Failed to register git configuration");
+        if !(git_uri=="") {
+            let git_server = GitServer {
+                uri: git_uri, .. Default::default()
+            };
+            git_server.register_connection().expect("Failed to register git configuration");
+        }
 
+        let mut config_kv_to_update = HashMap::new();
+        config_kv_to_update.insert("is_git_etl_enabled", "true");
+        serialization::update_config(config_kv_to_update).expect("Failed to update config file.");
     }
 }
 
@@ -232,7 +249,7 @@ impl GenericWarehouse {
             password: password
         };
 
-        compiled_config.register_config().expect("Failed to register warehouse configuration");
+        compiled_config.register_connection().expect("Failed to register warehouse configuration");
 
         println!("{} {:?} {}",
                  "Added warehouse:",
@@ -322,7 +339,7 @@ impl Bigquery {
             project_id: project_id
         };
 
-        compiled_config.register_config().expect("Failed to register warehouse configuration");
+        compiled_config.register_connection().expect("Failed to register warehouse configuration");
 
         println!("{} {:?} {}",
                  "Added warehouse:",

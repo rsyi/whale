@@ -25,7 +25,6 @@ use termion::{
 use crate::tuievent::{
     {Event, Events},
 };
-use crate::serialization::YamlWriter;
 
 pub mod warehouse;
 pub mod skimmer;
@@ -60,11 +59,6 @@ oooo oooo    ooo  888 .oo.          :
 //  └── metadata
 //
 // We'll check if this exists and make it if it doesn't.")
-}
-
-
-fn print_etl_header() {
-    println!("Running ETL job manually.");
 }
 
 
@@ -109,6 +103,7 @@ impl Whale {
     }
 
     pub fn git_enable() -> Result<(), io::Error> {
+        warehouse::GitServer::prompt_add_details();
 
         Ok(())
     }
@@ -136,7 +131,7 @@ impl Whale {
     }
 
     pub fn etl() -> Result<(), io::Error> {
-        print_etl_header();
+        println!("Running ETL job manually.");
 
         let build_script_path = filesystem::get_build_script_filename();
         let build_script_path = Path::new(&*build_script_path);
