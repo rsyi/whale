@@ -161,8 +161,8 @@ will halt all non-git scraping.
         "Whale".cyan(),
         "WARNING:".red(),
         "Enter git URI (e.g. git@github.com:rsyi/whale.git), or press CTRL+C to cancel.
-If you just want to enable/disable git as the primary metadata source, press enter to continue.".purple());
-        println!("{}", git_header);
+If you just want to enable git as the primary metadata source and already have a git URI
+registered, press enter to continue.".purple()); println!("{}", git_header);
 
         let git_uri = utils::get_input();
         if !(git_uri=="") {

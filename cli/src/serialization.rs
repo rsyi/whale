@@ -6,6 +6,7 @@ use std::{
     fs::{OpenOptions, self},
 };
 use crate::filesystem;
+use yaml_rust::YamlLoader;
 
 
 pub trait YamlWriter {
@@ -77,4 +78,20 @@ pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
     serde_yaml::to_writer(&file, &config).expect("Failed to write.");
 
     Ok(())
+}
+
+
+pub fn read_config(key: &str) -> Result<String, io::Error> {
+    let config_filename = filesystem::get_config_filename();
+    let config_path = Path::new(&*config_filename);
+    let config_string = fs::read_to_string(config_path)?;
+
+    let docs = YamlLoader::load_from_str(&config_string).unwrap();
+    if docs.len() == 1 {
+        let doc = &docs[0];
+        Ok(doc[key].as_str().unwrap().to_string())
+    }
+    else {
+        Ok("false".to_string())
+    }
 }

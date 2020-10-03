@@ -133,6 +133,10 @@ impl Whale {
     pub fn etl() -> Result<(), io::Error> {
         println!("Running ETL job manually.");
 
+        if serialization::read_config("is_git_etl_enabled").unwrap() == "true".to_string() {
+            println!("TRUE!");
+        }
+
         let build_script_path = filesystem::get_build_script_filename();
         let build_script_path = Path::new(&*build_script_path);
         let mut child = Command::new(build_script_path)
