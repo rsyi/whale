@@ -132,19 +132,24 @@ impl Whale {
 
     pub fn etl() -> Result<(), io::Error> {
         println!("Running ETL job manually.");
-
-        if serialization::read_config("is_git_etl_enabled").unwrap() == "true".to_string() {
-            println!("TRUE!");
+        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled") {
+            Ok(flag) => flag.parse::<bool>().unwrap(),
+            Err(_error) => false,
+        };
+        if is_git_etl_enabled {
+            println!("Git-syncing is enabled (see ~/.whale/config/config.yaml or https://docs.whale.cx/getting-started-for-teams for more details).
+Fetching and rebasing local changes from github.");
         }
+        else {
+            let build_script_path = filesystem::get_build_script_filename();
+            let build_script_path = Path::new(&*build_script_path);
+            let mut child = Command::new(build_script_path)
+                .spawn()?;
+            child.wait()?;
 
-        let build_script_path = filesystem::get_build_script_filename();
-        let build_script_path = Path::new(&*build_script_path);
-        let mut child = Command::new(build_script_path)
-            .spawn()?;
-        child.wait()?;
-
-        let manifest_path = filesystem::get_manifest_filename();
-        filesystem::deduplicate_file(&manifest_path);
+            let manifest_path = filesystem::get_manifest_filename();
+            filesystem::deduplicate_file(&manifest_path);
+        }
 
         Ok(())
     }
