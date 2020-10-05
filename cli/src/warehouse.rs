@@ -138,39 +138,28 @@ fn get_name() -> String {
 
 #[derive(Serialize, Deserialize)]
 pub struct GitServer {
-    pub metadata_source: MetadataSource,
+    pub metadata_source: MetadataSource,  // Unused. We reference the `.git` dir instead.
     pub uri: String,
 }
 
 impl GitServer {
     pub fn prompt_add_details() {
         let git_header = format!("
-{} supports git-versioning to enable teams to collaborate of a single whale repository on a hosted
-git platform (e.g. github).
+{} supports git-versioning to enable teams to collaborate of a single whale repository on a hosted git platform (e.g. github).
 
 For more information, see https://docs.whale.cx/getting-started-for-teams.
 
-This command will set a configuration flag in config/app.yaml that causes `wh etl` and any cron
-jobs scheduled through the platform to reference a remote git instead, and add a git remote address
-to your config/connections.yaml file.
+This command will set a configuration flag in config/app.yaml that causes `wh etl` and any cron jobs scheduled through the platform to reference the git remote referenced in the `~/.whale/.git` directory instead.
 
-{} Do not do this unless you've set up a git remote server, following the documentation above. This
-will halt all non-git scraping.
+{} Do not do this unless you've set up a git remote server, following the documentation above. This will halt all non-git scraping.
 
 {}",
-        "Whale".cyan(),
-        "WARNING:".red(),
-        "Enter git URI (e.g. git@github.com:rsyi/whale.git), or press CTRL+C to cancel.
-If you just want to enable git as the primary metadata source and already have a git URI
-registered, press enter to continue.".purple()); println!("{}", git_header);
-
-        let git_uri = utils::get_input();
-        if !(git_uri=="") {
-            let git_server = GitServer {
-                uri: git_uri, .. Default::default()
-            };
-            git_server.register_connection().expect("Failed to register git configuration");
-        }
+            "Whale".cyan(),
+            "WARNING:".red(),
+            "Enable git as the primary metadata source?".purple()
+            );
+        println!("{}", git_header);
+        utils::pause();
 
         let mut config_kv_to_update = HashMap::new();
         config_kv_to_update.insert("is_git_etl_enabled", "true");

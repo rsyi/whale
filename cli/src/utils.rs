@@ -47,7 +47,7 @@ pub fn get_input_with_message(message: &str) -> String {
 
 
 pub fn pause() {
-    println!("{} [Press {} to continue, {} to exit]", "Continue?".purple().bold(), "enter".green(), "CTRL+C".red());
+    println!("[Press {} to continue, {} to exit]", "enter".green(), "CTRL+C".red());
     let _ = get_input();
 }
 
