@@ -76,6 +76,25 @@ pub struct Whale {}
 impl Whale {
     pub fn run_with(_matches: ArgMatches) -> Result<(), io::Error> {
         skimmer::table_skim();
+        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled") {
+            Ok(flag) => flag.parse::<bool>().unwrap(),
+            Err(_error) => false,
+        };
+        if is_git_etl_enabled {
+            let whale_dirname = filesystem::get_base_dirname();
+            let command = format!("cd {} && (git status | grep Unmerged > /dev/null 2>&1 && echo true || echo false)", whale_dirname);
+
+            let output = Command::new("sh")
+                .args(&["-c", &command])
+                .output()?;
+            let is_unmerged_files_found = String::from_utf8_lossy(&output.stdout)
+                .trim()
+                .parse()
+                .unwrap();
+            if is_unmerged_files_found {
+                println!("{} You have unmerged files that conflict with your upstream remote. Navigate to ~/.whale to fix this. Your metadata will be out of date until you do. Run {} after fixing this to pull the freshest metadata immediately.", "WARNING:".red(), "wh etl".cyan())
+            }
+        }
         Ok(())
     }
 
@@ -139,6 +158,13 @@ impl Whale {
         if is_git_etl_enabled {
             println!("Git-syncing is enabled (see ~/.whale/config/config.yaml or https://docs.whale.cx/getting-started-for-teams for more details).
 Fetching and rebasing local changes from github.");
+            let whale_dirname = filesystem::get_base_dirname();
+
+            let command = format!("cd {} && git pull --rebase --autostash", whale_dirname);
+            let mut child = Command::new("sh")
+                .args(&["-c", &command])
+                .spawn()?;
+            child.wait()?;
         }
         else {
             let build_script_path = filesystem::get_build_script_filename();

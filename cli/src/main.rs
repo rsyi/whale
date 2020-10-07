@@ -16,6 +16,8 @@ fn main() {
         .subcommand(SubCommand::with_name("git-enable")
             .about("Enable git"))
         .subcommand(SubCommand::with_name("etl")
+            .about("Manually runs the metadata extraction job (deprecated: use `wh pull` instead)"))
+        .subcommand(SubCommand::with_name("pull")
             .about("Manually runs the metadata extraction job"))
         .subcommand(SubCommand::with_name("schedule")
             .about("Register metadata scraping job with crontab"));
@@ -26,6 +28,7 @@ fn main() {
         Some("init") => whale::Whale::init(),
         // Some("dash") => whale::Whale::dash(),
         Some("etl") => whale::Whale::etl(),
+        Some("pull") => whale::Whale::etl(),
         Some("schedule") => whale::Whale::schedule(true),
         Some("config") => whale::Whale::config(),
         Some("connections") => whale::Whale::connections(),
