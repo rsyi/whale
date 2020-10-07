@@ -46,7 +46,7 @@ This will assist you in:
 * Setting up your warehouse connection credentials.
 * Registering a cron job in your `crontab`, so whale can periodically scrape metadata.
 
-Once that is complete, either wait for the cron job to run, or run `wh etl &` to manually kick off a job in the background, if you're feeling impatient.
+Once that is complete, either wait for the cron job to run, or run `wh pull &` to manually kick off a job in the background, if you're feeling impatient.
 
 ## Usage
 
