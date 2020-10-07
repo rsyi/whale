@@ -200,7 +200,15 @@ class WhaleLoader(Loader):
         return sections
 
     def _get_watermarks_from_section(self, section):
-        watermarks = yaml.safe_load(section)
+        # Remove the delimiter
+        if section:
+            section = section.split(PARTITIONS_DELIMITER)[0]
+            if "```" in section:
+                sections_split_by_backtick = section.split("```")
+                section = "\n".join(sections_split_by_backtick)
+            watermarks = yaml.safe_load(section)
+        else:
+            watermarks = {}
         return watermarks
 
     def _get_section_from_watermarks(self, watermarks):
