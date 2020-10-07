@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 from collections import namedtuple
 
 import google.oauth2.service_account
@@ -30,6 +31,7 @@ class BaseBigQueryExtractor(Extractor):
     DEFAULT_PAGE_SIZE = 300
     NUM_RETRIES = 3
     DATE_LENGTH = 8
+    INCLUDED_TABLES_REGEX = "included_tables_regex"
 
     def init(self, conf: ConfigTree) -> None:
         # should use key_path, or cred_key if the former doesn't exist
@@ -41,6 +43,13 @@ class BaseBigQueryExtractor(Extractor):
             BaseBigQueryExtractor.PAGE_SIZE_KEY,
             BaseBigQueryExtractor.DEFAULT_PAGE_SIZE)
         self.filter = conf.get_string(BaseBigQueryExtractor.FILTER_KEY, '')
+
+        included_tables_regex = \
+            conf.get_string(BaseBigQueryExtractor.INCLUDED_TABLES_REGEX, None)
+        if included_tables_regex is not None:
+            self.included_tables_regex_compiled = re.compile(included_tables_regex)
+        else:
+            self.included_tables_regex_compiled = None
 
         if self.key_path:
             credentials = (
@@ -76,6 +85,25 @@ class BaseBigQueryExtractor(Extractor):
     def _is_sharded_table(self, table_id):
         suffix = table_id[-BaseBigQueryExtractor.DATE_LENGTH:]
         return suffix.isdigit()
+
+    def _is_table_match_regex(
+            self,
+            tableRef):
+        if self.included_tables_regex_compiled is None:
+            return True
+        else:
+            table_id = tableRef['tableId']
+            if self._is_sharded_table(table_id):
+                table_id = table_id[-BaseBigQueryExtractor.DATE_LENGTH:]
+
+            full_table_address = "{}.{}.{}".format(
+                tableRef['projectId'],
+                tableRef['datasetId'],
+                table_id)
+            is_table_match_regex = \
+                self.included_tables_regex_compiled.match(full_table_address) \
+                is not None
+            return is_table_match_regex
 
     def _iterate_over_tables(self) -> Any:
         for dataset in self._retrieve_datasets():

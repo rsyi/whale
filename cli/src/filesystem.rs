@@ -7,27 +7,18 @@ use std::{
 
 
 pub fn create_file_structure() {
-    let base_path = shellexpand::tilde("~");
-    let base_path = Path::new(&*base_path);
-    let whale_base_path = base_path.join(".whale");
-    let bin_path = whale_base_path.join("bin");
-    let config_path = whale_base_path.join("config");
-    let libexec_path = whale_base_path.join("libexec");
-    let logs_path = whale_base_path.join("logs");
-    let metadata_path = whale_base_path.join("metadata");
-    let manifests_path = whale_base_path.join("manifests");
 
-    let subpaths = [
-        bin_path,
-        config_path,
-        metadata_path,
-        libexec_path,
-        logs_path,
-        manifests_path
+    let subdirs = [
+        get_bin_dirname(),
+        get_config_dirname(),
+        get_libexec_dirname(),
+        get_logs_dirname(),
+        get_metadata_dirname(),
+        get_manifest_dirname(),
     ];
 
-    for subpath in subpaths.iter() {
-        fs::create_dir_all(subpath)
+    for subdir in subdirs.iter() {
+        fs::create_dir_all(Path::new(&*subdir))
             .expect("Directory was not created succesfully.");
     }
 }
@@ -71,10 +62,17 @@ pub fn get_base_dirname() -> std::string::String {
 }
 
 
-pub fn get_build_script_filename() -> std::string::String {
-    let path = format!("{}/{}/{}/{}/{}",
+pub fn get_bin_dirname() -> std::string::String {
+    let path = format!("{}/{}",
                        get_base_dirname(),
-                       "libexec",
+                       "bin");
+    path
+}
+
+
+pub fn get_build_script_filename() -> std::string::String {
+    let path = format!("{}/{}/{}/{}",
+                       get_libexec_dirname(),
                        "dist",
                        "build_script",
                        "build_script");
@@ -86,6 +84,14 @@ pub fn get_config_dirname() -> std::string::String {
     let path = format!("{}/{}",
                        get_base_dirname(),
                        "config");
+    path
+}
+
+
+pub fn get_config_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_config_dirname(),
+                       "config.yaml");
     path
 }
 
@@ -117,6 +123,14 @@ pub fn get_etl_command() -> std::string::String {
     else {
         "wh etl".to_string()
     }
+}
+
+
+pub fn get_libexec_dirname() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_base_dirname(),
+                       "libexec");
+    path
 }
 
 

@@ -30,6 +30,8 @@ pub mod warehouse;
 pub mod skimmer;
 pub mod utils;
 pub mod filesystem;
+pub mod serialization;
+
 
 const DEFAULT_CRON_STRING: &str = "0 */6 * * *";
 
@@ -60,21 +62,39 @@ oooo oooo    ooo  888 .oo.          :
 }
 
 
-fn print_etl_header() {
-    println!("Running ETL job manually.");
-}
-
-
 fn print_scheduler_header() {
     println!("\n{} [Default: {} (on the hour, every 6 hours)]", "Enter cron string.".purple(), DEFAULT_CRON_STRING.green());
 }
 
 
+/// Holds all command-line tasks.
+///
+/// The Whale struct acts as an interface containing all methods referenced and executed by the
+/// CLI. These are referenced in main.rs with a match statement on clap matches.
 pub struct Whale {}
 
 impl Whale {
     pub fn run_with(_matches: ArgMatches) -> Result<(), io::Error> {
         skimmer::table_skim();
+        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled") {
+            Ok(flag) => flag.parse::<bool>().unwrap(),
+            Err(_error) => false,
+        };
+        if is_git_etl_enabled {
+            let whale_dirname = filesystem::get_base_dirname();
+            let command = format!("cd {} && (git status | grep Unmerged > /dev/null 2>&1 && echo true || echo false)", whale_dirname);
+
+            let output = Command::new("sh")
+                .args(&["-c", &command])
+                .output()?;
+            let is_unmerged_files_found = String::from_utf8_lossy(&output.stdout)
+                .trim()
+                .parse()
+                .unwrap();
+            if is_unmerged_files_found {
+                println!("{} You have unmerged files that conflict with your upstream remote. Navigate to ~/.whale to fix this. Your metadata will be out of date until you do. Run {} after fixing this to pull the freshest metadata immediately.", "WARNING:".red(), "wh etl".cyan())
+            }
+        }
         Ok(())
     }
 
@@ -101,6 +121,23 @@ impl Whale {
         Ok(())
     }
 
+    pub fn git_enable() -> Result<(), io::Error> {
+        warehouse::GitServer::prompt_add_details();
+
+        Ok(())
+    }
+
+    pub fn config() -> Result<(), io::Error>{
+        let config_file = filesystem::get_config_filename();
+        let editor = filesystem::get_open_command();
+
+        Command::new(editor)
+            .arg(config_file)
+            .status()?;
+
+        Ok(())
+    }
+
     pub fn connections() -> Result<(), io::Error> {
         let connections_config_file = filesystem::get_connections_filename();
         let editor = filesystem::get_open_command();
@@ -113,16 +150,32 @@ impl Whale {
     }
 
     pub fn etl() -> Result<(), io::Error> {
-        print_etl_header();
+        println!("Running ETL job manually.");
+        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled") {
+            Ok(flag) => flag.parse::<bool>().unwrap(),
+            Err(_error) => false,
+        };
+        if is_git_etl_enabled {
+            println!("Git-syncing is enabled (see ~/.whale/config/config.yaml or https://docs.whale.cx/getting-started-for-teams for more details).
+Fetching and rebasing local changes from github.");
+            let whale_dirname = filesystem::get_base_dirname();
 
-        let build_script_path = filesystem::get_build_script_filename();
-        let build_script_path = Path::new(&*build_script_path);
-        let mut child = Command::new(build_script_path)
-            .spawn()?;
-        child.wait()?;
+            let command = format!("cd {} && git pull --rebase --autostash", whale_dirname);
+            let mut child = Command::new("sh")
+                .args(&["-c", &command])
+                .spawn()?;
+            child.wait()?;
+        }
+        else {
+            let build_script_path = filesystem::get_build_script_filename();
+            let build_script_path = Path::new(&*build_script_path);
+            let mut child = Command::new(build_script_path)
+                .spawn()?;
+            child.wait()?;
 
-        let manifest_path = filesystem::get_manifest_filename();
-        filesystem::deduplicate_file(&manifest_path);
+            let manifest_path = filesystem::get_manifest_filename();
+            filesystem::deduplicate_file(&manifest_path);
+        }
 
         Ok(())
     }

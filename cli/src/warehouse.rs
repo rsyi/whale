@@ -1,13 +1,15 @@
 use colored::*;
 use names::{Generator, Name};
-use serde::{Serialize, Deserialize};
-use std::{env, fmt, io};
-use std::io::Write;
-use std::fs::OpenOptions;
-use std::path::Path;
+use std::{
+    collections::HashMap,
+    env,
+    fmt};
 use std::process;
 use std::str::FromStr;
 
+use crate::serialization::{
+    Serialize, Deserialize, YamlWriter, self
+};
 use crate::utils;
 
 const GOOGLE_ENV_VAR: &str = "GOOGLE_APPLICATION_CREDENTIALS";
@@ -25,6 +27,7 @@ impl fmt::Display for ParseMetadataSourceError {
 #[derive(Serialize, Deserialize)]
 pub enum MetadataSource {
     Bigquery,
+    GitServer,
     Hive,
     HiveMetastore,
     Presto,
@@ -42,6 +45,7 @@ impl FromStr for MetadataSource {
             "presto" | "p" => Ok(MetadataSource::Presto),
             "snowflake" | "s" => Ok(MetadataSource::Snowflake),
             "amundsen-neo4j" | "a" => Ok(MetadataSource::AmundsenNeo4j),
+            "git" | "g" => Ok(MetadataSource::GitServer),
             _ => Err(ParseMetadataSourceError {}),
         }
     }
@@ -56,6 +60,7 @@ impl fmt::Display for MetadataSource {
            MetadataSource::Presto => write!(f, "Presto"),
            MetadataSource::Snowflake => write!(f, "Snowflake"),
            MetadataSource::AmundsenNeo4j => write!(f, "Amundsen Neo4j"),
+           MetadataSource::GitServer => write!(f, "Git Server"),
        }
     }
 }
@@ -66,7 +71,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
 
     if !is_first_time {
         println!("{} [{}/{}]",
-                 "\nAdd another warehouse?".purple(),
+                 "\nAdd another warehouse/source?".purple(),
                  "Y".green(),
                  "n".red());
         let has_warehouse_to_add: bool = utils::get_input_as_bool();
@@ -82,6 +87,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         "bigquery",
         "presto",
         "snowflake",
+        "git",
         "amundsen-neo4j"
     ];
     for supported_warehouse_type in supported_warehouse_types.iter() {
@@ -103,6 +109,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
             | Ok(MetadataSource::Snowflake)
             | Ok(MetadataSource::AmundsenNeo4j)
             => GenericWarehouse::prompt_add_details(warehouse_enum.unwrap()),
+        Ok(MetadataSource::GitServer) => GitServer::prompt_add_details(),
         Err(e) => handle_error(e),
     };
 
@@ -128,44 +135,47 @@ fn get_name() -> String {
     name.trim().to_string()
 }
 
-pub trait YamlWriter {
-    fn register_config(&self) -> Result<(), io::Error>{
 
-        // TODO: refer to filesystem.rs instead of hard-coding
-        let base_path = shellexpand::tilde("~");
-        let base_path = Path::new(&*base_path);
-        let connections_path = base_path
-            .join(".whale")
-            .join("config")
-            .join("connections.yaml");
-
-
-        // Format yaml docs
-        let mut new_docs = self.generate_yaml();
-
-        // Open yaml file
-        let mut file = OpenOptions::new().write(true)
-                                 .create(true)
-                                 .append(true)
-                                 .open(connections_path)?;
-
-        new_docs.push_str("\n");
-        file.write_all(new_docs.as_bytes())?;
-        Ok(())
-
-    }
-
-    fn generate_yaml(&self) -> String;
-
+#[derive(Serialize, Deserialize)]
+pub struct GitServer {
+    pub metadata_source: MetadataSource,  // Unused. We reference the `.git` dir instead.
+    pub uri: String,
 }
 
-impl<T> YamlWriter for T
-    where T: Serialize {
-    fn generate_yaml(&self) -> String {
-        serde_yaml::to_string(&self)
-            .unwrap()
+impl GitServer {
+    pub fn prompt_add_details() {
+        let git_header = format!("
+{} supports git-versioning to enable teams to collaborate of a single whale repository on a hosted git platform (e.g. github).
+
+For more information, see https://docs.whale.cx/getting-started-for-teams.
+
+This command will set a configuration flag in config/app.yaml that causes `wh etl` and any cron jobs scheduled through the platform to reference the git remote referenced in the `~/.whale/.git` directory instead.
+
+{} Do not do this unless you've set up a git remote server, following the documentation above. This will halt all non-git scraping.
+
+{}",
+            "Whale".cyan(),
+            "WARNING:".red(),
+            "Enable git as the primary metadata source?".purple()
+            );
+        println!("{}", git_header);
+        utils::pause();
+
+        let mut config_kv_to_update = HashMap::new();
+        config_kv_to_update.insert("is_git_etl_enabled", "true");
+        serialization::update_config(config_kv_to_update).expect("Failed to update config file.");
     }
 }
+
+impl Default for GitServer {
+    fn default() -> Self {
+        GitServer {
+            metadata_source: MetadataSource::GitServer,
+            uri: String::from("None")
+        }
+    }
+}
+
 
 #[derive(Serialize, Deserialize)]
 pub struct GenericWarehouse {
@@ -228,7 +238,7 @@ impl GenericWarehouse {
             password: password
         };
 
-        compiled_config.register_config().expect("Failed to register warehouse configuration");
+        compiled_config.register_connection().expect("Failed to register warehouse configuration");
 
         println!("{} {:?} {}",
                  "Added warehouse:",
@@ -318,7 +328,7 @@ impl Bigquery {
             project_id: project_id
         };
 
-        compiled_config.register_config().expect("Failed to register warehouse configuration");
+        compiled_config.register_connection().expect("Failed to register warehouse configuration");
 
         println!("{} {:?} {}",
                  "Added warehouse:",

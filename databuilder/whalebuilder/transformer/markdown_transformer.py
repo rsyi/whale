@@ -16,7 +16,7 @@ class FormatterMixin():
             record) -> metadata_model_whale.TableMetadata:
         block_template = textwrap.dedent(
             """            # `{schema}.{name}`{view_statement}
-            {database} | {cluster}
+            `{database}` | `{cluster}`
             {description}
 
             {column_details_delimiter}
@@ -31,7 +31,7 @@ class FormatterMixin():
             view_statement=" [view]" if record.is_view else "",
             database=record.database,
             cluster=record.cluster,
-            description=record.description or "No description found.",
+            description=record.description or "",
             column_details_delimiter=COLUMN_DETAILS_DELIMITER,
             columns=formatted_columns,
         )
@@ -49,7 +49,7 @@ class FormatterMixin():
         columns = record.columns
 
         if columns:
-            column_template_no_desc = "{buffered_type} `{name}`"
+            column_template_no_desc = "* {buffered_type} `{name}`"
             column_template = \
                 column_template_no_desc + "\n - {description}"
             formatted_columns_list = []

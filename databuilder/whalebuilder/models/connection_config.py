@@ -17,6 +17,7 @@ class ConnectionConfigSchema(object):
             excluded_keys: Optional[List[str]] = None,
             included_key_regex: Optional[str] = None,
             excluded_key_regex: Optional[str] = None,
+            included_tables_regex: Optional[str] = None,
             build_script_path: Optional[str] = None,
             venv_path: Optional[str] = None,
             python_binary: Optional[str] = None,
@@ -40,6 +41,7 @@ class ConnectionConfigSchema(object):
         self.excluded_keys = included_keys
         self.included_key_regex = included_key_regex
         self.excluded_key_regex = excluded_key_regex
+        self.included_tables_regex = included_tables_regex
         self.build_script_path = build_script_path
         self.venv_path = venv_path
         self.python_binary = python_binary

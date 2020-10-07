@@ -9,9 +9,15 @@ fn main() {
             .about("Initializes the scheduler and extraction pipeline"))
         //.subcommand(SubCommand::with_name("dash")
         //    .about("Show macro-level dashboard of metadata metadata"))
+        .subcommand(SubCommand::with_name("config")
+            .about("Open file containing whale config information"))
         .subcommand(SubCommand::with_name("connections")
-            .about("Access warehouse connection information"))
+            .about("Open file containing warehouse connection information"))
+        .subcommand(SubCommand::with_name("git-enable")
+            .about("Enable git"))
         .subcommand(SubCommand::with_name("etl")
+            .about("Manually runs the metadata extraction job (deprecated: use `wh pull` instead)"))
+        .subcommand(SubCommand::with_name("pull")
             .about("Manually runs the metadata extraction job"))
         .subcommand(SubCommand::with_name("schedule")
             .about("Register metadata scraping job with crontab"));
@@ -22,8 +28,11 @@ fn main() {
         Some("init") => whale::Whale::init(),
         // Some("dash") => whale::Whale::dash(),
         Some("etl") => whale::Whale::etl(),
+        Some("pull") => whale::Whale::etl(),
         Some("schedule") => whale::Whale::schedule(true),
+        Some("config") => whale::Whale::config(),
         Some("connections") => whale::Whale::connections(),
+        Some("git-enable") => whale::Whale::git_enable(),
         _ => whale::Whale::run_with(matches)
     }.expect("Failed to run command.");
 

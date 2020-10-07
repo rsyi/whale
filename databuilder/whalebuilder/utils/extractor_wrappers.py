@@ -7,10 +7,11 @@ from whalebuilder.extractor.amundsen_neo4j_metadata_extractor \
     import AmundsenNeo4jMetadataExtractor
 from whalebuilder.extractor.bigquery_metadata_extractor \
     import BigQueryMetadataExtractor
+from whalebuilder.extractor.bigquery_watermark_extractor \
+    import BigQueryWatermarkExtractor
 from whalebuilder.extractor.snowflake_metadata_extractor \
     import SnowflakeMetadataExtractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
-from databuilder.extractor.bigquery_watermark_extractor import BigQueryWatermarkExtractor
 
 
 BUILD_SCRIPT_TEMPLATE = \
@@ -30,9 +31,11 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
         '{}.project_credentials'.format(scope): connection.project_credentials,
         '{}.page_size'.format(scope): connection.page_size,
         '{}.filter_key'.format(scope): connection.filter_key,
+        '{}.included_tables_regex'.format(scope): connection.included_tables_regex,
         '{}.key_path'.format(watermark_scope): connection.key_path,
         '{}.project_id'.format(watermark_scope): connection.project_id,
         '{}.project_credentials'.format(watermark_scope): connection.project_credentials,
+        '{}.included_tables_regex'.format(watermark_scope): connection.included_tables_regex,
     })
 
     extractors = [extractor, watermark_extractor]
