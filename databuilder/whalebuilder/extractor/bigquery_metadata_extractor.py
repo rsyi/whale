@@ -66,11 +66,11 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
                         num_retries=BigQueryMetadataExtractor.NUM_RETRIES)
 
 
+                cols = []
                 if self._is_table_match_regex(tableRef):
                     # BigQuery tables also have interesting metadata about
                     # partitioning data location (EU/US), mod/create time, etc...
                     # Extract that some other time?
-                    cols = []
                     # Not all tables have schemas
                     if 'schema' in table:
                         schema = table['schema']
