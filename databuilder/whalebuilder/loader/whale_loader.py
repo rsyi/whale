@@ -195,8 +195,8 @@ class WhaleLoader(Loader):
                 existing_watermarks[name] = {}
             existing_watermarks[name][part_type] = value
 
-        sections[PARTITION_SECTION] = PARTITIONS_DELIMITER + "\n" \
-            + self._get_section_from_watermarks(existing_watermarks) + "\n"
+        sections[PARTITION_SECTION] = PARTITIONS_DELIMITER + "\n```\n" \
+            + self._get_section_from_watermarks(existing_watermarks) + "\n```\n"
         return sections
 
     def _get_watermarks_from_section(self, section):
