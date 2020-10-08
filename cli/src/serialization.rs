@@ -81,17 +81,23 @@ pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
 }
 
 
-pub fn read_config(key: &str) -> Result<String, io::Error> {
+pub fn read_config(key: &str, default: &str) -> Result<String, io::Error> {
     let config_filename = filesystem::get_config_filename();
     let config_path = Path::new(&*config_filename);
     let config_string = fs::read_to_string(config_path)?;
 
     let docs = YamlLoader::load_from_str(&config_string).unwrap();
-    if docs.len() == 1 {
+    if docs.len() > 0 {
         let doc = &docs[0];
-        Ok(doc[key].as_str().unwrap().to_string())
+        let value = match doc[key].as_str() {
+            Some(val) => val,
+            None => default
+        }
+
+            .to_string();
+        Ok(value)
     }
     else {
-        Ok("false".to_string())
+        Ok(default.to_string())
     }
 }

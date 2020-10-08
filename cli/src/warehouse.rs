@@ -149,7 +149,7 @@ impl GitServer {
 
 For more information, see https://docs.whale.cx/getting-started-for-teams.
 
-This command will set a configuration flag in config/app.yaml that causes `wh etl` and any cron jobs scheduled through the platform to reference the git remote referenced in the `~/.whale/.git` directory instead.
+This command will set a configuration flag in config/app.yaml that causes `wh pull` and any cron jobs scheduled through the platform to reference the git remote referenced in the `~/.whale/.git` directory instead.
 
 {} Do not do this unless you've set up a git remote server, following the documentation above. This will halt all non-git scraping.
 

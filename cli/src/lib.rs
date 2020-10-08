@@ -76,7 +76,7 @@ pub struct Whale {}
 impl Whale {
     pub fn run_with(_matches: ArgMatches) -> Result<(), io::Error> {
         skimmer::table_skim();
-        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled") {
+        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled", "false") {
             Ok(flag) => flag.parse::<bool>().unwrap(),
             Err(_error) => false,
         };
@@ -92,7 +92,7 @@ impl Whale {
                 .parse()
                 .unwrap();
             if is_unmerged_files_found {
-                println!("{} You have unmerged files that conflict with your upstream remote. Navigate to ~/.whale to fix this. Your metadata will be out of date until you do. Run {} after fixing this to pull the freshest metadata immediately.", "WARNING:".red(), "wh etl".cyan())
+                println!("{} You have unmerged files that conflict with your upstream remote. Navigate to ~/.whale to fix this. Your metadata will be out of date until you do. Run {} after fixing this to pull the freshest metadata immediately.", "WARNING:".red(), "wh pull".cyan())
             }
         }
         Ok(())
@@ -151,7 +151,7 @@ impl Whale {
 
     pub fn etl() -> Result<(), io::Error> {
         println!("Running ETL job manually.");
-        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled") {
+        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled", "false") {
             Ok(flag) => flag.parse::<bool>().unwrap(),
             Err(_error) => false,
         };
