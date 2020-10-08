@@ -70,5 +70,6 @@ def create_and_run_tasks_from_yaml(
             # No need to update the manifest after the first time
             if i == 0:
                 task.save()
-                transfer_manifest(tmp_manifest_path)
+
+            transfer_manifest(tmp_manifest_path)
 
