@@ -31,7 +31,7 @@ class WhaleTask(DefaultTask):
         finally:
             self._closer.close()
 
-    def save(self):
+    def save_stats(self):
         has_headers = os.path.isfile(TABLE_COUNT_PATH)
 
         with open(TABLE_COUNT_PATH, "a") as csvfile:

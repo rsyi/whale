@@ -39,8 +39,6 @@ class BigQueryWatermarkExtractor(BaseBigQueryExtractor):
             for table in page['tables']:
                 tableRef = table['tableReference']
                 if self._is_table_match_regex(tableRef):
-                    print(tableRef)
-                    print(self._is_table_match_regex(tableRef))
                     table_id = tableRef['tableId']
 
                     # BigQuery tables that have 8 digits as last characters are

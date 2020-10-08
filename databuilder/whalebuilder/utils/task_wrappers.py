@@ -54,8 +54,9 @@ def create_and_run_tasks_from_yaml(
                 BASE_DIR,
                 "manifests/tmp_manifest_" + str(i) + ".txt")
             i += 1
+        manifest_key = 'loader.whale.tmp_manifest_path'
         conf.put('loader.whale.database_name', connection.name)
-        conf.put('loader.whale.tmp_manifest_path', tmp_manifest_path)
+        conf.put(manifest_key, tmp_manifest_path)
 
         for i, extractor in enumerate(extractors):
             task = WhaleTask(
@@ -69,7 +70,7 @@ def create_and_run_tasks_from_yaml(
             # The first extractor passes all tables, always
             # No need to update the manifest after the first time
             if i == 0:
-                task.save()
-
-            transfer_manifest(tmp_manifest_path)
+                task.save_stats()
+                conf.pop(manifest_key)
+                transfer_manifest(tmp_manifest_path)
 
