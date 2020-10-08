@@ -36,7 +36,7 @@ We highly recommend installing [`bat`](https://github.com/sharkdp/bat) to enable
 
 ## Quick start
 
-To walk through the setup process, run the following in your terminal:
+To walk through the setup process, run the following in your terminal **\(this can be run again in the future if you need to add more warehouses, so feel free to quit part-way\)**:
 
 ```text
 wh init
