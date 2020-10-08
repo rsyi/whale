@@ -5,6 +5,7 @@ use std::process::Command;
 use std::io::Cursor;
 use crate::filesystem;
 use crate::utils;
+use crate::serialization;
 
 pub fn table_skim() {
 
@@ -30,13 +31,13 @@ pub fn table_skim() {
         is_manifest_found = false;
     }
 
-    let preview_command: String;
+    let preview_arg: String;
     let metadata_path = filesystem::get_metadata_dirname();
     if is_manifest_found {
-        preview_command = format!("cat {}/{}.md", metadata_path, "{}");
+        preview_arg = format!("{}/{}.md", metadata_path, "{}");
     }
     else {
-        preview_command = "cat << EOF
+        preview_arg = "<< EOF
     ___=____
   ,^        ^.      _
   |  x        |____| |
@@ -58,6 +59,37 @@ pub fn table_skim() {
 
         ".to_string();
     }
+
+    let reader;
+
+    let custom_preview_command = match serialization::read_config("preview_command", "") {
+        Ok(preview_command) => preview_command,
+        Err(_error) => "".to_string(),
+    };
+
+    if custom_preview_command.is_empty() {
+        let bat_testing_command = format!("command -v bat > /dev/null 2>&1 && echo true || echo false");
+        let output = Command::new("sh")
+            .args(&["-c", &bat_testing_command])
+            .output()
+            .unwrap();
+        let is_bat_installed = String::from_utf8_lossy(&output.stdout)
+            .trim()
+            .parse()
+            .unwrap();
+
+        if is_bat_installed {
+            reader = "bat --color=always --style='changes'";
+        }
+        else {
+            reader = "cat";
+        }
+    }
+    else {
+        reader = &custom_preview_command;
+    }
+
+    let preview_command = format!("{} {}", reader, preview_arg);
 
     let options = SkimOptionsBuilder::default()
         .preview(Some(&preview_command))

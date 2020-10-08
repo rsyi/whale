@@ -76,7 +76,7 @@ pub struct Whale {}
 impl Whale {
     pub fn run_with(_matches: ArgMatches) -> Result<(), io::Error> {
         skimmer::table_skim();
-        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled") {
+        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled", "false") {
             Ok(flag) => flag.parse::<bool>().unwrap(),
             Err(_error) => false,
         };
@@ -151,7 +151,7 @@ impl Whale {
 
     pub fn etl() -> Result<(), io::Error> {
         println!("Running ETL job manually.");
-        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled") {
+        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled", "false") {
             Ok(flag) => flag.parse::<bool>().unwrap(),
             Err(_error) => false,
         };
