@@ -14,9 +14,7 @@ To manually compile and install, you'll have to \(a\) clone the whale repository
 
 ```text
 git clone https://github.com/rsyi/whale.git
-cd whale/
-python3 -m venv env
-source env/bin/activate
+cd whale/ && python3 -m venv env && source env/bin/activate
 make && make install
 ```
 
@@ -31,6 +29,10 @@ alias wh=~/.whale/bin/wh
 {% hint style="info" %}
 _**Developer's note:** if you are developing and want to recompile, make sure to delete `./dist` on each rebuild or `pyinstaller` won't rebuild the python binary._
 {% endhint %}
+
+### Advanced syntax highlighting
+
+We highly recommend installing [`bat`](https://github.com/sharkdp/bat) to enable advanced syntax highlighting \(once detected, whale will use `bat` over `cat` automatically\).
 
 ## Quick start
 

@@ -14,15 +14,15 @@ wh connections
 
 ## Bigquery
 
-Because we access Bigquery through the google client API, we don't supply a `where_clause_suffix` like with the other warehouses. You can instead add the `included_tables_regex` with an associated regex expression. If the regex expression is matched, the table will be indexed.
+Because we access Bigquery through the google client API, we don't supply a `where_clause` like with the other warehouses. You can instead add the `included_tables_regex` with an associated regex expression. If the regex expression is matched, the table will be indexed.
 
 ```text
 ---
 name: bq-1
 metadata_source: Bigquery
-key_path: /Users/robertyi/.whale/config.json
+key_path: /path/to/key.json
 project_credentials: ~
-project_id: df-warehouse-prod
+project_id: your-project-name
 included_tables_regex: ".*(?<!button_clicked)$"  # tables that don't end in "button_clicked" 
 ```
 

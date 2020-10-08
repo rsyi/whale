@@ -37,7 +37,7 @@ This file contains all warehouse connections. This file can be directly accessed
 
 Each connection is stored as a separated yaml document within the `connections.yaml` file, meaning they are separated by `---`. Unlike most warehouse interfaces, we chose to use configuration keys that differ for each warehouse for easier end-user comprehension.
 
-See the [Connection configuration](connection-configuration.md) section for warehouse-specific instructions. For most use cases, however, we recommend simply running through the `wh init` workflow to add new warehouses \(you can repeat this command multiple times without worrying about clearing your existing connections\).
+See the [Connection configuration](../connection-configuration.md) section for warehouse-specific instructions. For most use cases, however, we recommend simply running through the `wh init` workflow to add new warehouses \(you can repeat this command multiple times without worrying about clearing your existing connections\).
 
 ### libexec
 
