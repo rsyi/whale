@@ -2,6 +2,7 @@ import os
 
 from pyhocon import ConfigFactory
 from whalebuilder.extractor.presto_loop_extractor import PrestoLoopExtractor
+from whalebuilder.extractor.presto_table_metadata_extractor import PrestoTableMetadataExtractor
 from whalebuilder.models.connection_config import ConnectionConfigSchema
 from whalebuilder.extractor.amundsen_neo4j_metadata_extractor \
     import AmundsenNeo4jMetadataExtractor
@@ -45,10 +46,15 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
 
 def configure_presto_extractors(
         connection: ConnectionConfigSchema,
-        is_full_extraction_enabled: bool = False):
-    extractor = PrestoLoopExtractor()
+        is_full_extraction_enabled: bool = True):
+    extractor = PrestoTableMetadataExtractor()
     scope = extractor.get_scope()
-    conn_string_key = '{}.conn_string'.format(scope)
+    loop_extractor = PrestoLoopExtractor()
+    loop_scope = loop_extractor.get_scope()
+
+    conn_string_key = '{}.{}.conn_string'\
+        .format(scope, SQL_ALCHEMY_SCOPE)
+    loop_conn_string_key = '{}.conn_string'.format(loop_scope)
 
     username_password_placeholder = \
         '{}:{}'.format(connection.username, connection.password) \
@@ -61,16 +67,17 @@ def configure_presto_extractors(
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
-        '{}.is_table_metadata_enabled'.format(scope): True,
-        '{}.is_full_extraction_enabled'.format(scope):
+        loop_conn_string_key: conn_string,
+        '{}.is_table_metadata_enabled'.format(loop_scope): False,
+        '{}.is_full_extraction_enabled'.format(loop_scope):
             is_full_extraction_enabled,
-        '{}.is_watermark_enabled'.format(scope): False,
-        '{}.is_stats_enabled'.format(scope): False,
-        '{}.is_analyze_enabled'.format(scope): False,
+        '{}.is_watermark_enabled'.format(loop_scope): False,
+        '{}.is_stats_enabled'.format(loop_scope): False,
+        '{}.is_analyze_enabled'.format(loop_scope): False,
+        '{}.database'.format(loop_scope): connection.name,
+        '{}.cluster'.format(loop_scope): connection.cluster,
         '{}.database'.format(scope): connection.name,
         '{}.cluster'.format(scope): connection.cluster,
-        '{}.included_schemas'.format(scope): connection.included_schemas,
-        '{}.excluded_schemas'.format(scope): connection.excluded_schemas,
     })
 
     extractors = [extractor]

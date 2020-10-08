@@ -30,15 +30,15 @@ def create_and_run_tasks_from_yaml(
     for raw_connection_dict in raw_connection_dicts:
         connection = dump_connection_config_in_schema(raw_connection_dict)
 
-        if connection.metadata_source == 'Presto':
+        if connection.metadata_source == 'presto':
             extractors, conf = configure_presto_extractors(
                     connection,
                     is_full_extraction_enabled=is_full_extraction_enabled)
-        elif connection.metadata_source == 'Neo4j':
+        elif connection.metadata_source == 'neo4j':
             extractors, conf = configure_neo4j_extractors(connection)
-        elif connection.metadata_source == 'Bigquery':
+        elif connection.metadata_source == 'bigquery':
             extractors, conf = configure_bigquery_extractors(connection)
-        elif connection.metadata_source == 'Snowflake':
+        elif connection.metadata_source == 'snowflake':
             extractors, conf = configure_snowflake_extractors(connection)
         elif connection.metadata_source == 'build_script':
             run_build_script(connection)

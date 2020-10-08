@@ -26,10 +26,13 @@ class ConnectionConfigSchema(object):
             project_credentials: Optional[str] = None,
             page_size: Optional[str] = None,
             filter_key: Optional[str] = None,
+            where_clause_suffix: Optional[str] = None,
             **kwargs):
 
         self.uri = uri
         self.port = port
+        if metadata_source is not None:
+            metadata_source = metadata_source.lower()
         self.metadata_source = metadata_source
         self.username = username
         self.password = password
@@ -51,3 +54,4 @@ class ConnectionConfigSchema(object):
         self.project_credentials = project_credentials
         self.page_size = page_size
         self.filter_key = filter_key
+        self.where_clause_suffix = where_clause_suffix
