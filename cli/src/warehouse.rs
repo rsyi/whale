@@ -32,7 +32,8 @@ pub enum MetadataSource {
     HiveMetastore,
     Presto,
     Snowflake,
-    AmundsenNeo4j
+    AmundsenNeo4j,
+    BuildScript
 }
 
 impl FromStr for MetadataSource {
@@ -46,6 +47,7 @@ impl FromStr for MetadataSource {
             "snowflake" | "s" => Ok(MetadataSource::Snowflake),
             "amundsen-neo4j" | "a" => Ok(MetadataSource::AmundsenNeo4j),
             "git" | "g" => Ok(MetadataSource::GitServer),
+            "build-script" | "b" => Ok(MetadataSource::BuildScript),
             _ => Err(ParseMetadataSourceError {}),
         }
     }
@@ -61,6 +63,7 @@ impl fmt::Display for MetadataSource {
            MetadataSource::Snowflake => write!(f, "Snowflake"),
            MetadataSource::AmundsenNeo4j => write!(f, "Amundsen Neo4j"),
            MetadataSource::GitServer => write!(f, "Git Server"),
+           MetadataSource::BuildScript => write!(f, "Custom Build Script"),
        }
     }
 }
@@ -88,7 +91,8 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         "presto",
         "snowflake",
         "git",
-        "amundsen-neo4j"
+        "amundsen-neo4j",
+        "build-script"
     ];
     for supported_warehouse_type in supported_warehouse_types.iter() {
         println!(" * {}", supported_warehouse_type)
@@ -110,6 +114,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
             | Ok(MetadataSource::AmundsenNeo4j)
             => GenericWarehouse::prompt_add_details(warehouse_enum.unwrap()),
         Ok(MetadataSource::GitServer) => GitServer::prompt_add_details(),
+        Ok(MetadataSource::BuildScript) => BuildScript::prompt_add_details(),
         Err(e) => handle_error(e),
     };
 
@@ -133,6 +138,43 @@ fn get_name() -> String {
         println!("Using randomly generated name: {}", name.green());
     }
     name.trim().to_string()
+}
+
+
+#[derive(Serialize, Deserialize)]
+pub struct BuildScript {
+    pub build_script_path: String,
+    pub venv_path: String,
+    pub python_binary_path: Option<String>,
+}
+
+impl BuildScript {
+    pub fn prompt_add_details() {
+        let header = format!("
+If you have a python script that generates (a) a manifest and (b) files in the ./metadata directory, whale allows you to fully integrate this script through association with `wh pull`. You'll need to simply specify a python3 virtual environment, the path the script, and [optionally] a python3 binary (by default, whale will use whatever binary is aliased to `python3`. For a sample build script, see the documentation.");
+        println!("{}", header);
+
+
+        let build_script_message = "Enter the path to your build script.";
+        let build_script_path = utils::get_input_with_message(build_script_message);
+
+        let venv_message = "Enter the path to the virtual environment you want to use to run this script.";
+        let venv_path = utils::get_input_with_message(venv_message);
+
+        let python_binary_path: Option<String>;
+        let binary_message = format!("Specify a python3 binary path [Default: {}]", "python3".green());
+        let binary_path_tmp = utils::get_input_with_message(&binary_message);
+        if binary_path_tmp == "" { python_binary_path = None; }
+        else { python_binary_path = Some(binary_path_tmp); }
+
+        let compiled_config = BuildScript {
+            build_script_path: build_script_path,
+            venv_path: venv_path,
+            python_binary_path: python_binary_path,
+        };
+
+        compiled_config.register_connection().expect("Failed to register warehouse configuration");
+    }
 }
 
 

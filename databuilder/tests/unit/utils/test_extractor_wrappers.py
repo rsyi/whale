@@ -8,6 +8,7 @@ from mock import patch
 from databuilder import Scoped
 from whalebuilder.models.connection_config import ConnectionConfigSchema
 from whalebuilder.engine.sql_alchemy_engine import SQLAlchemyEngine
+from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 from whalebuilder.extractor.bigquery_metadata_extractor import BaseBigQueryExtractor
 from whalebuilder.utils.extractor_wrappers import \
     configure_bigquery_extractors, \
@@ -20,6 +21,7 @@ TEST_PRESTO_CONNECTION_CONFIG = ConnectionConfigSchema(
     username='mock_username',
     password='mock_password',
     uri='mock_uri',
+    port='9999',
     metadata_source='presto',
     cluster='mock_cluster',
     included_schemas='mock_schema_included',
@@ -39,6 +41,7 @@ TEST_NEO4J_CONNECTION_CONFIG = ConnectionConfigSchema(
     username='mock_username',
     password='mock_password',
     uri='mock_uri',
+    port='9999',
     metadata_source='presto',
     cluster='mock_cluster',
     included_keys=['mock_key_included'],
@@ -46,7 +49,8 @@ TEST_NEO4J_CONNECTION_CONFIG = ConnectionConfigSchema(
 )
 
 
-@patch.object(SQLAlchemyEngine, '_get_connection')
+# @patch.object(SQLAlchemyEngine, '_get_connection')
+@patch.object(SQLAlchemyExtractor, '_execute_query')
 def test_configure_presto_extractor(mock_settings):
     """
     Test that the extractor can initialize.
