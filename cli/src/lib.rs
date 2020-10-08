@@ -92,7 +92,7 @@ impl Whale {
                 .parse()
                 .unwrap();
             if is_unmerged_files_found {
-                println!("{} You have unmerged files that conflict with your upstream remote. Navigate to ~/.whale to fix this. Your metadata will be out of date until you do. Run {} after fixing this to pull the freshest metadata immediately.", "WARNING:".red(), "wh etl".cyan())
+                println!("{} You have unmerged files that conflict with your upstream remote. Navigate to ~/.whale to fix this. Your metadata will be out of date until you do. Run {} after fixing this to pull the freshest metadata immediately.", "WARNING:".red(), "wh pull".cyan())
             }
         }
         Ok(())

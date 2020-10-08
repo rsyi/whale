@@ -118,10 +118,10 @@ pub fn get_etl_command() -> std::string::String {
                        "bin",
                        "whale");
     if Path::new(&*path).exists() {
-        format!("{} etl", path)
+        format!("{} pull", path)
     }
     else {
-        "wh etl".to_string()
+        "wh pull".to_string()
     }
 }
 

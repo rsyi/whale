@@ -33,7 +33,7 @@ pub fn table_skim() {
     let preview_command: String;
     let metadata_path = filesystem::get_metadata_dirname();
     if is_manifest_found {
-        preview_command = format!("cat {}/{}.md", metadata_path, "{}");
+        preview_command = format!("bat --color=always {}/{}.md", metadata_path, "{}");
     }
     else {
         preview_command = "cat << EOF
@@ -52,7 +52,7 @@ pub fn table_skim() {
      Run 'wh init'.
 
  (b) You have not run your first scraping job.
-     Run 'wh etl' or wait for your cron job to run.
+     Run 'wh pull' or wait for your cron job to run.
 
  Good luck, and happy whaling!
 
