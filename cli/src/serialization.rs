@@ -92,7 +92,6 @@ pub fn read_config(key: &str, default: &str) -> Result<String, io::Error> {
     let config_string = fs::read_to_string(config_path)?;
 
     let docs = YamlLoader::load_from_str(&config_string).unwrap();
-
     let value;
     if docs.len() > 0 {
         let doc = &docs[0];
