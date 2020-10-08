@@ -74,6 +74,7 @@ def configure_presto_extractors(connection: ConnectionConfigSchema):
         '{}.cluster'.format(loop_scope): connection.cluster,
         '{}.database'.format(scope): connection.name,
         '{}.cluster'.format(scope): connection.cluster,
+        '{}.where_clause_suffix'.format(scope): connection.where_clause_suffix,
     })
 
     extractors = [extractor]
