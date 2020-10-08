@@ -11,7 +11,7 @@ from whalebuilder.task import WhaleTask
 from whalebuilder.loader.whale_loader import WhaleLoader
 from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
 from whalebuilder.utils.connections import dump_connection_config_in_schema
-from whalebuilder.utils import transfer_manifest
+from whalebuilder.utils import copy_manifest, transfer_manifest
 
 from whalebuilder.utils.extractor_wrappers import \
         configure_bigquery_extractors, \
@@ -24,6 +24,16 @@ from whalebuilder.utils.extractor_wrappers import \
 def create_and_run_tasks_from_yaml(verbose=True):
     with open(CONNECTION_PATH) as f:
         raw_connection_dicts = list(yaml.safe_load_all(f))
+
+    # Create a manifest
+    # If another ETL job is running, put the manifest elsewhere
+    tmp_manifest_path = TMP_MANIFEST_PATH
+    i = 0
+    while os.path.exists(tmp_manifest_path):
+        tmp_manifest_path = os.path.join(
+            BASE_DIR,
+            "manifests/tmp_manifest_" + str(i) + ".txt")
+        i += 1
 
     for raw_connection_dict in raw_connection_dicts:
         connection = dump_connection_config_in_schema(raw_connection_dict)
@@ -42,14 +52,6 @@ def create_and_run_tasks_from_yaml(verbose=True):
         else:
             break
 
-        # If another ETL job is running, put the manifest elsewhere
-        tmp_manifest_path = TMP_MANIFEST_PATH
-        i = 0
-        while os.path.exists(tmp_manifest_path):
-            tmp_manifest_path = os.path.join(
-                BASE_DIR,
-                "manifests/tmp_manifest_" + str(i) + ".txt")
-            i += 1
         manifest_key = 'loader.whale.tmp_manifest_path'
         conf.put('loader.whale.database_name', connection.name)
         conf.put(manifest_key, tmp_manifest_path)
@@ -68,5 +70,6 @@ def create_and_run_tasks_from_yaml(verbose=True):
             if i == 0:
                 task.save_stats()
                 conf.pop(manifest_key)
-                transfer_manifest(tmp_manifest_path)
+                copy_manifest(tmp_manifest_path)
 
+    transfer_manifest(tmp_manifest_path)

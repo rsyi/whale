@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 from whalebuilder.utils.markdown_delimiters import UGC_DELIMITER
 from whalebuilder.utils.paths import MANIFEST_PATH, TMP_MANIFEST_PATH
@@ -70,3 +71,7 @@ def safe_write(file_path_to_write, text_to_write, tmp_extension=".bak"):
 
 def transfer_manifest(tmp_manifest_path):
     os.rename(tmp_manifest_path, MANIFEST_PATH)
+
+
+def copy_manifest(tmp_manifest_path):
+    shutil.copy(tmp_manifest_path, MANIFEST_PATH)
