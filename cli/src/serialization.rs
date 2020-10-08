@@ -6,7 +6,7 @@ use std::{
     fs::{OpenOptions, self},
 };
 use crate::filesystem;
-use yaml_rust::YamlLoader;
+use yaml_rust::{Yaml, YamlLoader};
 
 
 pub trait YamlWriter {
@@ -57,7 +57,7 @@ pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
     let config_filename = filesystem::get_config_filename();
     let config_path = Path::new(&*config_filename);
 
-    let file: fs::File = OpenOptions::new().write(true)
+    let _file: fs::File = OpenOptions::new().write(true)
         .create(true)
         .open(config_path)?;
 
@@ -75,6 +75,11 @@ pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
     for (key, value) in new_values {
         config[key] = value.into();
     }
+
+    let file: fs::File = OpenOptions::new().write(true)
+        .create(true)
+        .truncate(true)
+        .open(config_path)?;
     serde_yaml::to_writer(&file, &config).expect("Failed to write.");
 
     Ok(())
@@ -87,17 +92,20 @@ pub fn read_config(key: &str, default: &str) -> Result<String, io::Error> {
     let config_string = fs::read_to_string(config_path)?;
 
     let docs = YamlLoader::load_from_str(&config_string).unwrap();
+
+    let value;
     if docs.len() > 0 {
         let doc = &docs[0];
-        let value = match doc[key].as_str() {
-            Some(val) => val,
-            None => default
-        }
-
-            .to_string();
-        Ok(value)
+        value = match &doc[key] {
+            Yaml::String(value) => value.to_string(),
+            Yaml::Boolean(value) => value.to_string(),
+            Yaml::Integer(value) => value.to_string(),
+            _ => default.to_string(),
+        };
     }
     else {
-        Ok(default.to_string())
+        value = default.to_string()
     }
+
+    Ok(value)
 }
