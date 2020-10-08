@@ -21,9 +21,7 @@ from whalebuilder.utils.extractor_wrappers import \
         run_build_script
 
 
-def create_and_run_tasks_from_yaml(
-        is_full_extraction_enabled=True,
-        verbose=True):
+def create_and_run_tasks_from_yaml(verbose=True):
     with open(CONNECTION_PATH) as f:
         raw_connection_dicts = list(yaml.safe_load_all(f))
 
@@ -31,9 +29,7 @@ def create_and_run_tasks_from_yaml(
         connection = dump_connection_config_in_schema(raw_connection_dict)
 
         if connection.metadata_source == 'presto':
-            extractors, conf = configure_presto_extractors(
-                    connection,
-                    is_full_extraction_enabled=is_full_extraction_enabled)
+            extractors, conf = configure_presto_extractors(connection)
         elif connection.metadata_source == 'neo4j':
             extractors, conf = configure_neo4j_extractors(connection)
         elif connection.metadata_source == 'bigquery':

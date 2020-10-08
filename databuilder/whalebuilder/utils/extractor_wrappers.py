@@ -44,9 +44,7 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
     return extractors, conf
 
 
-def configure_presto_extractors(
-        connection: ConnectionConfigSchema,
-        is_full_extraction_enabled: bool = True):
+def configure_presto_extractors(connection: ConnectionConfigSchema):
     extractor = PrestoTableMetadataExtractor()
     scope = extractor.get_scope()
     loop_extractor = PrestoLoopExtractor()
@@ -69,8 +67,6 @@ def configure_presto_extractors(
         conn_string_key: conn_string,
         loop_conn_string_key: conn_string,
         '{}.is_table_metadata_enabled'.format(loop_scope): False,
-        '{}.is_full_extraction_enabled'.format(loop_scope):
-            is_full_extraction_enabled,
         '{}.is_watermark_enabled'.format(loop_scope): False,
         '{}.is_stats_enabled'.format(loop_scope): False,
         '{}.is_analyze_enabled'.format(loop_scope): False,
