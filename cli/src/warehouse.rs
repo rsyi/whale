@@ -30,7 +30,9 @@ pub enum MetadataSource {
     GitServer,
     Hive,
     HiveMetastore,
+    Postgres,
     Presto,
+    Redshift,
     Snowflake,
     AmundsenNeo4j,
     BuildScript
@@ -43,7 +45,9 @@ impl FromStr for MetadataSource {
             "bigquery" | "bq" => Ok(MetadataSource::Bigquery),
             "hive" | "h" => Ok(MetadataSource::Hive),
             "hive_metastore" | "hive-metastore" | "hive metastore"  | "hm" => Ok(MetadataSource::HiveMetastore),
-            "presto" | "p" => Ok(MetadataSource::Presto),
+            "postgres" | "po" => Ok(MetadataSource::Postgres),
+            "presto" | "pr" => Ok(MetadataSource::Presto),
+            "redshift" | "r" => Ok(MetadataSource::Redshift),
             "snowflake" | "s" => Ok(MetadataSource::Snowflake),
             "amundsen-neo4j" | "a" => Ok(MetadataSource::AmundsenNeo4j),
             "git" | "g" => Ok(MetadataSource::GitServer),
@@ -59,7 +63,9 @@ impl fmt::Display for MetadataSource {
            MetadataSource::Bigquery => write!(f, "Bigquery"),
            MetadataSource::Hive => write!(f, "Hive"),
            MetadataSource::HiveMetastore => write!(f, "Hive Metastore"),
+           MetadataSource::Postgres => write!(f, "Postgres"),
            MetadataSource::Presto => write!(f, "Presto"),
+           MetadataSource::Redshift => write!(f, "Redshift"),
            MetadataSource::Snowflake => write!(f, "Snowflake"),
            MetadataSource::AmundsenNeo4j => write!(f, "Amundsen Neo4j"),
            MetadataSource::GitServer => write!(f, "Git Server"),
@@ -88,7 +94,9 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
 
     let supported_warehouse_types = [
         "bigquery",
+        "postgres",
         "presto",
+        "redshift",
         "snowflake",
         "git",
         "amundsen-neo4j",
@@ -109,7 +117,9 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         Ok(MetadataSource::Bigquery) => Bigquery::prompt_add_details(),
         Ok(MetadataSource::Hive)
             | Ok(MetadataSource::HiveMetastore)
+            | Ok(MetadataSource::Postgres)
             | Ok(MetadataSource::Presto)
+            | Ok(MetadataSource::Redshift)
             | Ok(MetadataSource::Snowflake)
             | Ok(MetadataSource::AmundsenNeo4j)
             => GenericWarehouse::prompt_add_details(warehouse_enum.unwrap()),

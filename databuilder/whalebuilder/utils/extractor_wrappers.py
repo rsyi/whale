@@ -41,7 +41,7 @@ def format_conn_string(connection: ConnectionConfigSchema):
 
     conn_string = \
         '{connection_type}://{username_password}@{uri}:{port}'.format(
-            connection_type=connection.metadata_source,
+            connection_type=connection_type,
             username_password=username_password_placeholder,
             uri=connection.uri,
             port=connection.port)

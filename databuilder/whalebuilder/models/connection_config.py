@@ -26,7 +26,7 @@ class ConnectionConfigSchema(object):
             project_credentials: Optional[str] = None,
             page_size: Optional[str] = None,
             filter_key: Optional[str] = None,
-            where_clause_suffix: Optional[str] = None,
+            where_clause_suffix: Optional[str] = "",
             **kwargs):
 
         self.uri = uri
