@@ -1,5 +1,6 @@
 amundsen-databuilder==3.3.2
 neo4j-driver==1.7.2
+mock
 tabulate
 pyaml
 pyhive
