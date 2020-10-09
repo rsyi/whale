@@ -24,46 +24,45 @@ SQL_ALCHEMY_SCOPE = SQLAlchemyExtractor().get_scope()
 
 
 def get_sql_alchemy_conn_string_key(scope):
-    conn_string_key = '{}.{}.{}'\
-        .format(scope, SQL_ALCHEMY_SCOPE, SQLAlchemyExtractor.CONN_STRING)
+    conn_string_key = \
+        f"{scope}.{SQL_ALCHEMY_SCOPE}.{SQLAlchemyExtractor.CONN_STRING}"
     return conn_string_key
 
 
 def format_conn_string(connection: ConnectionConfigSchema):
     username_password_placeholder = \
-        '{}:{}'.format(connection.username, connection.password) \
-        if connection.password is not None else ''
+        f"{connection.username}:{connection.password}" \
+        if connection.password is not None else ""
 
     if connection.metadata_source in ["redshift"]:
         connection_type = "postgres"
     else:
         connection_type = connection.metadata_source
+    uri = connection.uri
+    port = connection.port
 
     conn_string = \
-        '{connection_type}://{username_password}@{uri}:{port}'.format(
-            connection_type=connection_type,
-            username_password=username_password_placeholder,
-            uri=connection.uri,
-            port=connection.port)
+        f"{connection_type}://{username_password_placeholder}@{uri}:{port}"
     return conn_string
 
 
 def configure_bigquery_extractors(connection: ConnectionConfigSchema):
-    extractor = BigQueryMetadataExtractor()
+    Extractor = BigQueryMetadataExtractor
+    extractor = Extractor()
     scope = extractor.get_scope()
     watermark_extractor = BigQueryWatermarkExtractor()
     watermark_scope = watermark_extractor.get_scope()
     conf = ConfigFactory.from_dict({
-        '{}.key_path'.format(scope): connection.key_path,
-        '{}.project_id'.format(scope): connection.project_id,
-        '{}.project_credentials'.format(scope): connection.project_credentials,
-        '{}.page_size'.format(scope): connection.page_size,
-        '{}.filter_key'.format(scope): connection.filter_key,
-        '{}.included_tables_regex'.format(scope): connection.included_tables_regex,
-        '{}.key_path'.format(watermark_scope): connection.key_path,
-        '{}.project_id'.format(watermark_scope): connection.project_id,
-        '{}.project_credentials'.format(watermark_scope): connection.project_credentials,
-        '{}.included_tables_regex'.format(watermark_scope): connection.included_tables_regex,
+        f"{scope}.key_path": connection.key_path,
+        f"{scope}.project_id": connection.project_id,
+        f"{scope}.project_credentials": connection.project_credentials,
+        f"{scope}.page_size": connection.page_size,
+        f"{scope}.filter_key": connection.filter_key,
+        f"{scope}.included_tables_regex": connection.included_tables_regex,
+        f"{watermark_scope}.key_path": connection.key_path,
+        f"{watermark_scope}.project_id": connection.project_id,
+        f"{watermark_scope}.project_credentials": connection.project_credentials,
+        f"{watermark_scope}.included_tables_regex": connection.included_tables_regex,
     })
 
     extractors = [extractor, watermark_extractor]
@@ -72,27 +71,28 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
 
 
 def configure_presto_extractors(connection: ConnectionConfigSchema):
-    extractor = PrestoTableMetadataExtractor()
+    Extractor = PrestoTableMetadataExtractor
+    extractor = Extractor()
     scope = extractor.get_scope()
-    loop_extractor = PrestoLoopExtractor()
+    LoopExtractor = PrestoLoopExtractor
+    loop_extractor = LoopExtractor()
     loop_scope = loop_extractor.get_scope()
 
     conn_string_key = get_sql_alchemy_conn_string_key(scope)
-    loop_conn_string_key = '{}.conn_string'.format(loop_scope)
     conn_string = format_conn_string(connection)
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
-        loop_conn_string_key: conn_string,
-        '{}.is_table_metadata_enabled'.format(loop_scope): False,
-        '{}.is_watermark_enabled'.format(loop_scope): False,
-        '{}.is_stats_enabled'.format(loop_scope): False,
-        '{}.is_analyze_enabled'.format(loop_scope): False,
-        '{}.database'.format(loop_scope): connection.name,
-        '{}.cluster'.format(loop_scope): connection.cluster,
-        '{}.database'.format(scope): connection.name,
-        '{}.cluster'.format(scope): connection.cluster,
-        '{}.where_clause_suffix'.format(scope): connection.where_clause_suffix,
+        f"{loop_scope}.{LoopExtractor.CONN_STRING_KEY}": conn_string,
+        f"{loop_scope}.{LoopExtractor.IS_TABLE_METADATA_ENABLED_KEY}": False,
+        f"{loop_scope}.{LoopExtractor.IS_WATERMARK_ENABLED_KEY}": False,
+        f"{loop_scope}.{LoopExtractor.IS_STATS_ENABLED_KEY}": False,
+        f"{loop_scope}.{LoopExtractor.IS_ANALYZE_ENABLED_KEY}": False,
+        f"{loop_scope}.{LoopExtractor.DATABASE_KEY}": connection.name,
+        f"{loop_scope}.{LoopExtractor.CLUSTER_KEY}": connection.cluster,
+        f"{scope}.{Extractor.DATABASE_KEY}": connection.name,
+        f"{scope}.{Extractor.CLUSTER_KEY}": connection.cluster,
+        f"{scope}.{Extractor.WHERE_CLAUSE_SUFFIX_KEY}": connection.where_clause_suffix,
     })
 
     extractors = [extractor]
@@ -103,17 +103,15 @@ def configure_presto_extractors(connection: ConnectionConfigSchema):
 def configure_neo4j_extractors(connection: ConnectionConfigSchema):
     extractor = AmundsenNeo4jMetadataExtractor()
     scope = extractor.get_scope()
-    conn_string = 'bolt://{uri}:{port}'.format(
-        uri=connection.uri,
-        port=connection.port)
+    conn_string = f"bolt://{connection.uri}:{connection.port}"
     conf = ConfigFactory.from_dict({
-        '{}.graph_url'.format(scope): conn_string,
-        '{}.neo4j_auth_user'.format(scope): connection.username,
-        '{}.neo4j_auth_pw'.format(scope): connection.password,
-        '{}.included_keys'.format(scope): connection.included_keys,
-        '{}.excluded_keys'.format(scope): connection.excluded_keys,
-        '{}.included_key_regex'.format(scope): connection.included_key_regex,
-        '{}.excluded_key_regex'.format(scope): connection.excluded_key_regex,
+        f"{scope}.graph_url": conn_string,
+        f"{scope}.neo4j_auth_user": connection.username,
+        f"{scope}.neo4j_auth_pw": connection.password,
+        f"{scope}.included_keys": connection.included_keys,
+        f"{scope}.excluded_keys": connection.excluded_keys,
+        f"{scope}.included_key_regex": connection.included_key_regex,
+        f"{scope}.excluded_key_regex": connection.excluded_key_regex,
     })
 
     extractors = [extractor]
@@ -130,14 +128,13 @@ def configure_postgres_extractors(connection: ConnectionConfigSchema):
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
-        "{}.{}".format(scope, Extractor.CLUSTER_KEY): connection.cluster,
-        "{}.{}".format(scope, Extractor.DATABASE_KEY): connection.name,
-        "{}.{}".format(scope, Extractor.WHERE_CLAUSE_SUFFIX_KEY): connection.where_clause_suffix,
+        f"{scope}.{Extractor.CLUSTER_KEY}": connection.cluster,
+        f"{scope}.{Extractor.DATABASE_KEY}": connection.name,
+        f"{scope}.{Extractor.WHERE_CLAUSE_SUFFIX_KEY}": connection.where_clause_suffix,
     })
 
     extractors = [extractor]
     return extractors, conf
-
 
 
 def configure_redshift_extractors(connection: ConnectionConfigSchema):
@@ -149,9 +146,9 @@ def configure_redshift_extractors(connection: ConnectionConfigSchema):
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
-        "{}.{}".format(scope, Extractor.CLUSTER_KEY): connection.cluster,
-        "{}.{}".format(scope, Extractor.DATABASE_KEY): connection.name,
-        "{}.{}".format(scope, Extractor.WHERE_CLAUSE_SUFFIX_KEY): connection.where_clause_suffix,
+        f"{scope}.{Extractor.CLUSTER_KEY}": connection.cluster,
+        f"{scope}.{Extractor.DATABASE_KEY}": connection.name,
+        f"{scope}.{Extractor.WHERE_CLAUSE_SUFFIX_KEY}": connection.where_clause_suffix,
     })
 
     extractors = [extractor]
@@ -159,7 +156,8 @@ def configure_redshift_extractors(connection: ConnectionConfigSchema):
 
 
 def configure_snowflake_extractors(connection: ConnectionConfigSchema):
-    extractor = SnowflakeMetadataExtractor()
+    Extractor = SnowflakeMetadataExtractor
+    extractor = Extractor()
     scope = extractor.get_scope()
 
     conn_string_key = get_sql_alchemy_conn_string_key(scope)
@@ -167,8 +165,9 @@ def configure_snowflake_extractors(connection: ConnectionConfigSchema):
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
-        '{}.database'.format(scope): connection.name,
-        '{}.cluster'.format(scope): connection.cluster,
+        f"{scope}.{Extractor.DATABASE_KEY}": connection.name,
+        f"{scope}.{Extractor.CLUSTER_KEY}": connection.cluster,
+        f"{scope}.{Extractor.WHERE_CLAUSE_SUFFIX_KEY}": connection.where_clause_suffix,
     })
 
     extractors = [extractor]
@@ -178,7 +177,7 @@ def configure_snowflake_extractors(connection: ConnectionConfigSchema):
 
 def run_build_script(connection: ConnectionConfigSchema):
     if not connection.python_binary:
-        python_binary = 'python3'
+        python_binary = "python3"
     else:
         python_binary = os.path.expanduser(connection.python_binary)
 
