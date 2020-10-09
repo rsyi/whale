@@ -16,7 +16,7 @@ class FormatterMixin():
             record) -> metadata_model_whale.TableMetadata:
         block_template = textwrap.dedent(
             """            # `{schema}.{name}`{view_statement}
-            `{database}` | `{cluster}`
+            `{database}`{cluster_statement}
             {description}
             {column_details_delimiter}
             {columns}
@@ -29,12 +29,22 @@ class FormatterMixin():
         else:
             description = ""
 
+        if record.cluster == "None":  # edge case for Hive Metastore
+            cluster = None
+        else:
+            cluster = record.cluster
+
+        if cluster is not None:
+            cluster_statement = f"| `{cluster}`"
+        else:
+            cluster_statement = ""
+
         markdown_blob = block_template.format(
             schema=record.schema,
             name=record.name,
             view_statement=" [view]" if record.is_view else "",
             database=record.database,
-            cluster=record.cluster,
+            cluster_statement=cluster_statement,
             description=description,
             column_details_delimiter=COLUMN_DETAILS_DELIMITER,
             columns=formatted_columns,

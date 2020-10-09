@@ -127,6 +127,9 @@ class WhaleLoader(Loader):
         cluster = record.cluster
         database = self.database_name or record.database
 
+        if cluster == "None":  # edge case for Hive Metastore
+            cluster = None
+
         table_file_path_base = get_table_file_path_base(
             database=database,
             cluster=cluster,

@@ -30,7 +30,9 @@ pub enum MetadataSource {
     GitServer,
     Hive,
     HiveMetastore,
+    Postgres,
     Presto,
+    Redshift,
     Snowflake,
     AmundsenNeo4j,
     BuildScript
@@ -40,14 +42,16 @@ impl FromStr for MetadataSource {
     type Err = ParseMetadataSourceError;
     fn from_str(warehouse: &str) -> Result<Self, Self::Err> {
         match warehouse {
-            "bigquery" | "bq" => Ok(MetadataSource::Bigquery),
+            "bigquery" | "bq" | "b" => Ok(MetadataSource::Bigquery),
             "hive" | "h" => Ok(MetadataSource::Hive),
             "hive_metastore" | "hive-metastore" | "hive metastore"  | "hm" => Ok(MetadataSource::HiveMetastore),
-            "presto" | "p" => Ok(MetadataSource::Presto),
+            "postgres" | "po" => Ok(MetadataSource::Postgres),
+            "presto" | "pr" => Ok(MetadataSource::Presto),
+            "redshift" | "r" => Ok(MetadataSource::Redshift),
             "snowflake" | "s" => Ok(MetadataSource::Snowflake),
             "amundsen-neo4j" | "a" => Ok(MetadataSource::AmundsenNeo4j),
             "git" | "g" => Ok(MetadataSource::GitServer),
-            "build-script" | "b" => Ok(MetadataSource::BuildScript),
+            "build-script" | "bs" => Ok(MetadataSource::BuildScript),
             _ => Err(ParseMetadataSourceError {}),
         }
     }
@@ -59,7 +63,9 @@ impl fmt::Display for MetadataSource {
            MetadataSource::Bigquery => write!(f, "Bigquery"),
            MetadataSource::Hive => write!(f, "Hive"),
            MetadataSource::HiveMetastore => write!(f, "Hive Metastore"),
+           MetadataSource::Postgres => write!(f, "Postgres"),
            MetadataSource::Presto => write!(f, "Presto"),
+           MetadataSource::Redshift => write!(f, "Redshift"),
            MetadataSource::Snowflake => write!(f, "Snowflake"),
            MetadataSource::AmundsenNeo4j => write!(f, "Amundsen Neo4j"),
            MetadataSource::GitServer => write!(f, "Git Server"),
@@ -88,7 +94,10 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
 
     let supported_warehouse_types = [
         "bigquery",
+        "hive-metastore",
+        "postgres",
         "presto",
+        "redshift",
         "snowflake",
         "git",
         "amundsen-neo4j",
@@ -108,11 +117,13 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
     match warehouse_enum {
         Ok(MetadataSource::Bigquery) => Bigquery::prompt_add_details(),
         Ok(MetadataSource::Hive)
-            | Ok(MetadataSource::HiveMetastore)
+            | Ok(MetadataSource::Postgres)
             | Ok(MetadataSource::Presto)
+            | Ok(MetadataSource::Redshift)
             | Ok(MetadataSource::Snowflake)
             | Ok(MetadataSource::AmundsenNeo4j)
             => GenericWarehouse::prompt_add_details(warehouse_enum.unwrap()),
+        Ok(MetadataSource::HiveMetastore) => HiveMetastore::prompt_add_details(),
         Ok(MetadataSource::GitServer) => GitServer::prompt_add_details(),
         Ok(MetadataSource::BuildScript) => BuildScript::prompt_add_details(),
         Err(e) => handle_error(e),
@@ -226,7 +237,8 @@ pub struct GenericWarehouse {
     uri: String,
     port: i32,
     username: Option<String>,
-    password: Option<String>
+    password: Option<String>,
+    cluster: Option<String>,
 }
 
 impl GenericWarehouse {
@@ -271,13 +283,25 @@ impl GenericWarehouse {
             password = Some(password_tmp);
         }
 
+        let cluster: Option<String>;
+        let cluster_msg = {"[Optional] Enter a catalog/cluster within this connection if you'd like to restrict your metadata scrapes to only this catalog/cluster. By default, whale will otherwise scrape all metadata from all available catalogs/clusters."};
+        let cluster_msg = format!("{} {}", cluster_msg, "[default: None]");
+        let cluster_tmp = utils::get_input_with_message(&cluster_msg);
+        if cluster_tmp == "" {
+            cluster = None;
+        }
+        else {
+            cluster = Some(cluster_tmp);
+        }
+
         let compiled_config = GenericWarehouse {
             name: name,
             metadata_source: metadata_source,
             uri: uri,
             port: port,
             username: username,
-            password: password
+            password: password,
+            cluster: cluster
         };
 
         compiled_config.register_connection().expect("Failed to register warehouse configuration");
@@ -289,6 +313,95 @@ impl GenericWarehouse {
                  );
     }
 
+}
+
+
+#[derive(Serialize, Deserialize)]
+pub struct HiveMetastore {
+    name: String,
+    metadata_source: MetadataSource,
+    uri: String,
+    port: i32,
+    dialect: String,
+    username: Option<String>,
+    password: Option<String>,
+    database: Option<String>,
+}
+
+impl HiveMetastore {
+    pub fn prompt_add_details() {
+        println!("Starting warehouse detail onboarding sequence for {}.",
+                 "Hive Metastore".yellow());
+
+        // name
+        let name: String = get_name();
+
+        // uri
+        let uri_msg = "What is the URI for this metastore?";
+        let uri: String = utils::get_input_with_message(uri_msg);
+
+        // port
+        let port_msg = "Port?";
+        let port_str: String = utils::get_input_with_message(port_msg)
+            .to_string()
+            .trim()
+            .to_string();
+        let port: i32 = port_str.parse::<i32>().unwrap();
+
+        // username
+        let username: Option<String>;
+        let username_msg = "Username? [default: None]";
+        let username_tmp = utils::get_input_with_message(username_msg);
+        if username_tmp == "" {
+            username = None;
+        }
+        else {
+            username = Some(username_tmp);
+        }
+
+        let password: Option<String>;
+        let password_msg = "Password? [default: None]";
+        let password_tmp = utils::get_input_with_message(password_msg);
+        if password_tmp == "" {
+            password = None;
+        }
+        else {
+            password = Some(password_tmp);
+        }
+
+        let dialect_msg = "What is the dialect of this metastore? E.g. mysql, postgres. This is the dialect type that is used in the SQLAlchemy connection string. See https://docs.sqlalchemy.org/en/13/core/engines.html for more details.";
+        let dialect = utils::get_input_with_message(&dialect_msg);
+
+        let database: Option<String>;
+        let database_msg = "Is there a database within this connection that contains the metastore? This usually is the case for hive metastores, and it is usually called 'hive'. If in doubt, enter 'hive'.";
+        let database_msg = format!("{} {}", database_msg, "[default: None]");
+        let database_tmp = utils::get_input_with_message(&database_msg);
+        if database_tmp == "" {
+            database = None;
+        }
+        else {
+            database = Some(database_tmp);
+        }
+
+        let compiled_config = HiveMetastore {
+            name: name,
+            metadata_source: MetadataSource::HiveMetastore,
+            dialect: dialect,
+            uri: uri,
+            port: port,
+            username: username,
+            password: password,
+            database: database
+        };
+
+        compiled_config.register_connection().expect("Failed to register warehouse configuration");
+
+        println!("{} {:?} {}",
+                 "Added warehouse:",
+                 compiled_config.name,
+                 "to ~/.whale/config/connections.yaml.",
+                 );
+    }
 }
 
 
