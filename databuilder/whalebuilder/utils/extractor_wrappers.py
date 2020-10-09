@@ -34,7 +34,7 @@ def format_conn_string(connection: ConnectionConfigSchema):
         '{}:{}'.format(connection.username, connection.password) \
         if connection.password is not None else ''
 
-    if connection.metadat_source in ["redshift"]:
+    if connection.metadata_source in ["redshift"]:
         connection_type = "postgres"
     else:
         connection_type = connection.metadata_source

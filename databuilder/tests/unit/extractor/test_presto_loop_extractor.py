@@ -1,4 +1,5 @@
 import logging
+import os
 import unittest
 
 from mock import patch, MagicMock
@@ -27,6 +28,7 @@ def presto_engine_execute_side_effect(query, has_header=True):
         yield MOCK_COLUMN_RESULT
 
 
+@patch.object(os.path, 'exists')
 @patch.object(SQLAlchemyEngine, '_get_connection')
 class TestPrestoLoopExtractor(unittest.TestCase):
     def setUp(self) -> None:
@@ -42,7 +44,7 @@ class TestPrestoLoopExtractor(unittest.TestCase):
         }
         self.conf = ConfigFactory.from_dict(config_dict)
 
-    def test_extraction_with_empty_result(self, mock_settings) -> None:
+    def test_extraction_with_empty_result(self, mock1, mock2) -> None:
         """
         Test Extraction with empty result from query.
         """
@@ -53,7 +55,7 @@ class TestPrestoLoopExtractor(unittest.TestCase):
         self.assertEqual(results, None)
 
     def test_table_metadata_extraction_with_single_result(
-            self, mock_settings) -> None:
+            self, mock1, mock2) -> None:
         extractor = PrestoLoopExtractor()
         conf = self.conf.copy()
         conf.put('is_table_metadata_enabled', True)
