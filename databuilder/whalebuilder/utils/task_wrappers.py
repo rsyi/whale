@@ -13,14 +13,15 @@ from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
 from whalebuilder.utils.connections import dump_connection_config_in_schema
 from whalebuilder.utils import copy_manifest, transfer_manifest
 
-from whalebuilder.utils.extractor_wrappers import \
-        configure_bigquery_extractors, \
-        configure_neo4j_extractors, \
-        configure_postgres_extractors, \
-        configure_presto_extractors, \
-        configure_redshift_extractors, \
-        configure_snowflake_extractors, \
-        run_build_script
+from whalebuilder.utils.extractor_wrappers import (
+        configure_bigquery_extractors,
+        configure_hive_metastore_extractors,
+        configure_neo4j_extractors,
+        configure_postgres_extractors,
+        configure_presto_extractors,
+        configure_redshift_extractors,
+        configure_snowflake_extractors,
+        run_build_script)
 
 
 def create_and_run_tasks_from_yaml(verbose=True):
@@ -41,6 +42,7 @@ def create_and_run_tasks_from_yaml(verbose=True):
         connection = dump_connection_config_in_schema(raw_connection_dict)
 
         metadata_source_dict = {
+            "hivemetastore": configure_hive_metastore_extractors,
             "presto": configure_presto_extractors,
             "neo4j": configure_neo4j_extractors,
             "bigquery": configure_bigquery_extractors,

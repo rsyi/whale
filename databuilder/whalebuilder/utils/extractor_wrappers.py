@@ -13,6 +13,7 @@ from whalebuilder.extractor.bigquery_watermark_extractor \
 from whalebuilder.extractor.snowflake_metadata_extractor \
     import SnowflakeMetadataExtractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
+from databuilder.extractor.hive_table_metadata_extractor import HiveTableMetadataExtractor
 from databuilder.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
 from databuilder.extractor.redshift_metadata_extractor import RedshiftMetadataExtractor
 
@@ -36,13 +37,16 @@ def format_conn_string(connection: ConnectionConfigSchema):
 
     if connection.metadata_source in ["redshift"]:
         connection_type = "postgres"
+    elif connection.metadata_source == "hivemetastore":
+        connection_type = connection.dialect
     else:
         connection_type = connection.metadata_source
     uri = connection.uri
     port = connection.port
+    database = connection.database or ""
 
     conn_string = \
-        f"{connection_type}://{username_password_placeholder}@{uri}:{port}"
+        f"{connection_type}://{username_password_placeholder}@{uri}:{port}/{database}"
     return conn_string
 
 
@@ -67,6 +71,24 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
 
     extractors = [extractor, watermark_extractor]
 
+    return extractors, conf
+
+
+def configure_hive_metastore_extractors(connection: ConnectionConfigSchema):
+    Extractor = HiveTableMetadataExtractor
+    extractor = Extractor()
+    scope = extractor.get_scope()
+    conn_string_key = get_sql_alchemy_conn_string_key(scope)
+    conn_string = format_conn_string(connection)
+
+    conf = ConfigFactory.from_dict({
+        conn_string_key: conn_string,
+        f"{scope}.{Extractor.CLUSTER_KEY}": connection.cluster,
+        # f"{scope}.{Extractor.DATABASE_KEY}": connection.name,  # TODO: Modify metastore connector to work
+        f"{scope}.{Extractor.WHERE_CLAUSE_SUFFIX_KEY}": connection.where_clause_suffix,
+    })
+
+    extractors = [extractor]
     return extractors, conf
 
 

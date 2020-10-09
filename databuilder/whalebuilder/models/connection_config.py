@@ -5,11 +5,13 @@ class ConnectionConfigSchema(object):
     def __init__(
             self,
             metadata_source: str,
+            dialect: Optional[str] = None,
             uri: Optional[str] = None,
             port: Optional[int] = None,
             username: Optional[str] = None,
             password: Optional[str] = None,
             name: Optional[str] = None,
+            database: Optional[str] = None,
             cluster: Optional[str] = None,
             included_schemas: List = [],
             excluded_schemas: List = [],
@@ -34,9 +36,11 @@ class ConnectionConfigSchema(object):
         if metadata_source is not None:
             metadata_source = metadata_source.lower()
         self.metadata_source = metadata_source
+        self.dialect = dialect
         self.username = username
         self.password = password
         self.name = name
+        self.database = database
         self.cluster = cluster
         self.included_schemas = included_schemas
         self.excluded_schemas = excluded_schemas
