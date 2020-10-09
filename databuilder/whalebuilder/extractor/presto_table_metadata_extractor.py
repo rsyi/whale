@@ -66,8 +66,7 @@ class PrestoTableMetadataExtractor(Extractor):
         self.sql_stmt = PrestoTableMetadataExtractor.SQL_STATEMENT.format(
             cluster_prefix=cluster_prefix,
             where_clause_suffix=self.conf.get_string(
-                PrestoTableMetadataExtractor.WHERE_CLAUSE_SUFFIX_KEY
-            )
+                PrestoTableMetadataExtractor.WHERE_CLAUSE_SUFFIX_KEY) or ""
         )
 
         LOGGER.info('SQL for presto: {}'.format(self.sql_stmt))

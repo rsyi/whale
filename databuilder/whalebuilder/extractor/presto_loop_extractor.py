@@ -31,7 +31,6 @@ class PrestoLoopExtractor(PrestoEngine):
     INCLUDED_SCHEMAS_KEY = 'included_schemas'
     CLUSTER_KEY = 'cluster'
     DATABASE_KEY = 'database'
-    IS_FULL_EXTRACTION_ENABLED_KEY = 'is_full_extraction_enabled'
     IS_WATERMARK_ENABLED_KEY = 'is_watermark_enabled'
     IS_STATS_ENABLED_KEY = 'is_stats_enabled'
     IS_ANALYZE_ENABLED_KEY = 'is_analyze_enabled'
@@ -44,7 +43,6 @@ class PrestoLoopExtractor(PrestoEngine):
         INCLUDED_SCHEMAS_KEY: None,
         CLUSTER_KEY: None,
         DATABASE_KEY: 'presto',
-        IS_FULL_EXTRACTION_ENABLED_KEY: False,
         IS_WATERMARK_ENABLED_KEY: False,
         IS_STATS_ENABLED_KEY: False,
         IS_ANALYZE_ENABLED_KEY: False,
@@ -72,8 +70,6 @@ class PrestoLoopExtractor(PrestoEngine):
             self.conf.get(PrestoLoopExtractor.IS_STATS_ENABLED_KEY)
         self._is_analyze_enabled = \
             self.conf.get(PrestoLoopExtractor.IS_ANALYZE_ENABLED_KEY)
-        self._is_full_extraction_enabled = \
-            self.conf.get(PrestoLoopExtractor.IS_FULL_EXTRACTION_ENABLED_KEY)
         self._is_view_query_enabled = \
             self.conf.get(PrestoLoopExtractor.IS_VIEW_QUERY_ENABLED_KEY)
 
@@ -117,8 +113,8 @@ class PrestoLoopExtractor(PrestoEngine):
                         schema=schema,
                         table=table,
                     )
-                    if not os.path.exists(file_name + '.md') \
-                            or self._is_full_extraction_enabled:
+                    # Only update if the stub already exists
+                    if os.path.exists(file_name + '.md'):
 
                         if self._is_table_metadata_enabled:
                             table_metadata = \

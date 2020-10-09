@@ -104,7 +104,7 @@ class WhaleLoader(Loader):
     def init(self, conf: ConfigTree):
         self.conf = conf.with_fallback(WhaleLoader.DEFAULT_CONFIG)
         self.base_directory = self.conf.get_string('base_directory')
-        self.tmp_manifest_path = self.conf.get_string('tmp_manifest_path')
+        self.tmp_manifest_path = self.conf.get_string('tmp_manifest_path', None)
         self.database_name = self.conf.get_string('database_name', None)
         Path(self.base_directory).mkdir(parents=True, exist_ok=True)
 
@@ -148,12 +148,14 @@ class WhaleLoader(Loader):
                 table=table)
 
         self.update_markdown(file_path, record)
-        self._append_to_temp_manifest(
-            database=database,
-            cluster=cluster,
-            schema=schema,
-            table=table,
-            tmp_manifest_path=self.tmp_manifest_path)
+
+        if self.tmp_manifest_path is not None:
+            self._append_to_temp_manifest(
+                database=database,
+                cluster=cluster,
+                schema=schema,
+                table=table,
+                tmp_manifest_path=self.tmp_manifest_path)
 
     def update_markdown(self, file_path, record):
         # Key (on record type) functions that take actions on a table stub

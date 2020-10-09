@@ -18,12 +18,16 @@ class FormatterMixin():
             """            # `{schema}.{name}`{view_statement}
             `{database}` | `{cluster}`
             {description}
-
             {column_details_delimiter}
             {columns}
             """)
 
         formatted_columns = self.format_columns(record)
+
+        if record.description:
+            description = record.description + "\n"
+        else:
+            description = ""
 
         markdown_blob = block_template.format(
             schema=record.schema,
@@ -31,7 +35,7 @@ class FormatterMixin():
             view_statement=" [view]" if record.is_view else "",
             database=record.database,
             cluster=record.cluster,
-            description=record.description or "",
+            description=description,
             column_details_delimiter=COLUMN_DETAILS_DELIMITER,
             columns=formatted_columns,
         )
