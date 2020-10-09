@@ -38,19 +38,19 @@ def create_and_run_tasks_from_yaml(verbose=True):
     for raw_connection_dict in raw_connection_dicts:
         connection = dump_connection_config_in_schema(raw_connection_dict)
 
-        if connection.metadata_source == 'presto':
-            extractors, conf = configure_presto_extractors(connection)
-        elif connection.metadata_source == 'neo4j':
-            extractors, conf = configure_neo4j_extractors(connection)
-        elif connection.metadata_source == 'bigquery':
-            extractors, conf = configure_bigquery_extractors(connection)
-        elif connection.metadata_source == 'snowflake':
-            extractors, conf = configure_snowflake_extractors(connection)
-        elif connection.metadata_source == 'build_script':
+        metadata_source_dict = {
+            "presto": configure_presto_extractors,
+            "neo4j": configure_neo4j_extractors,
+            "bigquery": configure_bigquery_extractors,
+            "snowflake": configure_snowflake_extractors,
+        }
+
+        if connection.metadata_source == 'build_script':
             run_build_script(connection)
             break
         else:
-            break
+            configurer = metadata_source_dict[connection.metadata_source]
+            extractors, conf = configurer(connection)
 
         manifest_key = 'loader.whale.tmp_manifest_path'
         conf.put('loader.whale.database_name', connection.name)

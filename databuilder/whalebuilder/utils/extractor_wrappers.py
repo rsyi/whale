@@ -13,12 +13,39 @@ from whalebuilder.extractor.bigquery_watermark_extractor \
 from whalebuilder.extractor.snowflake_metadata_extractor \
     import SnowflakeMetadataExtractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
+from databuilder.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
+from databuilder.extractor.redshift_metadata_extractor import RedshiftMetadataExtractor
 
 
 BUILD_SCRIPT_TEMPLATE = \
     """source {venv_path}/bin/activate \
     && {python_binary} {build_script_path}"""
 SQL_ALCHEMY_SCOPE = SQLAlchemyExtractor().get_scope()
+
+
+def get_sql_alchemy_conn_string_key(scope):
+    conn_string_key = '{}.{}.{}'\
+        .format(scope, SQL_ALCHEMY_SCOPE, SQLAlchemyExtractor.CONN_STRING)
+    return conn_string_key
+
+
+def format_conn_string(connection: ConnectionConfigSchema):
+    username_password_placeholder = \
+        '{}:{}'.format(connection.username, connection.password) \
+        if connection.password is not None else ''
+
+    if connection.metadat_source in ["redshift"]:
+        connection_type = "postgres"
+    else:
+        connection_type = connection.metadata_source
+
+    conn_string = \
+        '{connection_type}://{username_password}@{uri}:{port}'.format(
+            connection_type=connection.metadata_source,
+            username_password=username_password_placeholder,
+            uri=connection.uri,
+            port=connection.port)
+    return conn_string
 
 
 def configure_bigquery_extractors(connection: ConnectionConfigSchema):
@@ -50,18 +77,9 @@ def configure_presto_extractors(connection: ConnectionConfigSchema):
     loop_extractor = PrestoLoopExtractor()
     loop_scope = loop_extractor.get_scope()
 
-    conn_string_key = '{}.{}.conn_string'\
-        .format(scope, SQL_ALCHEMY_SCOPE)
+    conn_string_key = get_sql_alchemy_conn_string_key(scope)
     loop_conn_string_key = '{}.conn_string'.format(loop_scope)
-
-    username_password_placeholder = \
-        '{}:{}'.format(connection.username, connection.password) \
-        if connection.password is not None else ''
-
-    conn_string = 'presto://{username_password}@{uri}:{port}'.format(
-        username_password=username_password_placeholder,
-        uri=connection.uri,
-        port=connection.port)
+    conn_string = format_conn_string(connection)
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
@@ -103,23 +121,49 @@ def configure_neo4j_extractors(connection: ConnectionConfigSchema):
     return extractors, conf
 
 
+def configure_postgres_extractors(connection: ConnectionConfigSchema):
+    Extractor = PostgresMetadataExtractor
+    extractor = Extractor()
+    scope = extractor.get_scope()
+    conn_string_key = get_sql_alchemy_conn_string_key(scope)
+    conn_string = format_conn_string(connection)
+
+    conf = ConfigFactory.from_dict({
+        conn_string_key: conn_string,
+        "{}.{}".format(scope, Extractor.CLUSTER_KEY): connection.cluster,
+        "{}.{}".format(scope, Extractor.DATABASE_KEY): connection.name,
+        "{}.{}".format(scope, Extractor.WHERE_CLAUSE_SUFFIX_KEY): connection.where_clause_suffix,
+    })
+
+    extractors = [extractor]
+    return extractors, conf
+
+
+
+def configure_redshift_extractors(connection: ConnectionConfigSchema):
+    Extractor = RedshiftMetadataExtractor
+    extractor = Extractor()
+    scope = extractor.get_scope()
+    conn_string_key = get_sql_alchemy_conn_string_key(scope)
+    conn_string = format_conn_string(connection)
+
+    conf = ConfigFactory.from_dict({
+        conn_string_key: conn_string,
+        "{}.{}".format(scope, Extractor.CLUSTER_KEY): connection.cluster,
+        "{}.{}".format(scope, Extractor.DATABASE_KEY): connection.name,
+        "{}.{}".format(scope, Extractor.WHERE_CLAUSE_SUFFIX_KEY): connection.where_clause_suffix,
+    })
+
+    extractors = [extractor]
+    return extractors, conf
+
+
 def configure_snowflake_extractors(connection: ConnectionConfigSchema):
     extractor = SnowflakeMetadataExtractor()
     scope = extractor.get_scope()
 
-    conn_string_key = '{}.{}.conn_string'\
-        .format(scope, SQL_ALCHEMY_SCOPE)
-
-    username_password_placeholder = \
-        '{}:{}'.format(connection.username, connection.password) \
-        if connection.password is not None else ''
-
-    conn_string = \
-        '{connection_type}://{username_password}@{uri}:{port}'.format(
-            connection_type=connection.type,
-            username_password=username_password_placeholder,
-            uri=connection.uri,
-            port=connection.port)
+    conn_string_key = get_sql_alchemy_conn_string_key(scope)
+    conn_string = format_conn_string(connection)
 
     conf = ConfigFactory.from_dict({
         conn_string_key: conn_string,
