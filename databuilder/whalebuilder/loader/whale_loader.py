@@ -197,7 +197,7 @@ class WhaleLoader(Loader):
         markdown_blobs = [METRICS_DELIMITER + "\n"]
         for metric, metric_details in metrics.items():
             markdown_blob = \
-                f"{metric}: {metric_details['value']} @ execution_time: metric_details['execution_time']\n"
+                f"{metric}: {metric_details['value']} @ {metric_details['execution_time']}\n"
             markdown_blobs.append(markdown_blob)
         return "".join(markdown_blobs)
 
