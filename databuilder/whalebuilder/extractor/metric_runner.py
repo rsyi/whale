@@ -54,10 +54,10 @@ class MetricRunner(SQLAlchemyEngine):
         try:
             results = \
                 subprocess.check_output(
-                    f"grep -rl '#!metrics' ~/.whale/metadata/{self.database} -d skip",
+                    f"grep -l '```metrics' ~/.whale/metadata/{self.database}/* -d skip",
                     shell=True)
             results = results.decode("utf-8")
-            table_stubs_with_metrics = results.split("\n")
+            table_stubs_with_metrics = results.split("\n")[:-1]
             table_stub_paths = \
                 [os.path.join(METADATA_PATH, table_stub) for table_stub in table_stubs_with_metrics]
         except subprocess.CalledProcessError:

@@ -16,6 +16,10 @@ class MetricValue(object):
             markdown_blob: str = None,
             is_global: bool = False,
             ):
+        self.database = database
+        self.cluster = cluster
+        self.schema = schema
+        self.table = table
         self.execution_time = execution_time
         self.description = description
         self.name = name
