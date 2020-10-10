@@ -29,7 +29,6 @@ class MetricRunner(SQLAlchemyEngine):
     def init(self, conf):
         self.conf = conf.with_fallback(self.DEFAULT_CONFIG)
         sql_alch_conf = Scoped.get_scoped_conf(self.conf, SQLALCHEMY_ENGINE_SCOPE)
-        print(sql_alch_conf)
         super().init(sql_alch_conf)
 
         self.database = self.conf.get(MetricRunner.DATABASE_KEY)
