@@ -14,10 +14,12 @@ class SQLAlchemyEngine(Engine):
 
     CONN_STRING_KEY = 'conn_string'
     MODEL_CLASS_KEY = 'model_class'
+    CREDENTIALS_PATH_KEY = 'credentials_path'
 
     DEFAULT_CONFIG = ConfigFactory.from_dict({
         CONN_STRING_KEY: None,
         MODEL_CLASS_KEY: None,
+        CREDENTIALS_PATH_KEY: None,
     })
 
     def init(self, conf: ConfigTree):
@@ -26,8 +28,8 @@ class SQLAlchemyEngine(Engine):
 
         :param conf: configuration file.
         """
-        self.conf = conf
         self.conn_string = conf.get_string(SQLAlchemyEngine.CONN_STRING_KEY)
+        self.credentials_path = conf.get(SQLAlchemyEngine.CREDENTIALS_PATH_KEY)
         self.connection = self._get_connection()
 
         model_class = conf.get(SQLAlchemyEngine.MODEL_CLASS_KEY, None)
@@ -40,7 +42,7 @@ class SQLAlchemyEngine(Engine):
         """
         Create a SQLAlchemy connection to `conn_string`.
         """
-        engine = create_engine(self.conn_string)
+        engine = create_engine(self.conn_string, credentials_path=self.credentials_path)
         conn = engine.connect()
         return conn
 

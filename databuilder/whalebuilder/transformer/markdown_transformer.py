@@ -1,6 +1,7 @@
 from databuilder.transformer.base_transformer import Transformer
 import whalebuilder.models.table_metadata as metadata_model_whale
 import databuilder.models.table_metadata as metadata_model_amundsen
+from whalebuilder.models.metric_value import MetricValue
 from whalebuilder.utils.markdown_delimiters import (
     COLUMN_DETAILS_DELIMITER
 )
@@ -106,6 +107,7 @@ class MarkdownTransformer(Transformer, FormatterMixin):
             metadata_model_amundsen.TableMetadata: self.format_table_metadata,
             metadata_model_whale.TableMetadata: self.format_table_metadata,
             Watermark: self.no_op_format,
+            MetricValue: self.no_op_format,
         }
 
     def transform(self, record):

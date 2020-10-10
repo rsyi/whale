@@ -12,6 +12,8 @@ from whalebuilder.extractor.bigquery_watermark_extractor \
     import BigQueryWatermarkExtractor
 from whalebuilder.extractor.snowflake_metadata_extractor \
     import SnowflakeMetadataExtractor
+from whalebuilder.extractor.metric_runner import MetricRunner
+from whalebuilder.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 from databuilder.extractor.hive_table_metadata_extractor import HiveTableMetadataExtractor
 from databuilder.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
@@ -22,7 +24,9 @@ BUILD_SCRIPT_TEMPLATE = \
     """source {venv_path}/bin/activate \
     && {python_binary} {build_script_path}"""
 SQL_ALCHEMY_SCOPE = SQLAlchemyExtractor().get_scope()
+SQL_ALCHEMY_ENGINE_SCOPE = SQLAlchemyEngine().get_scope()
 
+METRIC_RUNNER_SCOPE = MetricRunner().get_scope()
 
 def get_sql_alchemy_conn_string_key(scope):
     conn_string_key = \
@@ -31,22 +35,27 @@ def get_sql_alchemy_conn_string_key(scope):
 
 
 def format_conn_string(connection: ConnectionConfigSchema):
-    username_password_placeholder = \
-        f"{connection.username}:{connection.password}" \
-        if connection.password is not None else ""
-
-    if connection.metadata_source in ["redshift"]:
-        connection_type = "postgres"
-    elif connection.metadata_source == "hivemetastore":
-        connection_type = connection.dialect
+    if connection.metadata_source == "bigquery":
+        project_id = connection.project_id
+        conn_string = \
+                f"bigquery://{project_id}"
     else:
-        connection_type = connection.metadata_source
-    uri = connection.uri
-    port = connection.port
-    database = connection.database or ""
+        username_password_placeholder = \
+            f"{connection.username}:{connection.password}" \
+            if connection.password is not None else ""
 
-    conn_string = \
-        f"{connection_type}://{username_password_placeholder}@{uri}:{port}/{database}"
+        if connection.metadata_source in ["redshift"]:
+            connection_type = "postgres"
+        elif connection.metadata_source == "hivemetastore":
+            connection_type = connection.dialect
+        else:
+            connection_type = connection.metadata_source
+        uri = connection.uri
+        port = connection.port
+        database = connection.database or ""
+
+        conn_string = \
+            f"{connection_type}://{username_password_placeholder}@{uri}:{port}/{database}"
     return conn_string
 
 
@@ -54,8 +63,11 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
     Extractor = BigQueryMetadataExtractor
     extractor = Extractor()
     scope = extractor.get_scope()
+    conn_string = format_conn_string(connection)
     watermark_extractor = BigQueryWatermarkExtractor()
     watermark_scope = watermark_extractor.get_scope()
+
+
     conf = ConfigFactory.from_dict({
         f"{scope}.key_path": connection.key_path,
         f"{scope}.project_id": connection.project_id,
@@ -67,9 +79,12 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
         f"{watermark_scope}.project_id": connection.project_id,
         f"{watermark_scope}.project_credentials": connection.project_credentials,
         f"{watermark_scope}.included_tables_regex": connection.included_tables_regex,
+        f"{METRIC_RUNNER_SCOPE}.{MetricRunner.DATABASE_KEY}": connection.name,
+        f"{METRIC_RUNNER_SCOPE}.{SQL_ALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CONN_STRING_KEY}": conn_string,
+        f"{METRIC_RUNNER_SCOPE}.{SQL_ALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CREDENTIALS_PATH_KEY}": connection.key_path,
     })
 
-    extractors = [extractor, watermark_extractor]
+    extractors = [extractor, watermark_extractor, MetricRunner()]
 
     return extractors, conf
 

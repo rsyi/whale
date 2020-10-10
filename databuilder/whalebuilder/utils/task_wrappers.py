@@ -1,10 +1,12 @@
 import os
+import subprocess
 import yaml
 
 from whalebuilder.utils.paths import (  # noqa: F401
     BASE_DIR,
     CONNECTION_PATH,
     MANIFEST_PATH,
+    METADATA_PATH,
     TMP_MANIFEST_PATH
 )
 from whalebuilder.task import WhaleTask
