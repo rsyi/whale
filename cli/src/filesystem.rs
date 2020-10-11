@@ -15,6 +15,7 @@ pub fn create_file_structure() {
         get_logs_dirname(),
         get_metadata_dirname(),
         get_manifest_dirname(),
+        get_metrics_dirname(),
     ];
 
     for subdir in subdirs.iter() {
@@ -162,6 +163,14 @@ pub fn get_metadata_dirname() -> std::string::String {
     let path = format!("{}/{}",
                        get_base_dirname(),
                        "metadata");
+    path
+}
+
+
+pub fn get_metrics_dirname() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_base_dirname(),
+                       "metrics");
     path
 }
 
