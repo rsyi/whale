@@ -42,7 +42,10 @@ class SQLAlchemyEngine(Engine):
         """
         Create a SQLAlchemy connection to `conn_string`.
         """
-        engine = create_engine(self.conn_string, credentials_path=self.credentials_path)
+        if self.credentials_path is not None:
+            engine = create_engine(self.conn_string, credentials_path=self.credentials_path)
+        else:
+            engine = create_engine(self.conn_string)
         conn = engine.connect()
         return conn
 
