@@ -1,3 +1,10 @@
+import os
+from pathlib import Path
+
+from whalebuilder.utils.paths import METRICS_PATH
+from whalebuilder.utils import get_table_file_path_relative
+
+
 class MetricValue(object):
     """
     Generic stat object.
@@ -26,3 +33,16 @@ class MetricValue(object):
         self.value = value
         self.is_global = is_global
         self.markdown_blob = markdown_blob
+
+    def record(self):
+        relative_file_path = get_table_file_path_relative(
+            self.database,
+            self.cluster,
+            self.schema,
+            self.table) + ".csv"
+        record_path = os.path.join(METRICS_PATH, relative_file_path)
+        record_dirname = os.path.dirname(record_path)
+        Path(record_dirname).mkdir(parents=True, exist_ok=True)
+        with open(record_path, "a") as f:
+            f.write(f"{self.name},{self.value},{self.execution_time}\n")
+

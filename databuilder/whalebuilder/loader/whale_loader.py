@@ -138,6 +138,9 @@ def update_markdown(file_path, record):
         section_method = section_methods[type(record)]
         sections = section_method(sections, record)
 
+    if hasattr(record, "record"):
+        record.record()
+
     new_file_text = markdown_from_sections(sections)
     safe_write(file_path, new_file_text)
 
@@ -186,13 +189,13 @@ def _get_section_from_watermarks(watermarks):
 
 def _update_metric(sections, record):
     section_to_update = sections[METRICS_SECTION]
-    existing_metrics = _get_metrics_from_section(section_to_update)
+    metrics_dict = _get_metrics_from_section(section_to_update)
 
-    existing_metrics[record.name] = {
+    metrics_dict[record.name] = {
         "execution_time": record.execution_time,
         "value": record.value
     }
-    new_section = _get_section_from_metrics(existing_metrics)
+    new_section = _get_section_from_metrics(metrics_dict)
     sections[METRICS_SECTION] = format_yaml_section(new_section, METRICS_DELIMITER)
     return sections
 
