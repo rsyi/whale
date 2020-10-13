@@ -5,7 +5,6 @@ use clap::{ArgMatches};
 use colored::*;
 use std::{
     io::{self, Write},
-    path::Path,
     process::Command,
 };
 use tui::{
@@ -170,7 +169,8 @@ Fetching and rebasing local changes from github.");
             // let build_script_path = Path::new(&*build_script_path);
             let python_alias = serialization::read_config("python3_alias", "python3");
             let activate_path = filesystem::get_activate_filename();
-            let full_command = format!("source {} && {} ~/.whale/libexec/build_script.py", activate_path, python_alias);
+            let build_script_path = filesystem::get_build_script_filename();
+            let full_command = format!("source {} && {} {}", activate_path, python_alias, build_script_path);
             let mut child = Command::new("sh")
                 .args(&["-c", &full_command])
                 .spawn()?;

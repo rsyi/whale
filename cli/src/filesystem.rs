@@ -80,11 +80,9 @@ pub fn get_bin_dirname() -> std::string::String {
 
 
 pub fn get_build_script_filename() -> std::string::String {
-    let path = format!("{}/{}/{}/{}",
+    let path = format!("{}/{}",
                        get_libexec_dirname(),
-                       "dist",
-                       "build_script",
-                       "build_script");
+                       "build_script.py");
     path
 }
 
@@ -137,6 +135,7 @@ pub fn get_etl_command() -> std::string::String {
 
 pub fn get_libexec_dirname() -> std::string::String {
     let executable = env::current_exe().unwrap();
+    let executable = std::fs::canonicalize(executable).unwrap();
     let path = match executable.parent() {
         Some(name) => name,
         _ => panic!()
