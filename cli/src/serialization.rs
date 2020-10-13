@@ -86,7 +86,7 @@ pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
 }
 
 
-pub fn read_config(key: &str, default: &str) -> Result<String, io::Error> {
+pub fn read_config(key: &str, default: &str) -> String {
     let config_filename = filesystem::get_config_filename();
     let config_path = Path::new(&*config_filename);
 
@@ -110,5 +110,5 @@ pub fn read_config(key: &str, default: &str) -> Result<String, io::Error> {
         value = default.to_string()
     };
 
-    Ok(value)
+    value
 }

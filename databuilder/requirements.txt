@@ -3,12 +3,14 @@ neo4j-driver==1.7.2
 mock
 tabulate
 pyaml
+pybigquery==0.4.15
 pyhive
 pyinstaller
 requests
 google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
+grpcio==1.32.0
 snowflake-connector-python
 snowflake-sqlalchemy
 SQLAlchemy>=1.3
