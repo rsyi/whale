@@ -128,9 +128,7 @@ pub fn get_etl_command() -> std::string::String {
 
 
 pub fn get_libexec_dirname() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_base_dirname(),
-                       "libexec");
+    let path = format!("../libexec");
     path
 }
 
