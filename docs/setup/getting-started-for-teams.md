@@ -1,4 +1,4 @@
-# Getting started for teams
+# Git setup
 
 ## Overview
 
@@ -18,15 +18,16 @@ Using a hosted git solution has the distinct advantage of enabling:
 If you haven't already, start by installing whale locally, following the [Getting started](../#installation) guide.
 
 {% hint style="warning" %}
-While you're going through this process, it may be prudent to disable any local etl runs by running `crontab -e` and removing the appropriate `wh etl` line. Either save this somewhere and add it back in later to enable scheduled `git pull`ing, or run `wh schedule` again.
+While you're going through this process, it may be prudent to **disable any local etl runs** by running `crontab -e` and commenting out \(with `#`\) the appropriate `wh pull` line.
 {% endhint %}
 
-Then navigate to `~/.whale` and run the following series of commands to push your whale directory to your remote branch, taking care to replace `<YOUR_GIT_ADDRESS>` with your git address.
+Then run the following series of commands to push your whale directory to your remote branch \(replace `<YOUR_GIT_ADDRESS>` with your git address\).
 
 ```text
+cd ~/.whale
 git init && git remote add origin <YOUR_GIT_ADDRESS>
-echo "bin/" > .gitignore
-git add . && git commit -m "Whale on our way!"
+echo "bin/\nlogs/\nconfig/config.yaml\nlibexec/" > .gitignore
+git add . && git commit -m "Whale on our way"
 git push -u origin master
 ```
 
@@ -46,13 +47,13 @@ cd ~/.whale
 mkdir -p .github/workflows
 ```
 
-Then, within `.github/workflows`, create a new file \(e.g. `metadata.yml`\), and paste in the following file.
+Then, within `.github/workflows`, create a new file \(e.g. `metadata.yml`\), paste in the following file, then `git add`, `commit`, & `push` to master.
 
 ```text
 name: Whale ETL
 on:
   schedule:
-   - cron: "* */6 * * *"
+   - cron: "*/10 * * * *"
 
 jobs:
   run-etl:
@@ -61,35 +62,30 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: main
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          architecture: 'x64'
       - name: etl
         run: |
-          mkdir -p ~/.whale/metadata
-          mkdir -p ~/.whale/manifests
-          mkdir -p ~/.whale/logs
-          cp -r main/ ~/.whale
-
-          echo ${BIGQUERY_JSON} > ~/.whale/config.json  # ONLY FOR BIGQUERY 
-          
-          ~/.whale/libexec/dist/build_script/build_script
+          make python
+          source ./build/env/bin/activate
+          python ./build/build_script
+      - name: sync
+        run: |
           cd ~/.whale
           git config --global user.name 'GHA Runner'
-          git config --global user.email '<YOUR_GIT_USERNAME>@users.noreply.github.com'
+          git config --global user.email 'rsyi@users.noreply.github.com'
           git add metadata manifests
           git commit -am "Automated push." || echo "No changes to commit"
           git push
-        env:  # ONLY FOR BIGQUERY
-          BIGQUERY_JSON: ${{ secrets.BIGQUERY_JSON }}
-
-
 ```
 
 Take care to \(a\) change the `git config` specifications in the file above to reflect your own information, and \(b\) choose a runner that coincides with the machine type that you used to create the python binaries \(below, we use `macos-latest`, because my local machine is a mac\).
 
 That said, though our instructions thus far have involved the storage of the compiled python binaries \(`libexec/`\) on github as well \(simply to reduce compute time\), it is alternatively possible to simply install `whalebuilder` and run `build_script.py` manually with each CI/CD run. In this case, specification of the machine type is irrelevant, as no `pyinstaller` compilation would need to take place.
 
-{% hint style="info" %}
-For illustration purposes, we've used github secrets to store our Bigquery credentials.json file, then pipe this into the path `~/.whale/config.json` file, which we reference in `config/connections.yaml`. Sensitive data \(even the entire `connections.yaml` file, if you so desire\) can be stored as a github secret, read into a file during the CI/CD process, then safely referenced by `whale` binaries for warehouse access. These lines are explicitly tagged with `# ONLY FOR BIGQUERY` in the config file above. If you are not on bigquery, simply remove these sections.
-{% endhint %}
+### 
 
 ### Update your local whale instance
 
@@ -106,4 +102,26 @@ At this point, if you previously removed the scheduled cron job from `crontab -e
 {% endhint %}
 
 While programmatic `git` actions in other situations can be a bit dangerous, whale's file formatting ensures that this will be done in debuggable and easily resolvable manner. Because the only local command run is the `git pull --autostash --rebase` command, your personal edits will be saved as merge conflicts, still viewable in the respective files \(and therefore, through `wh`\). If such conflicts arise, we will surface this to you through a warning when running `wh`, and they should be simple to address.
+
+## Advanced usage
+
+### Storing credentials
+
+If storing credentials as plaintext is a concern, a workaround is to simply save the full `connections.yaml` file as a github secret, then echo this into the `~/.whale/config/connections.yaml` file.
+
+```text
+run: |
+  echo ${CONNECTIONS} > ~/.whale/config/connections.yaml
+env:
+  CONNECTIONS: ${{ secrets.CONNECTIONS }}
+```
+
+For Bigquery, specifically, the credentials file alone could alternatively be echoed at schedule-time into the correct path, as follows:
+
+```text
+run: |
+  echo ${BIGQUERY_JSON} > /keypath/specified/in/connections
+env:
+  BIGQUERY_JSON: ${{ secrets.BIGQUERY_JSON }}
+```
 
