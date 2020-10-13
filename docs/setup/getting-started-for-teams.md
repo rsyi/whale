@@ -21,24 +21,15 @@ If you haven't already, start by installing whale locally, following the [Gettin
 While you're going through this process, it may be prudent to **disable any local etl runs** by running `crontab -e` and commenting out \(with `#`\) the appropriate `wh pull` line.
 {% endhint %}
 
-Then run the following series of commands to push your whale directory to your remote branch \(replace `<YOUR_GIT_ADDRESS>` with your git address\).
+Then run the following command to set up and push your `~/.whale` directory to the provided git remote \(replace `<YOUR_GIT_REMOTE>` with your git address\).
 
 ```text
-cd ~/.whale
-git init && git remote add origin <YOUR_GIT_ADDRESS>
-echo "bin/\nlogs/\nconfig/config.yaml\nlibexec/" > .gitignore
-git add . && git commit -m "Whale on our way"
-git push -u origin master
+wh git-setup <YOUR_GIT_REMOTE>
 ```
 
 ### Creating a CI/CD pipeline using github actions
 
-Next, you'll need to set up a CI/CD pipeline to handle the scraping of metadata for you. Below, we illustrate how to do this through **github actions** \(which simply requires that you add the following file to the `.github/workflows` directory\), but the steps can be easily adapted to any CI/CD platform. In short, we run the following steps:
-
-* Checkout the repository.
-* Copy the repository to `~/.whale` on the runner machine.
-* Run the etl process by directly executing the compiled `build_script` binary in `libexec`.
-* Push these changes back to the repo.
+Next, you'll need to set up a CI/CD pipeline to handle the scraping of metadata for you. Below, we illustrate how to do this through **github actions**, but the steps can be easily adapted to any CI/CD platform. In short, we: \(a\) install the python library on the CI/CD runner with `make`, \(b\) run the etl process by running `python3 build_script.py`, and \(c\) push these changes back to the repo.
 
 Begin by creating a local directory for your github actions workflows:
 
@@ -47,25 +38,22 @@ cd ~/.whale
 mkdir -p .github/workflows
 ```
 
-Then, within `.github/workflows`, create a new file \(e.g. `metadata.yml`\), paste in the following file, then `git add`, `commit`, & `push` to master.
+Then, within `.github/workflows`, create a new file \(e.g. `metadata.yml`\), paste in the following file \(change `<YOUR_GIT_USERNAME>`\), then `git add`, `commit`, & `push` to master.
 
 ```text
 name: Whale ETL
 on:
   schedule:
-   - cron: "*/10 * * * *"
+   - cron: "* */6 * * *"
 
 jobs:
   run-etl:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          path: main
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-          architecture: 'x64'
+          python-version: '3.x'
       - name: etl
         run: |
           make python
@@ -75,17 +63,11 @@ jobs:
         run: |
           cd ~/.whale
           git config --global user.name 'GHA Runner'
-          git config --global user.email 'rsyi@users.noreply.github.com'
+          git config --global user.email '<YOUR_GIT_USERNAME>@users.noreply.github.com'
           git add metadata manifests
           git commit -am "Automated push." || echo "No changes to commit"
           git push
 ```
-
-Take care to \(a\) change the `git config` specifications in the file above to reflect your own information, and \(b\) choose a runner that coincides with the machine type that you used to create the python binaries \(below, we use `macos-latest`, because my local machine is a mac\).
-
-That said, though our instructions thus far have involved the storage of the compiled python binaries \(`libexec/`\) on github as well \(simply to reduce compute time\), it is alternatively possible to simply install `whalebuilder` and run `build_script.py` manually with each CI/CD run. In this case, specification of the machine type is irrelevant, as no `pyinstaller` compilation would need to take place.
-
-### 
 
 ### Update your local whale instance
 
@@ -107,7 +89,7 @@ While programmatic `git` actions in other situations can be a bit dangerous, wha
 
 ### Storing credentials
 
-If storing credentials as plaintext is a concern, a workaround is to simply save the full `connections.yaml` file as a github secret, then echo this into the `~/.whale/config/connections.yaml` file.
+If storing credentials as plaintext is a concern, a temporary workaround is to simply save the full `connections.yaml` file as a github secret, then echo this into the `~/.whale/config/connections.yaml` file.
 
 ```text
 run: |
