@@ -39,10 +39,9 @@ class MetricValue(object):
             self.database,
             self.cluster,
             self.schema,
-            self.table) + ".csv"
+            self.table) + f"/{self.name}.csv"
         record_path = os.path.join(METRICS_PATH, relative_file_path)
         record_dirname = os.path.dirname(record_path)
         Path(record_dirname).mkdir(parents=True, exist_ok=True)
         with open(record_path, "a") as f:
             f.write(f"{self.name},{self.value},{self.execution_time}\n")
-

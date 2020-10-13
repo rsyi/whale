@@ -199,6 +199,7 @@ def _update_metric(sections, record):
     sections[METRICS_SECTION] = format_yaml_section(new_section, METRICS_DELIMITER)
     return sections
 
+
 def _get_metrics_from_section(section):
     metrics_dict = {}
     raw_metrics_dict = _get_data_from_section(section, METRICS_DELIMITER)
