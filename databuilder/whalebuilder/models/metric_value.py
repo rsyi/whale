@@ -44,4 +44,4 @@ class MetricValue(object):
         record_dirname = os.path.dirname(record_path)
         Path(record_dirname).mkdir(parents=True, exist_ok=True)
         with open(record_path, "a") as f:
-            f.write(f"{self.name},{self.value},{self.execution_time}\n")
+            f.write(f"{self.value},{self.execution_time}\n")
