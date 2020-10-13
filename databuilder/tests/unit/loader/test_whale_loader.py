@@ -13,6 +13,7 @@ class TestWhaleLoader(unittest.TestCase):
         logging.basicConfig(level=logging.INFO)
         self._conf = ConfigFactory.from_dict({
             'base_directory': './.test_artifacts',
+            'tmp_manifest_path': './.test_artifacts/tmp_manifest.txt'
             })
 
     def test_load_no_catalog(self):

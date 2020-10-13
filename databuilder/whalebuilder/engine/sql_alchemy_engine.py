@@ -29,7 +29,7 @@ class SQLAlchemyEngine(Engine):
         :param conf: configuration file.
         """
         self.conn_string = conf.get_string(SQLAlchemyEngine.CONN_STRING_KEY)
-        self.credentials_path = conf.get(SQLAlchemyEngine.CREDENTIALS_PATH_KEY)
+        self.credentials_path = conf.get(SQLAlchemyEngine.CREDENTIALS_PATH_KEY, None)
         self.connection = self._get_connection()
 
         model_class = conf.get(SQLAlchemyEngine.MODEL_CLASS_KEY, None)
