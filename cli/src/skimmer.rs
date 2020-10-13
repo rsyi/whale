@@ -62,10 +62,7 @@ pub fn table_skim() {
 
     let reader;
 
-    let custom_preview_command = match serialization::read_config("preview_command", "") {
-        Ok(preview_command) => preview_command,
-        Err(_error) => "".to_string(),
-    };
+    let custom_preview_command = serialization::read_config("preview_command", "");
 
     if custom_preview_command.is_empty() {
         let bat_testing_command = format!("command -v bat > /dev/null 2>&1 && echo true || echo false");

@@ -76,10 +76,9 @@ pub struct Whale {}
 impl Whale {
     pub fn run_with(_matches: ArgMatches) -> Result<(), io::Error> {
         skimmer::table_skim();
-        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled", "false") {
-            Ok(flag) => flag.parse::<bool>().unwrap(),
-            Err(_error) => false,
-        };
+        let is_git_etl_enabled = serialization::read_config("is_git_etl_enabled", "false")
+            .parse::<bool>()
+            .unwrap();
         if is_git_etl_enabled {
             let whale_dirname = filesystem::get_base_dirname();
             let command = format!("cd {} && (git status | grep Unmerged > /dev/null 2>&1 && echo true || echo false)", whale_dirname);
@@ -151,10 +150,10 @@ impl Whale {
 
     pub fn etl() -> Result<(), io::Error> {
         println!("Running ETL job manually.");
-        let is_git_etl_enabled = match serialization::read_config("is_git_etl_enabled", "false") {
-            Ok(flag) => flag.parse::<bool>().unwrap(),
-            Err(_error) => false,
-        };
+        let is_git_etl_enabled = serialization::read_config("is_git_etl_enabled", "false")
+            .parse::<bool>()
+            .unwrap();
+
         if is_git_etl_enabled {
             println!("Git-syncing is enabled (see ~/.whale/config/config.yaml or https://docs.whale.cx/getting-started-for-teams for more details).
 Fetching and rebasing local changes from github.");
@@ -167,9 +166,13 @@ Fetching and rebasing local changes from github.");
             child.wait()?;
         }
         else {
-            let build_script_path = filesystem::get_build_script_filename();
-            let build_script_path = Path::new(&*build_script_path);
-            let mut child = Command::new(build_script_path)
+            // let build_script_path = filesystem::get_build_script_filename();
+            // let build_script_path = Path::new(&*build_script_path);
+            let python_alias = serialization::read_config("python3-alias", "python3");
+            let activate_path = filesystem::get_activate_filename();
+            let full_command = format!("source {} && {} ~/.whale/libexec/build_script.py", activate_path, python_alias);
+            let mut child = Command::new("sh")
+                .args(&["-c", &full_command])
                 .spawn()?;
             child.wait()?;
 

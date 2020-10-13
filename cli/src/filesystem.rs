@@ -1,6 +1,7 @@
 use std::path::{Path};
 use std::{
     collections::BTreeSet,
+    env,
     fs::{self, OpenOptions},
     io::{Write, BufWriter},
 };
@@ -55,6 +56,13 @@ pub fn append_to_file(contents: String, path: &str) {
         .open(path)
         .expect("Failed to open file.");
     writeln!(file, "{}", contents).expect("Failed to write to file.");
+}
+
+pub fn get_activate_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_libexec_dirname(),
+                       "env/bin/activate");
+    path
 }
 
 
@@ -128,7 +136,14 @@ pub fn get_etl_command() -> std::string::String {
 
 
 pub fn get_libexec_dirname() -> std::string::String {
-    let path = format!("../libexec");
+    let executable = env::current_exe().unwrap();
+    let path = match executable.parent() {
+        Some(name) => name,
+        _ => panic!()
+    };
+    let path = format!("{}/../{}",
+                       path.display(),
+                       "libexec");
     path
 }
 
