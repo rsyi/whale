@@ -5,6 +5,7 @@ mysqlclient==2.0.1
 tabulate
 pyaml
 psycopg2==2.8.6
+psycopg2-binary==2.8.6
 pybigquery==0.4.15
 pyhive
 pyinstaller
