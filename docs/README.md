@@ -5,7 +5,7 @@
 ### Mac OS
 
 ```text
-brew install rsyi/tap/whale
+brew install dataframehq/tap/whale
 ```
 
 ### All others
@@ -13,7 +13,7 @@ brew install rsyi/tap/whale
 To manually compile and install, you'll have to \(a\) clone the whale repository and run \(b\)**`make && make install`** in the base directory of the repo. These steps are encapsulated in the following commands:
 
 ```text
-git clone https://github.com/rsyi/whale.git
+git clone https://github.com/dataframehq/whale.git
 cd whale/
 make && make install
 ```
