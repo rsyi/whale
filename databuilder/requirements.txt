@@ -1,8 +1,10 @@
 amundsen-databuilder==3.3.2
 neo4j-driver==1.7.2
 mock
+mysqlclient==2.0.1
 tabulate
 pyaml
+psycopg2==2.8.6
 pybigquery==0.4.15
 pyhive
 pyinstaller

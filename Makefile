@@ -5,12 +5,16 @@ dependency_binary_dir:=${base_dir}/libexec
 python_directory:=databuilder
 
 .PHONY: all
-all:
+all: python
 	cargo build --release --manifest-path cli/Cargo.toml
+
+.PHONY: python
+python:
 	mkdir -p ${build_dir}
 	python3 -m venv ${build_dir}/env
 	. ${build_dir}/env/bin/activate && pip3 install -r ${python_directory}/requirements.txt && pip3 install ${python_directory}/.
 	cp ${python_directory}/build_script.py ${build_dir}
+
 
 .PHONY: install
 install:

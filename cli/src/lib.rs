@@ -125,6 +125,25 @@ impl Whale {
         Ok(())
     }
 
+    pub fn git_setup(git_address: &str) -> Result<(), io::Error> {
+        if git_address == "None" {
+            println!("You must supply a git remote.");
+            Ok(())
+        }
+        else {
+            let init_command = format!("cd ~/.whale && git init && git remote add origin {}", git_address);
+            let gitignore_command = "echo 'bin/\nlogs/\nconfig/config.yaml\nlibexec/' > .gitignore";
+            let git_push_command = "git add . && git commit -m 'Whale on our way' && git push -u origin master";
+            let full_command = format!("{} && {} && {}", init_command, gitignore_command, git_push_command);
+            let mut child = Command::new("sh")
+                .args(&["-c", &full_command])
+                .spawn()?;
+            child.wait()?;
+
+            Ok(())
+        }
+    }
+
     pub fn config() -> Result<(), io::Error>{
         let config_file = filesystem::get_config_filename();
         let editor = filesystem::get_open_command();

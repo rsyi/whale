@@ -1,5 +1,5 @@
 use whale;
-use clap::{App, SubCommand};
+use clap::{App, Arg, SubCommand};
 
 fn main() {
     let app = App::new("Whale CLI")
@@ -15,6 +15,11 @@ fn main() {
             .about("Open file containing warehouse connection information"))
         .subcommand(SubCommand::with_name("git-enable")
             .about("Enable git"))
+        .subcommand(SubCommand::with_name("git-setup")
+            .about("Set up ~/.whale directory for git and run initial push")
+            .arg(Arg::with_name("remote")
+                 .help("Remote git address where whale will be backed up"))
+            )
         .subcommand(SubCommand::with_name("etl")
             .about("Manually runs the metadata extraction job (deprecated: use `wh pull` instead)"))
         .subcommand(SubCommand::with_name("pull")
@@ -23,6 +28,13 @@ fn main() {
             .about("Register metadata scraping job with crontab"));
 
     let matches = app.get_matches();
+
+    let mut git_address = "None";
+    if let Some(git_setup_matches) = matches.subcommand_matches("git-setup") {
+        if git_setup_matches.is_present("remote") {
+            git_address = git_setup_matches.value_of("remote").unwrap()
+        }
+    }
 
     match matches.subcommand_name() {
         Some("init") => whale::Whale::init(),
@@ -33,6 +45,7 @@ fn main() {
         Some("config") => whale::Whale::config(),
         Some("connections") => whale::Whale::connections(),
         Some("git-enable") => whale::Whale::git_enable(),
+        Some("git-setup") => whale::Whale::git_setup(git_address),
         _ => whale::Whale::run_with(matches)
     }.expect("Failed to run command.");
 
