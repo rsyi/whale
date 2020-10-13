@@ -4,13 +4,6 @@
 
 Outside of personal use, whale can also be used collaboratively by setting up a git repository \(e.g. github\) to function as a centralized source of truth for your organization, with metadata being periodically updated through CI/CD pipelines. This is possible because the metadata and user-generated content accessed by whale are stored as markdown in the `~/.whale` subdirectory.
 
-Using a hosted git solution has the distinct advantage of enabling:
-
-* **Automatic schema/change tracking** Any changes will be change-tracked through git.
-* **Collaboration using a centralized hosted git repository** Rather than working on local-only table stubs, you can push and pull documentation from your remote server, enabling collaboration.
-* **Automated non-cron scheduling through CI/CD pipelines** While the cron-based metadata-scraping functionality of whale is generally pretty seamless and low-cost, it may be helpful to centralize this process to reduce warehouse load at scale.
-* **A centralized GUI with linkable table details pages.** Because servers like github naturally render markdown files, documentation can be shared with others by passing around plain links.
-
 ## Getting started
 
 ### Setting up .whale/ as a git repository
@@ -80,10 +73,20 @@ wh git-enable
 This will add a `is_git_etl_enabled: "true"` flag to the file located at `~/.whale/config/config.yaml`. This file can be accessed by running `wh config` and manually edited at any point to turn the flag off.
 
 {% hint style="warning" %}
-At this point, if you previously removed the scheduled cron job from `crontab -e`, you should add this back in by either copying back in the deleted line, or re-running `wh schedule`. While the `is_git_etl_enabled` flag is `true`, `wh pull` \(and your cron job\) will ignore all user-defined connections and instead run `git pull --autostash --rebase`.
+If you previously commented the `wh pull` job from `crontab -e`, you should uncomment this \(or add scheduling in by running `wh schedule`\). While the `is_git_etl_enabled` flag is `true`, `wh pull` \(and your cron job\) will ignore any warehouse connections and only run`git pull --autostash --rebase`.
 {% endhint %}
 
 While programmatic `git` actions in other situations can be a bit dangerous, whale's file formatting ensures that this will be done in debuggable and easily resolvable manner. Because the only local command run is the `git pull --autostash --rebase` command, your personal edits will be saved as merge conflicts, still viewable in the respective files \(and therefore, through `wh`\). If such conflicts arise, we will surface this to you through a warning when running `wh`, and they should be simple to address.
+
+### Team setup
+
+Now that you've set up a git remote as your SSOT, have others [Install whale](../), then run the following series of commands to clone your central repo and set up a cron job to periodically rebase onto your remote:
+
+```text
+git clone <YOUR_GIT_REMOTE> ~/.whale
+wh schedule
+wh git-enable
+```
 
 ## Advanced usage
 
