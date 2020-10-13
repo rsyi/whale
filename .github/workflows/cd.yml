@@ -13,8 +13,6 @@ jobs:
         submodules: true
     - name: Build Release
       run: |
-        pip3 install -r databuilder/requirements.txt
-        python3 -m PyInstaller databuilder/build_script.py --clean --hidden-import='pkg_resources.py2_warn' --additional-hooks-dir='./hooks/'
         tar -zcvf /tmp/whale-mac.tar.gz .
 
     - name: Get version
