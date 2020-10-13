@@ -10,15 +10,15 @@ brew install rsyi/tap/whale
 
 ### All others
 
-To manually compile and install, you'll have to \(a\) clone the whale repository, \(b\) activate a Python &gt;= 3.6 virtual environment, and \(c\) run **`make && make install`** in the base directory of the repo. These steps are encapsulated in the following commands:
+To manually compile and install, you'll have to \(a\) clone the whale repository and run \(b\)**`make && make install`** in the base directory of the repo. These steps are encapsulated in the following commands:
 
 ```text
 git clone https://github.com/rsyi/whale.git
-cd whale/ && python3 -m venv env && source env/bin/activate
+cd whale/
 make && make install
 ```
 
-If this does not work, make sure `python3` is aliased to a &gt;=3.6 python installation.
+
 
 The Makefile commands don't explicitly add an alias for the `whale` binary, so you'll want to add the following alias to your `.bash_profile` or `.zshrc` file.
 
