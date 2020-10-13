@@ -15,6 +15,7 @@ pub fn create_file_structure() {
         get_logs_dirname(),
         get_metadata_dirname(),
         get_manifest_dirname(),
+        get_metrics_dirname(),
     ];
 
     for subdir in subdirs.iter() {
@@ -166,6 +167,14 @@ pub fn get_metadata_dirname() -> std::string::String {
 }
 
 
+pub fn get_metrics_dirname() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_base_dirname(),
+                       "metrics");
+    path
+}
+
+
 pub fn get_tmp_manifest_filename() -> std::string::String {
     let path = format!("{}/{}",
                        get_manifest_dirname(),
@@ -186,7 +195,7 @@ pub fn get_open_command() -> std::string::String {
 pub fn get_recently_used_filename() -> std::string::String {
     let path = format!("{}/{}",
                        get_logs_dirname(),
-                       "recenty_used.txt");
+                       "recently_used.txt");
     path
 }
 

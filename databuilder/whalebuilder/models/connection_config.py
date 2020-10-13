@@ -59,3 +59,34 @@ class ConnectionConfigSchema(object):
         self.page_size = page_size
         self.filter_key = filter_key
         self.where_clause_suffix = where_clause_suffix
+
+        self.infer_conn_string()
+
+
+    def infer_conn_string(self):
+        if self.metadata_source == "bigquery":
+            project_id = self.project_id
+            conn_string = \
+                    f"bigquery://{project_id}"
+        elif self.metadata_source == "neo4j":
+            conn_string = f"bolt://{connection.uri}:{connection.port}"
+        else:
+            username_password_placeholder = \
+                f"{self.username}:{self.password}" \
+                if self.password is not None else ""
+
+            if self.metadata_source in ["redshift"]:
+                self.dialect = "postgres"
+            elif self.metadata_source == "hivemetastore":
+                self.dialect = self.dialect
+            else:
+                self.dialect = self.metadata_source
+            uri = self.uri
+            port = self.port
+            database = self.database or ""
+
+            conn_string = \
+                f"{self.dialect}://{username_password_placeholder}@{uri}:{port}/{database}"
+
+        self.conn_string = conn_string
+

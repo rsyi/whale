@@ -13,83 +13,30 @@ from whalebuilder.utils import (
     get_table_file_path_relative,
     safe_write
 )
-from whalebuilder.utils.markdown_delimiters import (
-    COLUMN_DETAILS_DELIMITER,
-    PARTITIONS_DELIMITER,
-    USAGE_DELIMITER,
-    UGC_DELIMITER
-)
 from whalebuilder.utils.paths import TMP_MANIFEST_PATH
+from whalebuilder.utils.parsers import (
+    parse_programmatic_blob,
+    parse_ugc,
+    markdown_from_sections,
+    sections_from_markdown,
+)
 import whalebuilder.models.table_metadata as metadata_model_whale
+from whalebuilder.models.metric_value import MetricValue
 from databuilder.models.watermark import Watermark
 
-HEADER_SECTION = 'header'
-COLUMN_DETAILS_SECTION = 'column_details'
-PARTITION_SECTION = 'partition'
-USAGE_SECTION = 'usage'
-UGC_SECTION = 'ugc'
+from whalebuilder.utils.markdown_delimiters import (
+    COLUMN_DETAILS_DELIMITER,
+    METRICS_DELIMITER,
+    PARTITIONS_DELIMITER,
+)
 
-
-def _parse_programmatic_blob(programmatic_blob):
-
-    regex_to_match = "(" + COLUMN_DETAILS_DELIMITER \
-        + "|" + PARTITIONS_DELIMITER \
-        + "|" + USAGE_DELIMITER + ")"
-
-    splits = re.split(regex_to_match, programmatic_blob)
-
-    state = HEADER_SECTION
-    sections = {
-        HEADER_SECTION: [],
-        COLUMN_DETAILS_SECTION: [],
-        PARTITION_SECTION: [],
-        USAGE_SECTION: [],
-    }
-
-    for clause in splits:
-        if clause == COLUMN_DETAILS_DELIMITER:
-            state = COLUMN_DETAILS_SECTION
-        elif clause == PARTITIONS_DELIMITER:
-            state = PARTITION_SECTION
-        elif clause == USAGE_DELIMITER:
-            state = USAGE_SECTION
-
-        sections[state].append(clause)
-
-    for state, clauses in sections.items():
-        sections[state] = "".join(clauses)
-    return sections
-
-
-def sections_from_markdown(file_path):
-
-    with open(file_path, "r") as f:
-        old_file_text = "".join(f.readlines())
-
-    file_strings = old_file_text.split(UGC_DELIMITER)
-
-    programmatic_blob = file_strings[0]
-
-    programmatic_sections = _parse_programmatic_blob(programmatic_blob)
-
-    ugc = "".join(file_strings[1:])
-
-    sections = {
-        UGC_SECTION: ugc,
-    }
-    sections.update(programmatic_sections)
-    return sections
-
-
-def markdown_from_sections(sections: dict):
-    programmatic_blob = sections[HEADER_SECTION] \
-        + sections[COLUMN_DETAILS_SECTION]\
-        + sections[PARTITION_SECTION]\
-        + sections[USAGE_SECTION]
-
-    ugc_blob = sections[UGC_SECTION]
-    final_blob = UGC_DELIMITER.join([programmatic_blob, ugc_blob])
-    return final_blob
+from whalebuilder.utils.parsers import (
+    HEADER_SECTION,
+    COLUMN_DETAILS_SECTION,
+    PARTITION_SECTION,
+    UGC_SECTION,
+    METRICS_SECTION
+)
 
 
 class WhaleLoader(Loader):
@@ -118,7 +65,7 @@ class WhaleLoader(Loader):
         if not record:
             return
 
-        if type(record) == Watermark:
+        if type(record) in [MetricValue, Watermark]:
             table = record.table
         else:
             table = record.name
@@ -150,92 +97,15 @@ class WhaleLoader(Loader):
                 schema=schema,
                 table=table)
 
-        self.update_markdown(file_path, record)
+        update_markdown(file_path, record)
 
         if self.tmp_manifest_path is not None:
-            self._append_to_temp_manifest(
+            _append_to_temp_manifest(
                 database=database,
                 cluster=cluster,
                 schema=schema,
                 table=table,
                 tmp_manifest_path=self.tmp_manifest_path)
-
-    def update_markdown(self, file_path, record):
-        # Key (on record type) functions that take actions on a table stub
-        section_methods = {
-            Watermark: self._update_watermark
-        }
-
-        sections = sections_from_markdown(file_path)
-        # The table metadata record has both a header and column details. Add
-        # custom logic to handle both.
-        if type(record) == metadata_model_whale.TableMetadata:
-            table_details = \
-                re.split(COLUMN_DETAILS_DELIMITER, record.markdown_blob)
-            header = table_details[0]
-            column_details = "".join(table_details[1:])
-            sections[HEADER_SECTION] = header
-            # Since we split on COLUMN_DETAILS_DELIMITER, reintroduce it
-            sections[COLUMN_DETAILS_SECTION] = \
-                COLUMN_DETAILS_DELIMITER + column_details + "\n"
-        else:
-            section_method = section_methods[type(record)]
-            sections = section_method(sections, record)
-
-        new_file_text = markdown_from_sections(sections)
-        safe_write(file_path, new_file_text)
-
-    def _update_watermark(self, sections, record):
-        part_type = 'high' if record.part_type=='high_watermark' \
-            else 'low'
-        section_to_update = sections[PARTITION_SECTION]
-
-        existing_watermarks = self._get_watermarks_from_section(section_to_update)
-        if not existing_watermarks:
-            existing_watermarks = {}
-
-        for part in record.parts:
-            name, value = part
-            if name not in existing_watermarks:
-                existing_watermarks[name] = {}
-            existing_watermarks[name][part_type] = value
-
-        sections[PARTITION_SECTION] = PARTITIONS_DELIMITER + "\n```\n" \
-            + self._get_section_from_watermarks(existing_watermarks) + "```\n"
-        return sections
-
-    def _get_watermarks_from_section(self, section):
-        # Remove the delimiter
-        if section:
-            section = section.split(PARTITIONS_DELIMITER)[0]
-            if "```" in section:
-                sections_split_by_backtick = section.split("```")
-                section = "\n".join(sections_split_by_backtick)
-            watermarks = yaml.safe_load(section)
-        else:
-            watermarks = {}
-        return watermarks
-
-    def _get_section_from_watermarks(self, watermarks):
-        section = yaml.dump(watermarks)
-        return section
-
-    def _append_to_temp_manifest(
-            self,
-            database,
-            cluster,
-            schema,
-            table,
-            tmp_manifest_path=TMP_MANIFEST_PATH):
-        relative_file_path = get_table_file_path_relative(
-            database,
-            cluster,
-            schema,
-            table
-        )
-        with open(tmp_manifest_path, "a") as f:
-            f.write(relative_file_path + "\n")
-
 
     def close(self):
         pass
@@ -243,3 +113,125 @@ class WhaleLoader(Loader):
     def get_scope(self):
         # type: () -> str
         return "loader.whale"
+
+
+def update_markdown(file_path, record):
+    # Key (on record type) functions that take actions on a table stub
+    section_methods = {
+        MetricValue: _update_metric,
+        Watermark: _update_watermark
+    }
+
+    sections = sections_from_markdown(file_path)
+    # The table metadata record has both a header and column details. Add
+    # custom logic to handle both.
+    if type(record) == metadata_model_whale.TableMetadata:
+        table_details = \
+            re.split(COLUMN_DETAILS_DELIMITER, record.markdown_blob)
+        header = table_details[0]
+        column_details = "".join(table_details[1:])
+        sections[HEADER_SECTION] = header
+        # Since we split on COLUMN_DETAILS_DELIMITER, reintroduce it
+        sections[COLUMN_DETAILS_SECTION] = \
+            COLUMN_DETAILS_DELIMITER + column_details + "\n"
+    else:
+        section_method = section_methods[type(record)]
+        sections = section_method(sections, record)
+
+    if hasattr(record, "record"):
+        record.record()
+
+    new_file_text = markdown_from_sections(sections)
+    safe_write(file_path, new_file_text)
+
+
+def format_yaml_section(section, delimiter):
+    return delimiter + "\n```\n" + section + "```\n"
+
+
+def _update_watermark(sections, record):
+    part_type = 'high' if record.part_type=='high_watermark' \
+        else 'low'
+    section_to_update = sections[PARTITION_SECTION]
+
+    existing_watermarks = _get_data_from_section(section_to_update, PARTITIONS_DELIMITER)
+
+    for part in record.parts:
+        name, value = part
+        if name not in existing_watermarks:
+            existing_watermarks[name] = {}
+        existing_watermarks[name][part_type] = value
+
+    section = _get_section_from_watermarks(existing_watermarks)
+    sections[PARTITION_SECTION] = format_yaml_section(section, PARTITIONS_DELIMITER)
+    return sections
+
+
+def _get_data_from_section(section, delimiter):
+    # Remove the delimiter
+    if section:
+        section = section.split(delimiter)[0]
+        if "```" in section:
+            sections_split_by_backtick = section.split("```")
+            section = "\n".join(sections_split_by_backtick)
+        data = yaml.safe_load(section)
+        if data is None:
+            data = {}
+    else:
+        data = {}
+    return data
+
+
+def _get_section_from_watermarks(watermarks):
+    section = yaml.dump(watermarks)
+    return section
+
+
+def _update_metric(sections, record):
+    section_to_update = sections[METRICS_SECTION]
+    metrics_dict = _get_metrics_from_section(section_to_update)
+
+    metrics_dict[record.name] = {
+        "execution_time": record.execution_time,
+        "value": record.value
+    }
+    new_section = _get_section_from_metrics(metrics_dict)
+    sections[METRICS_SECTION] = format_yaml_section(new_section, METRICS_DELIMITER)
+    return sections
+
+
+def _get_metrics_from_section(section):
+    metrics_dict = {}
+    raw_metrics_dict = _get_data_from_section(section, METRICS_DELIMITER)
+    for metric_name, value_string in raw_metrics_dict.items():
+        payload = value_string.split("@")
+
+        metrics_dict[metric_name] = {
+            "execution_time": payload[1].strip(),
+            "value": payload[0].strip()
+        }
+    return metrics_dict
+
+def _get_section_from_metrics(metrics):
+    markdown_blobs = []
+    for metric, metric_details in metrics.items():
+        markdown_blob = \
+            f"{metric}: {metric_details['value']} @ {metric_details['execution_time']}\n"
+        markdown_blobs.append(markdown_blob)
+    return "".join(markdown_blobs)
+
+def _append_to_temp_manifest(
+        database,
+        cluster,
+        schema,
+        table,
+        tmp_manifest_path=TMP_MANIFEST_PATH):
+    relative_file_path = get_table_file_path_relative(
+        database,
+        cluster,
+        schema,
+        table
+    )
+    with open(tmp_manifest_path, "a") as f:
+        f.write(relative_file_path + "\n")
+
