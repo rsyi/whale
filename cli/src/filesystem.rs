@@ -195,7 +195,7 @@ pub fn get_open_command() -> std::string::String {
 pub fn get_recently_used_filename() -> std::string::String {
     let path = format!("{}/{}",
                        get_logs_dirname(),
-                       "recenty_used.txt");
+                       "recently_used.txt");
     path
 }
 
