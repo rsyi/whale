@@ -16,7 +16,7 @@ logging.basicConfig(
     level=logging.INFO)
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger("whalebuilder")
 LOGGER.addHandler(logging.StreamHandler())
 
 start_time = datetime.now()
