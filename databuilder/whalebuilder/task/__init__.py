@@ -1,8 +1,11 @@
 import csv
+import logging
 import os
 from datetime import datetime
 from databuilder.task.task import DefaultTask
 from whalebuilder.utils.paths import TABLE_COUNT_PATH
+
+LOGGER = logging.getLogger(__name__)
 
 
 class WhaleTask(DefaultTask):
@@ -32,6 +35,7 @@ class WhaleTask(DefaultTask):
             self._closer.close()
 
     def save_stats(self):
+        LOGGER.info("Saving task-level statistics.")
         has_headers = os.path.isfile(TABLE_COUNT_PATH)
 
         with open(TABLE_COUNT_PATH, "a") as csvfile:
