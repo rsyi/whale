@@ -1,3 +1,4 @@
+import logging
 import os
 import subprocess
 import yaml
@@ -29,6 +30,8 @@ from whalebuilder.utils.extractor_wrappers import (
         configure_redshift_extractors,
         configure_snowflake_extractors,
         run_build_script)
+
+LOGGER = logging.getLogger(__name__)
 
 
 def create_and_run_tasks_from_yaml(verbose=True):
@@ -73,19 +76,26 @@ def create_and_run_tasks_from_yaml(verbose=True):
         conf.put(manifest_key, tmp_manifest_path)
 
         for i, extractor in enumerate(extractors):
+            is_metadata_extractor = i == 0
             task = WhaleTask(
                 extractor=extractor,
                 transformer=MarkdownTransformer(),
                 loader=WhaleLoader(),
             )
             task.init(conf)
-            task.run()
 
-            # The first extractor passes all tables, always
-            # No need to update the manifest after the first time
-            if i == 0:
+            # Enable try except for non-metadata extractors
+            # No need to update the manifest for other extractors
+            if is_metadata_extractor:
+                task.run()
                 task.save_stats()
                 conf.pop(manifest_key)
                 copy_manifest(tmp_manifest_path)
+            else:
+                try:
+                    task.run()
+                except Exception as e:
+                    LOGGER.warning(e)
+                    LOGGER.warning(f"Skipping {type(extractor)}.")
 
     transfer_manifest(tmp_manifest_path)
