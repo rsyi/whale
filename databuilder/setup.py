@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setuptools.setup(
     name='whalebuilder',
-    version='0.0.0b4',
+    version='1.0.0b0',
     author='Robert Yi',
     author_email='robert@ryi.me',
     description="A pared-down metadata ETL library.",
