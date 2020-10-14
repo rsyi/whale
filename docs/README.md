@@ -10,7 +10,7 @@ brew install dataframehq/tap/whale
 
 ### All others
 
-To manually compile and install, you'll have to \(a\) clone the whale repository and run \(b\)**`make && make install`** in the base directory of the repo. These steps are encapsulated in the following commands:
+To manually compile and install, you'll have to \(a\) clone the whale repository and run \(b\)**`make && make install`** in the base directory of the repo:
 
 ```text
 git clone https://github.com/dataframehq/whale.git
@@ -18,17 +18,11 @@ cd whale/
 make && make install
 ```
 
-
-
 The Makefile commands don't explicitly add an alias for the `whale` binary, so you'll want to add the following alias to your `.bash_profile` or `.zshrc` file.
 
 ```text
 alias wh=~/.whale/bin/wh
 ```
-
-{% hint style="info" %}
-_**Developer's note:** if you are developing and want to recompile, make sure to delete `./dist` on each rebuild or `pyinstaller` won't rebuild the python binary._
-{% endhint %}
 
 ### Advanced syntax highlighting
 

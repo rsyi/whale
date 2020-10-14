@@ -6,7 +6,7 @@ We provide access to warehouse configuration through the `~/.whale/config/connec
 
 ```text
 ---
-name: bq-1
+name: ~
 metadata_source: ~
 
 ```

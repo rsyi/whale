@@ -22,7 +22,7 @@ wh git-setup <YOUR_GIT_REMOTE>
 
 ### Creating a CI/CD pipeline using github actions
 
-Next, you'll need to set up a CI/CD pipeline to handle the scraping of metadata for you. Below, we illustrate how to do this through **github actions**, but the steps can be easily adapted to any CI/CD platform. In short, we: \(a\) install the python library on the CI/CD runner with `make`, \(b\) run the etl process by running `python3 build_script.py`, and \(c\) push these changes back to the repo.
+Next, you'll need to set up a CI/CD pipeline to handle the scraping of metadata for you. Below, we illustrate how to do this through **github actions**, but the steps can be easily adapted to any CI/CD platform. In short, we: \(a\) clone the repo into `~/.whale`, \(b\) install the python library, \(c\) update the metadata, and \(c\) push these changes back to the repo.
 
 Begin by creating a local directory for your github actions workflows:
 
@@ -31,7 +31,7 @@ cd ~/.whale
 mkdir -p .github/workflows
 ```
 
-Then, within `.github/workflows`, create a new file \(e.g. `metadata.yml`\), paste in the following file \(change `<YOUR_GIT_USERNAME>`\), then `git add`, `commit`, & `push` to master.
+Then, within `.github/workflows`, create a new file \(e.g. `metadata.yml`\), paste in the following file, then `git add`, `commit`, & `push` to master.
 
 ```text
 name: Whale ETL
@@ -41,25 +41,33 @@ on:
 
 jobs:
   run-etl:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.7'
+      - uses: actions/checkout@v2
+      - name: install
+        run: |
+          cp -r . ~/.whale/
+      - uses: actions/checkout@v2
+        with:
+          repository: dataframehq/whale
+          path: whale
       - name: etl
+        working-directory: ./whale
         run: |
           make python
+          mkdir ~/.whale/logs
           source ./build/env/bin/activate
-          python ./build/build_script
-      - name: sync
-        run: |
+          python ./build/build_script.py
           cd ~/.whale
-          git config --global user.name 'GHA Runner'
-          git config --global user.email '<YOUR_GIT_USERNAME>@users.noreply.github.com'
-          git add metadata manifests
-          git commit -am "Automated push." || echo "No changes to commit"
+          git config user.name 'GHA Runner'
+          git config user.email '<your_username>@users.noreply.github.com'
+          git add .
+          git commit -m "Automated push." || echo "No changes to commit"
           git push
+
 ```
 
 ### Update your local whale instance
@@ -73,7 +81,7 @@ wh git-enable
 This will add a `is_git_etl_enabled: "true"` flag to the file located at `~/.whale/config/config.yaml`. This file can be accessed by running `wh config` and manually edited at any point to turn the flag off.
 
 {% hint style="warning" %}
-If you previously commented the `wh pull` job from `crontab -e`, you should uncomment this \(or add scheduling in by running `wh schedule`\). While the `is_git_etl_enabled` flag is `true`, `wh pull` \(and your cron job\) will ignore any warehouse connections and only run`git pull --autostash --rebase`.
+If you previously commented the `wh pull` job from `crontab -e`, you should uncomment this \(or add scheduling in by running `wh schedule`\). Your cron job will now ignore any warehouse connections and instead run rebase over your remote.
 {% endhint %}
 
 While programmatic `git` actions in other situations can be a bit dangerous, whale's file formatting ensures that this will be done in debuggable and easily resolvable manner. Because the only local command run is the `git pull --autostash --rebase` command, your personal edits will be saved as merge conflicts, still viewable in the respective files \(and therefore, through `wh`\). If such conflicts arise, we will surface this to you through a warning when running `wh`, and they should be simple to address.
