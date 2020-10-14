@@ -3,6 +3,7 @@ build_dir:=./build
 install_dir:=${base_dir}/bin
 dependency_binary_dir:=${base_dir}/libexec
 python_directory:=databuilder
+python3_alias:=python3
 
 .PHONY: all
 all: python
@@ -11,7 +12,7 @@ all: python
 .PHONY: python
 python:
 	mkdir -p ${build_dir}
-	python3 -m venv ${build_dir}/env
+	${python3_alias} -m venv ${build_dir}/env
 	. ${build_dir}/env/bin/activate && pip3 install -r ${python_directory}/requirements.txt && pip3 install ${python_directory}/.
 	cp ${python_directory}/build_script.py ${build_dir}
 
@@ -25,7 +26,7 @@ install:
 
 .PHONY: test_python
 test_python:
-	python3 -b -m pytest ${python_directory}/tests
+	${python3_alias} -b -m pytest ${python_directory}/tests
 	pytest --cov=whalebuilder --cov-report=xml ${python_directory}/tests/
 	flake8 ${python_directory}/whalebuilder/. --exit-zero
 
