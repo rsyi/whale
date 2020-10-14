@@ -28,8 +28,7 @@ class MetricRunner(SQLAlchemyEngine):
 
     def init(self, conf):
         self.conf = conf.with_fallback(self.DEFAULT_CONFIG)
-        sql_alch_conf = Scoped.get_scoped_conf(self.conf, SQLALCHEMY_ENGINE_SCOPE)
-        super().init(sql_alch_conf)
+        self.sql_alch_conf = Scoped.get_scoped_conf(self.conf, SQLALCHEMY_ENGINE_SCOPE)
 
         self.database = self.conf.get(MetricRunner.DATABASE_KEY)
         table_stub_paths = self.conf.get("table_stub_paths")
@@ -65,6 +64,8 @@ class MetricRunner(SQLAlchemyEngine):
 
     def _get_extract_iter(self):
         # Loop through all table stubs that contain ```metrics
+        if self.table_stub_paths:
+            super().init(self.sql_alch_conf)
         for table_stub_path in self.table_stub_paths:
             database, cluster, schema, table = get_table_info_from_path(table_stub_path)
             metric_yamls = self._get_metrics_queries_from_table_stub_path(table_stub_path)
