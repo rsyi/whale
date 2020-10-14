@@ -2,10 +2,15 @@ import os
 import subprocess
 import yaml
 
+from pathlib import Path
+
 from whalebuilder.utils.paths import (  # noqa: F401
     BASE_DIR,
     CONNECTION_PATH,
+    LOGS_DIR,
+    MANIFEST_DIR,
     MANIFEST_PATH,
+    METRICS_PATH,
     METADATA_PATH,
     TMP_MANIFEST_PATH
 )
@@ -27,6 +32,9 @@ from whalebuilder.utils.extractor_wrappers import (
 
 
 def create_and_run_tasks_from_yaml(verbose=True):
+    for path in [LOGS_DIR, MANIFEST_DIR, METADATA_PATH, METRICS_PATH]:
+        Path(path).mkdir(parents=True, exist_ok=True)
+
     with open(CONNECTION_PATH) as f:
         raw_connection_dicts = list(yaml.safe_load_all(f))
 
