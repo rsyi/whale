@@ -66,7 +66,7 @@ class FormatterMixin():
         if columns:
             column_template_no_desc = "* {buffered_type} `{name}`"
             column_template = \
-                column_template_no_desc + "\n - {description}"
+                column_template_no_desc + "\n  - {description}"
             formatted_columns_list = []
 
             for column in columns:
