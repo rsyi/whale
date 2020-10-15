@@ -3,7 +3,6 @@ neo4j-driver==1.7.2
 mock
 tabulate
 pyaml
-psycopg2==2.8.6
 psycopg2-binary==2.8.6
 pybigquery==0.4.15
 pyhive
