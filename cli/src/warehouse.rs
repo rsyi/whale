@@ -369,7 +369,7 @@ impl HiveMetastore {
             password = Some(password_tmp);
         }
 
-        let dialect_msg = "What is the dialect of this metastore? E.g. mysql, postgres. This is the dialect type that is used in the SQLAlchemy connection string. See https://docs.sqlalchemy.org/en/13/core/engines.html for more details.";
+        let dialect_msg = "What is the dialect of this metastore? E.g. postgres. This is the dialect type that is used in the SQLAlchemy connection string. See https://docs.sqlalchemy.org/en/13/core/engines.html for more details.";
         let dialect = utils::get_input_with_message(&dialect_msg);
 
         let database: Option<String>;
