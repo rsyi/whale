@@ -16,6 +16,7 @@ python:
 	mkdir -p ${build_dir}
 	${python3_alias} -m venv ${build_dir}/env
 	. ${build_dir}/env/bin/activate && pip3 install -r ${python_directory}/requirements.txt
+	pip3 install wheel
 	pip3 wheel ${python_directory}/. --wheel-dir=${wheel_dir}
 	pip3 install whalebuilder --no-index --find-links=${wheel_dir}
 	cp ${python_directory}/build_script.py ${build_dir}
