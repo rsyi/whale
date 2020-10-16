@@ -5,16 +5,7 @@ import yaml
 
 from pathlib import Path
 
-from whalebuilder.utils.paths import (  # noqa: F401
-    BASE_DIR,
-    CONNECTION_PATH,
-    LOGS_DIR,
-    MANIFEST_DIR,
-    MANIFEST_PATH,
-    METRICS_PATH,
-    METADATA_PATH,
-    TMP_MANIFEST_PATH
-)
+from whalebuilder.utils import paths
 from whalebuilder.task import WhaleTask
 from whalebuilder.loader.whale_loader import WhaleLoader
 from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
@@ -22,32 +13,36 @@ from whalebuilder.utils.connections import dump_connection_config_in_schema
 from whalebuilder.utils import copy_manifest, transfer_manifest
 
 from whalebuilder.utils.extractor_wrappers import (
-        configure_bigquery_extractors,
-        configure_hive_metastore_extractors,
-        configure_neo4j_extractors,
-        configure_postgres_extractors,
-        configure_presto_extractors,
-        configure_redshift_extractors,
-        configure_snowflake_extractors,
-        run_build_script)
+    configure_bigquery_extractors,
+    configure_hive_metastore_extractors,
+    configure_neo4j_extractors,
+    configure_postgres_extractors,
+    configure_presto_extractors,
+    configure_redshift_extractors,
+    configure_snowflake_extractors,
+    run_build_script)
 
 LOGGER = logging.getLogger(__name__)
 
 
 def create_and_run_tasks_from_yaml(verbose=True):
-    for path in [LOGS_DIR, MANIFEST_DIR, METADATA_PATH, METRICS_PATH]:
+    for path in [paths.CONFIG_DIR, paths.LOGS_DIR, paths.MANIFEST_DIR, paths.METADATA_PATH, paths.METRICS_PATH]:
+        print(path)
         Path(path).mkdir(parents=True, exist_ok=True)
 
-    with open(CONNECTION_PATH) as f:
-        raw_connection_dicts = list(yaml.safe_load_all(f))
+    if os.path.exists(paths.CONNECTION_PATH):
+        with open(paths.CONNECTION_PATH, "r") as f:
+            raw_connection_dicts = list(yaml.safe_load_all(f))
+    else:
+        raw_connection_dicts = []
 
     # Create a manifest
     # If another ETL job is running, put the manifest elsewhere
-    tmp_manifest_path = TMP_MANIFEST_PATH
+    tmp_manifest_path = paths.TMP_MANIFEST_PATH
     i = 0
     while os.path.exists(tmp_manifest_path):
         tmp_manifest_path = os.path.join(
-            BASE_DIR,
+            paths.BASE_DIR,
             "manifests/tmp_manifest_" + str(i) + ".txt")
         i += 1
 

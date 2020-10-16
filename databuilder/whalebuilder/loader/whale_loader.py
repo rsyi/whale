@@ -13,7 +13,7 @@ from whalebuilder.utils import (
     get_table_file_path_relative,
     safe_write
 )
-from whalebuilder.utils.paths import TMP_MANIFEST_PATH
+from whalebuilder.utils import paths
 from whalebuilder.utils.parsers import (
     parse_programmatic_blob,
     parse_ugc,
@@ -44,8 +44,8 @@ class WhaleLoader(Loader):
     Loader class to format metadata as as a markdown doc for whale.
     """
     DEFAULT_CONFIG = ConfigFactory.from_dict({
-        'base_directory': os.path.join(Path.home(), '.whale/metadata/'),
-        'tmp_manifest_path': TMP_MANIFEST_PATH,
+        'base_directory': paths.METADATA_PATH,
+        'tmp_manifest_path': paths.TMP_MANIFEST_PATH,
     })
 
     def init(self, conf: ConfigTree):
@@ -54,6 +54,7 @@ class WhaleLoader(Loader):
         self.tmp_manifest_path = self.conf.get_string('tmp_manifest_path', None)
         self.database_name = self.conf.get_string('database_name', None)
         Path(self.base_directory).mkdir(parents=True, exist_ok=True)
+        Path(paths.MANIFEST_DIR).mkdir(parents=True, exist_ok=True)
 
     def load(self, record) -> None:
         """
@@ -86,6 +87,7 @@ class WhaleLoader(Loader):
         )
 
         file_path = table_file_path_base + '.md'
+        print("FILE_PATH_BEING_WRITTEN", file_path)
         subdirectory = '/'.join(file_path.split('/')[:-1])
         Path(subdirectory).mkdir(parents=True, exist_ok=True)
 
@@ -225,7 +227,7 @@ def _append_to_temp_manifest(
         cluster,
         schema,
         table,
-        tmp_manifest_path=TMP_MANIFEST_PATH):
+        tmp_manifest_path=paths.TMP_MANIFEST_PATH):
     relative_file_path = get_table_file_path_relative(
         database,
         cluster,

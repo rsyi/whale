@@ -2,7 +2,7 @@ import os
 import shutil
 from pathlib import Path
 from whalebuilder.utils.markdown_delimiters import UGC_DELIMITER
-from whalebuilder.utils.paths import MANIFEST_PATH, TMP_MANIFEST_PATH
+from whalebuilder.utils import paths
 
 TABLE_RELATIVE_FILE_PATH = '{database}/{cluster}.{schema}.{table}'
 CLUSTERLESS_TABLE_RELATIVE_FILE_PATH = '{database}/{schema}.{table}'
@@ -13,7 +13,7 @@ def get_table_file_path_base(
         cluster,
         schema,
         table,
-        base_directory=os.path.join(Path.home(), '.whale/metadata/')
+        base_directory=paths.METADATA_PATH
         ):
 
     relative_file_path = get_table_file_path_relative(
@@ -87,8 +87,11 @@ def safe_write(file_path_to_write, text_to_write, tmp_extension=".bak"):
 
 
 def transfer_manifest(tmp_manifest_path):
-    os.rename(tmp_manifest_path, MANIFEST_PATH)
+    if os.path.exists(tmp_manifest_path):
+        os.rename(tmp_manifest_path, paths.MANIFEST_PATH)
+    else:
+        print("No tmp manifest created.")
 
 
 def copy_manifest(tmp_manifest_path):
-    shutil.copy(tmp_manifest_path, MANIFEST_PATH)
+    shutil.copy(tmp_manifest_path, paths.MANIFEST_PATH)
