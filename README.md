@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/whale_logo.svg" width="600"/></p>
 
-![](https://github.com/rsyi/whale/workflows/CD/badge.svg) ![](https://github.com/rsyi/whale/workflows/CI/badge.svg) ![codecov](https://codecov.io/gh/dataframehq/whale/branch/master/graph/badge.svg)
+![](https://github.com/dataframehq/whale/workflows/CD/badge.svg) ![](https://github.com/dataframehq/whale/workflows/CI/badge.svg) ![codecov](https://codecov.io/gh/dataframehq/whale/branch/master/graph/badge.svg)
 
 `whale` is a blazingly fast CLI **data warehouse command-line explorer and documentation tool**. It periodically pulls table and column info from your warehouse and makes it locally searchable and editable.
 
@@ -11,7 +11,7 @@
 ### Mac OS
 
 ```text
-brew install rsyi/tap/whale
+brew install dataframehq/tap/whale
 ```
 
 ### Building from source
