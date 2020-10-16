@@ -1,6 +1,6 @@
 # Git setup
 
-## Overview
+### Overview
 
 Outside of personal use, whale can also be used collaboratively by setting up a git repository \(e.g. github\) to function as a centralized source of truth for your organization, with metadata being periodically updated through CI/CD pipelines. This is possible because the metadata and user-generated content accessed by whale are stored as markdown in the `~/.whale` subdirectory.
 
@@ -64,7 +64,7 @@ jobs:
           cd ~/.whale
           git config user.name 'GHA Runner'
           git config user.email '<your_username>@users.noreply.github.com'
-          git add .
+          git add metadata metrics manifests
           git commit -m "Automated push." || echo "No changes to commit"
           git push
 
@@ -117,4 +117,6 @@ run: |
 env:
   BIGQUERY_JSON: ${{ secrets.BIGQUERY_JSON }}
 ```
+
+
 
