@@ -38,7 +38,7 @@ class WhaleTask(DefaultTask):
         LOGGER.info("Saving task-level statistics.")
         has_headers = os.path.isfile(paths.TABLE_COUNT_PATH)
 
-        with open(TABLE_COUNT_PATH, "a") as csvfile:
+        with open(paths.TABLE_COUNT_PATH, "a") as csvfile:
             headers = ["start_time", "database_name", "number_tables"]
             writer = csv.DictWriter(csvfile,
                 delimiter=",",
