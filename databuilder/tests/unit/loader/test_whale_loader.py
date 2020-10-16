@@ -38,7 +38,7 @@ def test_load_no_catalog(patched_config):
     loader.load(record)
 
     loader.close()
-    file_path = os.path.join(paths.METADATA_PATH, 'mock_database/mock_schema.mock_table.md')
+    file_path = os.path.join(patched_config.get("base_directory"), 'mock_database/mock_schema.mock_table.md')
     with open(file_path, 'r') as f:
         written_record = f.read()
 
@@ -57,7 +57,7 @@ def test_load_catalog_specified(patched_config):
     loader.load(record)
 
     loader.close()
-    file_path = os.path.join(paths.METADATA_PATH, 'mock_database/mock_catalog.mock_schema.mock_table.md')
+    file_path = os.path.join(patched_config.get("base_directory"), 'mock_database/mock_catalog.mock_schema.mock_table.md')
     with open(file_path, 'r') as f:
         written_record = f.read()
 
