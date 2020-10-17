@@ -96,6 +96,8 @@ wh schedule
 wh git-enable
 ```
 
+Make sure to not have an existing `~/.whale` directory or the clone will fail.
+
 ## Advanced usage
 
 ### Storing credentials
