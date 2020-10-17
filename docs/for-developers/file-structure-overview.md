@@ -16,7 +16,8 @@ Whale installs all files within the `~/.whale` path. This path contains the foll
 ├── libexec
 ├── logs
 ├── manifests
-└── metadata
+├── metadata
+└── metrics
 ```
 
 ## Subdirectories
@@ -58,4 +59,8 @@ This logic and the manifests within generally need not be understood by the end-
 ### metadata
 
 The metadata directory stores all warehouse metadata. When typing `enter` on a selected `wh`-searched file, documents within this directory are opened.
+
+### metrics
+
+The metrics directory stores all calculated metrics \(along with a timestamp of when the metrics were calculated\). The folder structure follows the same structure as the metadata folder, except the table name is used as a folder to house \(and prevent collisions over\) metric names: `warehouse_name/catalog.schema.table/metric-name.md`.
 

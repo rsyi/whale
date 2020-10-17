@@ -10,7 +10,7 @@ brew install dataframehq/tap/whale
 
 ### All others
 
-To manually compile and install, you'll have to \(a\) clone the whale repository and run \(b\)**`make && make install`** in the base directory of the repo:
+All other systems should \(a\) clone the whale repository and run \(b\)**`make && make install`** in the base directory of the repo:
 
 ```text
 git clone https://github.com/dataframehq/whale.git
@@ -23,6 +23,8 @@ The Makefile commands don't explicitly add an alias for the `whale` binary, so y
 ```text
 alias wh=~/.whale/bin/wh
 ```
+
+This method is generally preferred for development as well, as the virtual environment is exposed and modifiable in `~/.whale/libexec/env`.
 
 ### Advanced syntax highlighting
 

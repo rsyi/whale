@@ -11,6 +11,7 @@
 ## Additional features <a id="features"></a>
 
 * [Metrics](features/metrics.md)
+* [Running SQL queries](features/running-sql-queries.md)
 
 ## Customization
 

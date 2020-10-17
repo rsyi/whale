@@ -2,7 +2,7 @@
 
 ### Overview
 
-Outside of personal use, whale can also be used collaboratively by setting up a git repository \(e.g. github\) to function as a centralized source of truth for your organization, with metadata being periodically updated through CI/CD pipelines. This is possible because the metadata and user-generated content accessed by whale are stored as markdown in the `~/.whale` subdirectory.
+Whale supports a robust, lightweight GUI and hosted backend through github and github actions \(though any git remote server + CI/CD system works\). This is possible because the metadata and user-generated content accessed by whale are stored as markdown in the `~/.whale` subdirectory.
 
 ## Getting started
 
