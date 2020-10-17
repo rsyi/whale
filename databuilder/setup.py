@@ -1,5 +1,10 @@
+from os import path
 import setuptools
 from setuptools import find_packages
+
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setuptools.setup(
     name='whalebuilder',
@@ -7,6 +12,8 @@ setuptools.setup(
     author='Robert Yi',
     author_email='robert@ryi.me',
     description="A pared-down metadata scraper + SQL runner.",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/dataframehq/whale',
     python_requires='>=3.6',
     packages=find_packages(),
