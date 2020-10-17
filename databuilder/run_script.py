@@ -4,7 +4,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Run a query.')
 parser.add_argument('filename')
-parser.add_argument('warehouse_name')
+parser.add_argument("--w", dest='warehouse_name', default=None)
 args = parser.parse_args()
 
 with open(args.filename, "r") as f:

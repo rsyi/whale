@@ -31,4 +31,7 @@ def get_connection(warehouse_name=None):
             raise Exception(
                 f"Warehouse `{warehouse_name}` not found in ~/.whale/config/connections.yaml.")
     else:
-        return raw_connection_dicts[0]
+        if raw_connection_dicts:
+            return raw_connection_dicts[0]
+        else:
+            return {}
