@@ -13,7 +13,7 @@ setuptools.setup(
     install_requires=[
         'amundsen-databuilder>=2.0.0',
         'pandas',
-        'pyaml',
+        'pyyaml',
         'pyhocon>=0.3.42',
         'SQLAlchemy>=1.3.19'
     ],
