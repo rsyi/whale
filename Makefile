@@ -15,7 +15,7 @@ python:
 	mkdir -p ${build_dir}
 	mkdir -p ${dependency_binary_dir}
 	${python3_alias} -m venv ${dependency_binary_dir}/env
-	. ${dependency_binary_dir}/env/bin/activate && pip3 install -r ${python_directory}/requirements.txt --use-feature=2020-resolver && pip3 install ${python_directory}/.
+	. ${dependency_binary_dir}/env/bin/activate && pip3 install -r ${python_directory}/requirements.txt && pip3 install ${python_directory}/.
 	cp ${python_directory}/build_script.py ${dependency_binary_dir}
 	cp ${python_directory}/run_script.py ${dependency_binary_dir}
 
