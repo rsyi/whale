@@ -1,5 +1,4 @@
 base_dir:=~/.whale
-build_dir:=./build
 install_dir:=${base_dir}/bin
 dependency_binary_dir:=${base_dir}/libexec
 python_directory:=databuilder
@@ -12,7 +11,6 @@ rust:
 
 .PHONY: python
 python:
-	mkdir -p ${build_dir}
 	mkdir -p ${dependency_binary_dir}
 	${python3_alias} -m venv ${dependency_binary_dir}/env
 	. ${dependency_binary_dir}/env/bin/activate && pip3 install -r ${python_directory}/requirements.txt && pip3 install ${python_directory}/.
