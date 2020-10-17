@@ -1,43 +1,42 @@
 # Git setup
 
-### Overview
+## Overview
 
-Whale supports a robust, lightweight GUI and hosted backend through github and github actions \(though any git remote server + CI/CD system works\). This is possible because the metadata and user-generated content accessed by whale are stored as markdown in the `~/.whale` subdirectory.
+Whale supports a free hosted backend + lightweight GUI through github and github actions \(though any git remote server + CI/CD system will work - you'll simply have to [write your own config](getting-started-for-teams.md#manual-setup)\). This is possible because the metadata and user-generated content accessed by whale are stored as markdown in the `~/.whale` subdirectory.
+
+We have provided a series of simple commands and instructions to get started easily, but these can be [executed manually quite easily](getting-started-for-teams.md#advanced-usage) as well.
 
 ## Getting started
 
-### Setting up .whale/ as a git repository
+### Set up ~/.whale/ as a git repository
 
-If you haven't already, start by installing whale locally, following the [Getting started](../#installation) guide.
+Run the following command to set up and push your `~/.whale` directory to the provided git remote \(replace `<YOUR_GIT_REMOTE>` with your git address\). This will add a `.gitignore` file, add all files, and push to your git remote server.
 
 {% hint style="warning" %}
-While you're going through this process, it may be prudent to **disable any local etl runs** by running `crontab -e` and commenting out \(with `#`\) the appropriate `wh pull` line.
+This will also push your `connections.yaml` file to your repo. If you'd like to avoid doing this, `mv` your `~/.whale/config/connections.yaml` file elsewhere first and see [**Advanced usage**](getting-started-for-teams.md#advanced-usage).
 {% endhint %}
-
-Then run the following command to set up and push your `~/.whale` directory to the provided git remote \(replace `<YOUR_GIT_REMOTE>` with your git address\).
 
 ```text
 wh git-setup <YOUR_GIT_REMOTE>
 ```
 
-### Creating a CI/CD pipeline using github actions
+### Set up a CI/CD pipeline to scrape metadata
 
-Next, you'll need to set up a CI/CD pipeline to handle the scraping of metadata for you. Below, we illustrate how to do this through **github actions**, but the steps can be easily adapted to any CI/CD platform. In short, we: \(a\) clone the repo into `~/.whale`, \(b\) install the python library, \(c\) update the metadata, and \(c\) push these changes back to the repo.
+Below, we illustrate how to set up **github actions** to scrape metadata for you, but the steps can be [easily adapted to any CI/CD platform](getting-started-for-teams.md#manual-setup). We chose github actions because github supplies 2000 free minutes/month, even for private repos and organizations, which is generally more than enough to cover these simple scraping jobs.
 
-Begin by creating a local directory for your github actions workflows:
+First, create a local directory for your github actions workflows:
 
 ```text
-cd ~/.whale
-mkdir -p .github/workflows
+mkdir -p ~/.whale/.github/workflows
 ```
 
-Then, within `.github/workflows`, create a new file \(e.g. `metadata.yml`\), paste in the following file, then `git add`, `commit`, & `push` to master.
+Then, within this directory, create a new file \(e.g. `metadata.yml`\), paste in the following file, then `git add`, `commit`, & `push` to master.
 
 ```text
 name: Whale Runner
 on:
   schedule:
-   - cron: "0 */6 * * *"
+   - cron: "0 */12 * * *"
 
 jobs:
   run-etl:
@@ -87,15 +86,13 @@ wh git-enable
 
 This will add a `is_git_etl_enabled: "true"` flag to the file located at `~/.whale/config/config.yaml`. This file can be accessed by running `wh config` and manually edited at any point to turn the flag off.
 
-{% hint style="warning" %}
-If you previously commented the `wh pull` job from `crontab -e`, you should uncomment this \(or add scheduling in by running `wh schedule`\). Your cron job will now ignore any warehouse connections and instead run rebase over your remote.
+{% hint style="info" %}
+While programmatic `git` commands can be a bit dangerous, whale's file formatting ensures that this is done in debuggable and easily resolvable manner. Because the only local command run is the `git pull --autostash --rebase` command, your personal edits will be saved as merge conflicts, still viewable in the respective files \(and therefore, through `wh`\). If such conflicts arise, we will surface this to you through a warning when running `wh`, and they should be simple to address.
 {% endhint %}
-
-While programmatic `git` actions in other situations can be a bit dangerous, whale's file formatting ensures that this will be done in debuggable and easily resolvable manner. Because the only local command run is the `git pull --autostash --rebase` command, your personal edits will be saved as merge conflicts, still viewable in the respective files \(and therefore, through `wh`\). If such conflicts arise, we will surface this to you through a warning when running `wh`, and they should be simple to address.
 
 ### Team setup
 
-Now that you've set up a git remote as your SSOT, have others [Install whale](../), then run the following series of commands to clone your central repo and set up a cron job to periodically rebase onto your remote:
+Now that you've set up a git as your SSOT, have others [Install whale](../), then run the following series of commands to clone your central repo and set up a cron job to periodically rebase onto your remote:
 
 ```text
 git clone <YOUR_GIT_REMOTE> ~/.whale
@@ -107,16 +104,33 @@ Make sure to not have an existing `~/.whale` directory or the clone will fail.
 
 ## Advanced usage
 
+### Manual setup
+
+Though we have enabled convenient install hooks to make this git setup process easy, if you're familiar with git and a CI/CD platform, it is quite simple to implement all of this manually. In short, `wh git-setup` is doing the following:
+
+* Creating a [`.gitignore` file](https://github.com/dataframehq/whale-bigquery-public-data/blob/master/.gitignore).
+* `git add . && git commit -m "Whale on our way" && git push`
+
+If you would rather not install the command-line tool, you can therefore simply create a repo, manually create a `credentials.yaml` file in `config/credentials.yaml`, and create a CI/CD pipeline that does the following \(or use our github action above\):
+
+* Checkout your repo, and copy it to `~/.whale` on your CI/CD runner.
+* Install python.
+* `pip install whalebuilder`
+* Run `python -c 'import whalebuilder as wh; wh.run()'`.
+* Push the results back to git.
+
+If you want improved logging, see [here](https://github.com/dataframehq/whale/blob/master/databuilder/build_script.py) for an example \(in short, simply `import logging` and adjust the logging level\).
+
 ### Storing credentials
 
-If storing credentials as plaintext is a concern, a temporary workaround is to simply save the full `connections.yaml` file as a github secret, then echo this into the `~/.whale/config/connections.yaml` file.
+If storing credentials as plaintext is a concern, a hacky workaround is to simply save the full `connections.yaml` file as a secret, then echo this into the `~/.whale/config/connections.yaml` file. For example, with github actions:
 
 ```text
 run: |
   echo '${{ secrets.CONNECTIONS }}' > ~/.whale/config/connections.yaml
 ```
 
-For Bigquery, specifically, the credentials file alone could alternatively be echoed at schedule-time into the correct path, as follows:
+For Bigquery, specifically, the credentials file alone could alternatively be echoed at runtime into the correct path, as follows:
 
 ```text
 run: |

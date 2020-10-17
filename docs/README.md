@@ -30,9 +30,9 @@ This method is generally preferred for development as well, as the virtual envir
 
 We highly recommend installing [`bat`](https://github.com/sharkdp/bat) to enable advanced syntax highlighting \(once detected, whale will use `bat` over `cat` automatically\).
 
-## Quick start
+## Quick start \(local usage\)
 
-To walk through the setup process, run the following in your terminal **\(this can be run again in the future if you need to add more warehouses, so feel free to quit part-way\)**:
+Start by running:
 
 ```text
 wh init
@@ -46,7 +46,9 @@ This will assist you in:
 
 Once that is complete, either wait for the cron job to run, or run `wh pull &` to manually kick off a job in the background, if you're feeling impatient.
 
-## Usage
+**If you instead want to use a git server like github to back your catalog, see** [**Git setup**](setup/getting-started-for-teams.md)**.**
+
+## Basic usage
 
 To obtain a list of available commands, run:
 
