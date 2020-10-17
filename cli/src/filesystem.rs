@@ -212,6 +212,13 @@ pub fn get_recently_used_filename() -> std::string::String {
 }
 
 
+pub fn get_run_script_filename() -> std::string::String {
+    let path = format!("{}/{}",
+                       get_libexec_dirname(),
+                       "run_script.py");
+    path
+}
+
 pub fn get_usage_filename() -> std::string::String {
     let path = format!("{}/{}",
                        get_logs_dirname(),

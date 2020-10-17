@@ -193,6 +193,17 @@ def configure_snowflake_extractors(connection: ConnectionConfigSchema):
     return extractors, conf
 
 
+def configure_unscoped_sqlalchemy_engine(connection: ConnectionConfigSchema):
+    Engine = SQLAlchemyEngine
+    engine = Engine()
+    conf = ConfigFactory.from_dict({
+        f"{Engine.CONN_STRING_KEY}": connection.conn_string,
+        f"{Engine.CREDENTIALS_PATH_KEY}": connection.key_path,
+    })
+
+    return engine, conf
+
+
 def run_build_script(connection: ConnectionConfigSchema):
     if not connection.python_binary:
         python_binary = "python3"

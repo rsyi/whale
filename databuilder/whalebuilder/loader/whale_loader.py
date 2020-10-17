@@ -87,7 +87,6 @@ class WhaleLoader(Loader):
         )
 
         file_path = table_file_path_base + '.md'
-        print("FILE_PATH_BEING_WRITTEN", file_path)
         subdirectory = '/'.join(file_path.split('/')[:-1])
         Path(subdirectory).mkdir(parents=True, exist_ok=True)
 

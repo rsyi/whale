@@ -1,5 +1,6 @@
 import logging
 import os
+import pandas as pd
 import subprocess
 import yaml
 
@@ -8,9 +9,12 @@ from pathlib import Path
 from whalebuilder.utils import paths
 from whalebuilder.task import WhaleTask
 from whalebuilder.loader.whale_loader import WhaleLoader
+from whalebuilder.models.connection_config import ConnectionConfigSchema
 from whalebuilder.transformer.markdown_transformer import MarkdownTransformer
-from whalebuilder.utils.connections import dump_connection_config_in_schema
 from whalebuilder.utils import copy_manifest, transfer_manifest
+from whalebuilder.utils.config import (
+    get_connection,
+    read_connections)
 
 from whalebuilder.utils.extractor_wrappers import (
     configure_bigquery_extractors,
@@ -20,21 +24,37 @@ from whalebuilder.utils.extractor_wrappers import (
     configure_presto_extractors,
     configure_redshift_extractors,
     configure_snowflake_extractors,
+    configure_unscoped_sqlalchemy_engine,
     run_build_script)
 
 LOGGER = logging.getLogger(__name__)
 
 
-def create_and_run_tasks_from_yaml(verbose=True):
+def run(
+        sql,
+        warehouse_name=None):
+    """
+    Runs sql queries against warehouse_name defined in ~/.whale/config/connections.yaml.
+    If no warehouse_name is given, the first is used.
+    """
+    connection_dict = get_connection(warehouse_name=warehouse_name)
+    connection = ConnectionConfigSchema(**connection_dict)
+    engine, conf = configure_unscoped_sqlalchemy_engine(connection)
+    engine.init(conf)
+    result = engine.execute(sql, has_header=True)
+    headers = next(result)
+    table = list(result)
+    df = pd.DataFrame(table, columns=headers)
+    return df
+
+def pull():
+    """
+    Pulls down all metadata & metrics from user-defined warehouse connections in ~/.whale/config/connections.yaml.
+    """
     for path in [paths.CONFIG_DIR, paths.LOGS_DIR, paths.MANIFEST_DIR, paths.METADATA_PATH, paths.METRICS_PATH]:
-        print(path)
         Path(path).mkdir(parents=True, exist_ok=True)
 
-    if os.path.exists(paths.CONNECTION_PATH):
-        with open(paths.CONNECTION_PATH, "r") as f:
-            raw_connection_dicts = list(yaml.safe_load_all(f))
-    else:
-        raw_connection_dicts = []
+    raw_connection_dicts = read_connections()
 
     # Create a manifest
     # If another ETL job is running, put the manifest elsewhere
@@ -47,7 +67,7 @@ def create_and_run_tasks_from_yaml(verbose=True):
         i += 1
 
     for raw_connection_dict in raw_connection_dicts:
-        connection = dump_connection_config_in_schema(raw_connection_dict)
+        connection = ConnectionConfigSchema(**raw_connection_dict)
 
         metadata_source_dict = {
             "hivemetastore": configure_hive_metastore_extractors,
