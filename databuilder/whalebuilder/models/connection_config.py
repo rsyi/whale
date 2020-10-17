@@ -69,7 +69,7 @@ class ConnectionConfigSchema(object):
             conn_string = \
                     f"bigquery://{project_id}"
         elif self.metadata_source == "neo4j":
-            conn_string = f"bolt://{connection.uri}:{connection.port}"
+            conn_string = f"bolt://{self.uri}:{self.port}"
         else:
             username_password_placeholder = \
                 f"{self.username}:{self.password}" \

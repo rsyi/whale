@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from whalebuilder.utils.paths import METRICS_PATH
+from whalebuilder.utils import paths
 from whalebuilder.utils import get_table_file_path_relative
 
 
@@ -40,7 +40,7 @@ class MetricValue(object):
             self.cluster,
             self.schema,
             self.table) + f"/{self.name}.csv"
-        record_path = os.path.join(METRICS_PATH, relative_file_path)
+        record_path = os.path.join(paths.METRICS_PATH, relative_file_path)
         record_dirname = os.path.dirname(record_path)
         Path(record_dirname).mkdir(parents=True, exist_ok=True)
         with open(record_path, "a") as f:

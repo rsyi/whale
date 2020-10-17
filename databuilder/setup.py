@@ -6,8 +6,8 @@ setuptools.setup(
     version='1.0.0b0',
     author='Robert Yi',
     author_email='robert@ryi.me',
-    description="A pared-down metadata ETL library.",
-    url='https://github.com/rsyi/whale',
+    description="A pared-down metadata scraper + SQL runner.",
+    url='https://github.com/dataframehq/whale',
     python_requires='>=3.6',
     packages=find_packages(),
     install_requires=[

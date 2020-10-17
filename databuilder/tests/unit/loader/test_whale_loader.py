@@ -1,57 +1,64 @@
 import logging
+import os
 import unittest
+import pytest
 
 from pyhocon import ConfigFactory
 from typing import Dict, Iterable, Any, Callable  # noqa: F401
 
 from whalebuilder.models.table_metadata import TableMetadata
-from whalebuilder.loader.whale_loader import WhaleLoader
+from whalebuilder.loader import whale_loader
+from whalebuilder.utils import paths
 
 
-class TestWhaleLoader(unittest.TestCase):
-    def setUp(self):
-        logging.basicConfig(level=logging.INFO)
-        self._conf = ConfigFactory.from_dict({
-            'base_directory': './.test_artifacts',
-            'tmp_manifest_path': './.test_artifacts/tmp_manifest.txt'
-            })
+@pytest.fixture
+def patched_config(tmp_path):
+    metadata_subpath = paths.get_subdir_without_whale(str(paths.METADATA_PATH))
+    tmp_manifest_subpath = paths.get_subdir_without_whale(str(paths.TMP_MANIFEST_PATH))
+    new_metadata_path = tmp_path / metadata_subpath
+    new_metadata_path.mkdir()
+    new_tmp_manifest_path = tmp_path / tmp_manifest_subpath
+    new_tmp_manifest_path.parent.mkdir()
 
-    def test_load_no_catalog(self):
-        record = TableMetadata(
-            database='mock_database',
-            cluster=None,
-            schema='mock_schema',
-            name='mock_table',
-            markdown_blob='Test',
-        )
-        loader = WhaleLoader()
-        loader.init(self._conf)
-        loader.load(record)
+    return ConfigFactory.from_dict({
+        "base_directory": tmp_path / metadata_subpath,
+        "tmp_manifest_path": tmp_path / tmp_manifest_subpath,
+    })
 
-        loader.close()
-        file_path = './.test_artifacts/mock_database/mock_schema.mock_table.md'
-        with open(file_path, 'r') as f:
-            written_record = f.read()
+def test_load_no_catalog(patched_config):
+    record = TableMetadata(
+        database='mock_database',
+        cluster=None,
+        schema='mock_schema',
+        name='mock_table',
+        markdown_blob='Test',
+    )
+    loader = whale_loader.WhaleLoader()
+    loader.init(patched_config)
+    loader.load(record)
 
-        self.assertTrue(record.markdown_blob in written_record)
+    loader.close()
+    file_path = os.path.join(patched_config.get("base_directory"), 'mock_database/mock_schema.mock_table.md')
+    with open(file_path, 'r') as f:
+        written_record = f.read()
 
-    def test_load_catalog_specified(self):
-        record = TableMetadata(
-            database='mock_database',
-            cluster='mock_catalog',
-            schema='mock_schema',
-            name='mock_table',
-            markdown_blob='Test',
-        )
-        loader = WhaleLoader()
-        loader.init(self._conf)
-        loader.load(record)
+    assert record.markdown_blob in written_record
 
-        loader.close()
-        file_path = \
-            './.test_artifacts/' + \
-            'mock_database/mock_catalog.mock_schema.mock_table.md'
-        with open(file_path, 'r') as f:
-            written_record = f.read()
+def test_load_catalog_specified(patched_config):
+    record = TableMetadata(
+        database='mock_database',
+        cluster='mock_catalog',
+        schema='mock_schema',
+        name='mock_table',
+        markdown_blob='Test',
+    )
+    loader = whale_loader.WhaleLoader()
+    loader.init(patched_config)
+    loader.load(record)
 
-        self.assertTrue(record.markdown_blob in written_record)
+    loader.close()
+    file_path = os.path.join(patched_config.get("base_directory"), 'mock_database/mock_catalog.mock_schema.mock_table.md')
+    with open(file_path, 'r') as f:
+        written_record = f.read()
+
+    assert record.markdown_blob in written_record

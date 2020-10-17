@@ -1,12 +1,11 @@
 amundsen-databuilder==3.3.2
 neo4j-driver==1.7.2
 mock
-tabulate
+pandas
 pyaml
 psycopg2-binary==2.8.6
 pybigquery==0.4.15
 pyhive
-pyinstaller
 requests
 google-api-python-client
 google-auth-httplib2

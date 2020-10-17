@@ -24,6 +24,15 @@ fn main() {
             .about("Manually runs the metadata extraction job (deprecated: use `wh pull` instead)"))
         .subcommand(SubCommand::with_name("pull")
             .about("Manually runs the metadata extraction job"))
+        .subcommand(SubCommand::with_name("run")
+            .about("Execute a query file")
+            .arg(Arg::with_name("sql_file")
+                 .help("File path that contains the sql file to run"))
+            .arg(Arg::with_name("warehouse_name")
+                 .short("w")
+                 .long("warehouse")
+                 .help("Warehouse name to run the query against"))
+            )
         .subcommand(SubCommand::with_name("schedule")
             .about("Register metadata scraping job with crontab"));
 
@@ -33,6 +42,17 @@ fn main() {
     if let Some(git_setup_matches) = matches.subcommand_matches("git-setup") {
         if git_setup_matches.is_present("remote") {
             git_address = git_setup_matches.value_of("remote").unwrap()
+        }
+    }
+
+    let mut sql_file = "";
+    let mut warehouse_name = "";
+    if let Some(run_matches) = matches.subcommand_matches("run") {
+        if run_matches.is_present("sql_file") {
+            sql_file = run_matches.value_of("sql_file").unwrap()
+        }
+        if run_matches.is_present("warehouse_name") {
+            warehouse_name = run_matches.value_of("warehouse_name").unwrap()
         }
     }
 
@@ -46,6 +66,7 @@ fn main() {
         Some("connections") => whale::Whale::connections(),
         Some("git-enable") => whale::Whale::git_enable(),
         Some("git-setup") => whale::Whale::git_setup(git_address),
+        Some("run") => whale::Whale::run(sql_file, warehouse_name),
         _ => whale::Whale::run_with(matches)
     }.expect("Failed to run command.");
 

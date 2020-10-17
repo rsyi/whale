@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 import logging
 from logging.handlers import RotatingFileHandler
-from whalebuilder.utils.task_wrappers import create_and_run_tasks_from_yaml
+from whalebuilder.utils.task_wrappers import pull
 from whalebuilder.utils.paths import ETL_LOG_PATH, LOGS_DIR
 
 Path(LOGS_DIR).mkdir(parents=True, exist_ok=True)
@@ -17,7 +17,7 @@ LOGGER = logging.getLogger("whalebuilder")
 LOGGER.info("ETL process started.")
 
 start_time = datetime.now()
-create_and_run_tasks_from_yaml()
+pull()
 
 end_time = datetime.now()
 LOGGER.info("All tasks completed.")

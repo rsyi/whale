@@ -202,6 +202,21 @@ Fetching and rebasing local changes from github.");
         Ok(())
     }
 
+
+    pub fn run(sql_file: &str, warehouse_name: &str) -> Result<(), io::Error>{
+        let python_alias = serialization::read_config("python3_alias", "python3");
+        let activate_path = filesystem::get_activate_filename();
+        let run_script_path = filesystem::get_run_script_filename();
+        let arguments = format!("{} {}", sql_file, warehouse_name);
+        let full_command = format!("source {} && {} {} {}", activate_path, python_alias, run_script_path, arguments);
+        let mut child = Command::new("sh")
+            .args(&["-c", &full_command])
+            .spawn()?;
+        child.wait()?;
+
+        Ok(())
+    }
+
     pub fn schedule(ask_for_permission: bool) -> Result<(), io::Error> {
         print_scheduler_header();
         let mut cron_string = utils::get_input();
