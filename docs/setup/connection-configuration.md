@@ -33,7 +33,7 @@ Only one of `key_path` and `project_credentials` are required.
 
 ## Neo4j
 
-We provide support to scrape metadata from Amundsen's neo4j backend.
+We provide support to scrape metadata from Amundsen's neo4j backend. However, by default we do not install the neo4j drivers within our installation virtual environment. To use this, you must install using `make && make install`, then `pip install neo4j-driver` within the virtual environment located at `~/.whale/libexec/env`.
 
 ```text
 ---
