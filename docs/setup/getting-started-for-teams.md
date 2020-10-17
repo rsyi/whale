@@ -34,37 +34,44 @@ mkdir -p .github/workflows
 Then, within `.github/workflows`, create a new file \(e.g. `metadata.yml`\), paste in the following file, then `git add`, `commit`, & `push` to master.
 
 ```text
-name: Whale ETL
+name: Whale Runner
 on:
   schedule:
-   - cron: "* */6 * * *"
+   - cron: "0 */6 * * *"
 
 jobs:
   run-etl:
     runs-on: ubuntu-latest
     steps:
+
+      # Setup python + clone repos
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.7'
+          python-version: '3.8'
       - uses: actions/checkout@v2
-      - name: install
+      - name: Copy to ~/.whale
         run: |
           cp -r . ~/.whale/
       - uses: actions/checkout@v2
         with:
           repository: dataframehq/whale
           path: whale
+
+      # Scrape from warehouse
       - name: etl
         working-directory: ./whale
         run: |
           make python
-          mkdir ~/.whale/logs
-          source ./build/env/bin/activate
-          python ./build/build_script.py
-          cd ~/.whale
+          source ~/.whale/libexec/env/bin/activate
+          python3 ~/.whale/libexec/build_script.py
+
+      # Push to git
+      - name: push-to-git
+        working-directory: ~/.whale
+        run: |
           git config user.name 'GHA Runner'
           git config user.email '<your_username>@users.noreply.github.com'
-          git add metadata metrics manifests
+          git add metadata manifests metrics
           git commit -m "Automated push." || echo "No changes to commit"
           git push
 
@@ -106,18 +113,14 @@ If storing credentials as plaintext is a concern, a temporary workaround is to s
 
 ```text
 run: |
-  echo ${CONNECTIONS} > ~/.whale/config/connections.yaml
-env:
-  CONNECTIONS: ${{ secrets.CONNECTIONS }}
+  echo '${{ secrets.CONNECTIONS }}' > ~/.whale/config/connections.yaml
 ```
 
 For Bigquery, specifically, the credentials file alone could alternatively be echoed at schedule-time into the correct path, as follows:
 
 ```text
 run: |
-  echo ${BIGQUERY_JSON} > /keypath/specified/in/connections
-env:
-  BIGQUERY_JSON: ${{ secrets.BIGQUERY_JSON }}
+  echo '${{ secrets.BIGQUERY_JSON }}' > ~/.whale/credentials.json
 ```
 
 
