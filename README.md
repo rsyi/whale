@@ -11,7 +11,6 @@
 
 ---
 
-![](https://github.com/dataframehq/whale/workflows/CD/badge.svg)
 ![](https://github.com/dataframehq/whale/workflows/CI/badge.svg)
 ![codecov](https://codecov.io/gh/dataframehq/whale/branch/master/graph/badge.svg)
 [![slack](https://badgen.net/badge/icon/slack?icon=slack&color=purple&label)](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
