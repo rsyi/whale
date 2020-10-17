@@ -12,7 +12,7 @@ setuptools.setup(
     packages=find_packages(),
     install_requires=[
         'amundsen-databuilder>=2.0.0',
-        'pandas'
+        'pandas',
         'pyhocon>=0.3.42',
         'pyaml',
         'google-api-python-client',
