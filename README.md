@@ -1,15 +1,25 @@
 <p align="center"><img src="docs/whale_logo.svg" width="600"/></p>
 
+## The fastest, most robust way to keep track of your tables
+`whale` is a lightweight **data discovery and documentation engine**.
+
+* Automatically index all of the tables in your warehouse as plain markdown files -- so they're easily versionable, searchable, and editable either locally or through a remote git server.
+* Search for tables and documentation through the CLI.
+* Even define and schedule basic metrics, to avoid writing repetitive queries.
+
+🐳  [**Join the discussion on slack.**](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
+
 ![](https://github.com/dataframehq/whale/workflows/CD/badge.svg)
 ![](https://github.com/dataframehq/whale/workflows/CI/badge.svg)
 ![codecov](https://codecov.io/gh/dataframehq/whale/branch/master/graph/badge.svg)
 [![slack](https://badgen.net/badge/icon/slack?icon=slack&color=purple&label)](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
 
-`whale` is a blazingly fast markdown-based **data discovery and documentation tool**. It periodically pulls table and column info from your warehouse and makes it searchable and editable locally (with gui support handled through a remote git server, e.g. Github). [Join us on slack to discuss more!](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
-
-[Read the docs for a full overview of whale's capabilities!](https://docs.whale.cx)
-
 ![](docs/demo.gif)
+
+---
+# Docs
+
+📔  [**Read the docs for a full overview of whale's capabilities.**](https://docs.whale.cx)
 
 ## Installation
 
@@ -45,6 +55,9 @@ wh init
 The cron job will run as you schedule it (by default, every 6 hours). If you're feeling impatient, you can also manually run `wh etl` to pull down the latest data from your warehouse.
 
 For team use, see the [docs](https://docs.whale.cx/setup/getting-started-for-teams) for instructions on how to set up and point your whale installation at a remote git server.
+
+### Seeding some sample data
+If you just want to get a feel for how whale works, remove the `~/.whale` directory and follow the instructions at [dataframehq/whale-bigquery-public-data](https://github.com/dataframehq/whale-bigquery-public-data).
 
 ### Go go go!
 
