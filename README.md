@@ -7,7 +7,7 @@
 * Search for tables and documentation through the CLI.
 * Define and schedule basic metric calculations.
 
-🐳  [**Join the discussion on slack.**](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
+😁 [**Join the discussion on slack.**](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
 
 ---
 
@@ -15,11 +15,13 @@
 ![codecov](https://codecov.io/gh/dataframehq/whale/branch/master/graph/badge.svg)
 [![slack](https://badgen.net/badge/icon/slack?icon=slack&color=purple&label)](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
 
+For a live demo, check out [**dataframehq/whale-bigquery-public-data**](https://github.com/dataframehq/whale-bigquery-public-data).
+
 ![](docs/demo.gif)
 
-# Documentation
+# 📔  Documentation
 
-📔  [**Read the docs for a full overview of whale's capabilities.**](https://docs.whale.cx)
+[**Read the docs for a full overview of whale's capabilities.**](https://docs.whale.cx)
 
 ## Installation
 
