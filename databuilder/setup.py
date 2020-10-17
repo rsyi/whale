@@ -12,8 +12,8 @@ setuptools.setup(
     packages=find_packages(),
     install_requires=[
         'amundsen-databuilder>=2.0.0',
+        'pandas'
         'pyhocon>=0.3.42',
-        'tabulate',
         'pyaml',
         'google-api-python-client',
         'SQLAlchemy>=1.3.19'
