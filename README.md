@@ -1,11 +1,11 @@
 <p align="center"><img src="docs/whale_logo.svg" width="600"/></p>
 
-## The fastest, most robust way to keep track of your warehouse tables
+## The simplest way to keep track of your warehouse tables
 `whale` is a lightweight **data discovery and documentation engine**.
 
 * Automatically index all of the tables in your warehouse as plain markdown files -- so they're easily versionable, searchable, and editable either locally or through a remote git server.
 * Search for tables and documentation through the CLI.
-* Even define and schedule basic metrics, to avoid writing repetitive queries.
+* Define and schedule basic metric calculations.
 
 🐳  [**Join the discussion on slack.**](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
 
