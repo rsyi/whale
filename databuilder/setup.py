@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setuptools.setup(
     name='whalebuilder',
-    version='1.0.0b0',
+    version='1.0.0',
     author='Robert Yi',
     author_email='robert@ryi.me',
     description="A pared-down metadata scraper + SQL runner.",
@@ -13,9 +13,8 @@ setuptools.setup(
     install_requires=[
         'amundsen-databuilder>=2.0.0',
         'pandas',
-        'pyhocon>=0.3.42',
         'pyaml',
-        'google-api-python-client',
+        'pyhocon>=0.3.42',
         'SQLAlchemy>=1.3.19'
     ],
     include_package_data=True,

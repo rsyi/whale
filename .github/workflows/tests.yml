@@ -9,14 +9,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.7
+    - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7
+        python-version: 3.8
     - name: Install dependencies
       run: |
         mkdir -p ~/.whale/manifests
         echo '${{ secrets.BIGQUERY_JSON }}' > /var/tmp/credentials.json
+        pip install mock
         pip install -r databuilder/requirements.txt
         pip install databuilder/.
         pip install flake8
