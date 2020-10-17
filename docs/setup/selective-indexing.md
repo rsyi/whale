@@ -38,8 +38,8 @@ name: hm-1
 metadata_source: HiveMetastore
 ...
 where_clause_suffix: |
-  where d.NAME = "schema1"
-  and t.TABLE_NAME = "table1"
+  where d.NAME = 'schema1'
+  and t.TABLE_NAME = 'table1'
 ```
 
 Available metadata tables:
@@ -62,8 +62,8 @@ name: pg1-1
 metadata_source: Postgres
 ...
 where_clause_suffix: |
-  where c.table_schema = "schema1"
-  and c.table_name = "table1"
+  where c.table_schema = 'schema1'
+  and c.table_name = 'table1'
 ```
 
 Available metadata tables:
@@ -85,8 +85,8 @@ name: pr-1
 metadata_source: Presto
 ...
 where_clause_suffix: | 
-  where a.table_name = ''
-  and a.table_schema = ''
+  where a.table_name = 'my_table'
+  and a.table_schema = 'my_schema'
 ```
 
 Available metadata tables:
@@ -108,8 +108,8 @@ name: rs-1
 metadata_source: Redshift
 ...
 where_clause_suffix: | 
-  where schema = ''
-  and name = ''
+  where schema = 'redshiftiscool'
+  and name = 'sortof'
 ```
 
 Available metadata tables: None \(all the constituent tables are combined into a larger table\)
@@ -128,8 +128,8 @@ name: sf-1
 metadata_source: Snowflake
 ...
 where_clause_suffix: | 
-  where c.TABLE_NAME = ''
-  and c.TABLE_SCHEMA = ''
+  where c.TABLE_NAME = 'mystuff'
+  and c.TABLE_SCHEMA = 'snowflake'
 ```
 
 Available metadata tables:
