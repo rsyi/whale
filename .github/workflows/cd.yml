@@ -6,6 +6,8 @@ on:
 
 jobs:
   release-pypi:
+    runs-on: macos-latest
+    steps:
     - name: Build wheel
       run: |
         pip install --upgrade setuptools wheel
