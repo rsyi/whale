@@ -18,8 +18,8 @@ jobs:
         mkdir -p ~/.whale/manifests
         echo '${{ secrets.BIGQUERY_JSON }}' > /var/tmp/credentials.json
         pip install mock
-        pip install -r databuilder/requirements.txt
-        pip install databuilder/.
+        pip install -r pipelines/requirements.txt
+        pip install pipelines/.
         pip install flake8
         pip install pytest-cov
         pip install pytest
