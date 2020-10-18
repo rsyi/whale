@@ -41,9 +41,9 @@ See the [Connection configuration](../setup/connection-configuration.md) section
 
 ### libexec
 
-`libexec` houses the pyinstaller-compiled `whalebuilder` `build_script.py` binary, which manages the extraction of metadata from data warehouses specified in `connections.yaml`.
+`libexec` houses the virtual environment containing the `whale-pipelines` installation, as well as some scripts that are accessed by the rust-side of the program (`build_script.py` and `run_script.py`).
 
-The name `libexec` comes from the unix `/usr/libexec` directory, which houses binaries that are not intended to be accessed by the end-user. While we provide support for the `whalebuilder` library, it should installed, configured, and used within a virtual environment, rather than through the compiled executable within `libexec`.
+The name `libexec` comes from the unix `/usr/libexec` directory, which houses binaries that are not intended to be accessed by the end-user. However, because these are written entirely in python and stored as a virtual environment, it is completely acceptable to modify these directly.
 
 ### logs
 
