@@ -6,7 +6,7 @@ from pyhocon import ConfigFactory
 
 from databuilder import Scoped
 from whale.extractor.bigquery_metadata_extractor import BigQueryMetadataExtractor
-from databuilder.models.table_metadata import TableMetadata
+from whale.models.table_metadata import TableMetadata
 
 logging.basicConfig(level=logging.INFO)
 
@@ -139,10 +139,11 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         # type: () -> None
         config_dict = {
             'extractor.bigquery_table_metadata.{}'.format(BigQueryMetadataExtractor.PROJECT_ID_KEY):
-                'your-project-here'}
+                'your-project-here',}
+
         self.conf = ConfigFactory.from_dict(config_dict)
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_can_handle_datasets(self, mock_build):
         mock_build.return_value = MockBigQueryClient(NO_DATASETS, None, None)
         extractor = BigQueryMetadataExtractor()
@@ -151,7 +152,7 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         result = extractor.extract()
         self.assertIsNone(result)
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_empty_dataset(self, mock_build):
         mock_build.return_value = MockBigQueryClient(ONE_DATASET, NO_TABLES, None)
         extractor = BigQueryMetadataExtractor()
@@ -160,7 +161,7 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         result = extractor.extract()
         self.assertIsNone(result)
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_accepts_dataset_filter_by_label(self, mock_build):
         config_dict = {
             'extractor.bigquery_table_metadata.{}'.format(BigQueryMetadataExtractor.PROJECT_ID_KEY):
@@ -177,7 +178,7 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         result = extractor.extract()
         self.assertIsInstance(result, TableMetadata)
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_table_without_schema(self, mock_build):
         mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, NO_SCHEMA)
         extractor = BigQueryMetadataExtractor()
@@ -189,11 +190,11 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertEqual(result.cluster, 'your-project-here')
         self.assertEqual(result.schema, 'fdgdfgh')
         self.assertEqual(result.name, 'nested_recs')
-        self.assertEqual(result.description._text, '')
+        self.assertEqual(result.description, '')
         self.assertEqual(result.columns, [])
         self.assertEqual(result.is_view, False)
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_table_without_columns(self, mock_build):
         mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, NO_COLS)
         extractor = BigQueryMetadataExtractor()
@@ -205,11 +206,11 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertEqual(result.cluster, 'your-project-here')
         self.assertEqual(result.schema, 'fdgdfgh')
         self.assertEqual(result.name, 'nested_recs')
-        self.assertEqual(result.description._text, "")
+        self.assertEqual(result.description, "")
         self.assertEqual(result.columns, [])
         self.assertEqual(result.is_view, False)
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_view(self, mock_build):
         mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_VIEW, VIEW_DATA)
         extractor = BigQueryMetadataExtractor()
@@ -219,7 +220,7 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertIsInstance(result, TableMetadata)
         self.assertEqual(result.is_view, True)
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_normal_table(self, mock_build):
         mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, TABLE_DATA)
         extractor = BigQueryMetadataExtractor()
@@ -231,15 +232,15 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertEqual(result.cluster, 'your-project-here')
         self.assertEqual(result.schema, 'fdgdfgh')
         self.assertEqual(result.name, 'nested_recs')
-        self.assertEqual(result.description._text, "")
+        self.assertEqual(result.description, "")
 
         first_col = result.columns[0]
         self.assertEqual(first_col.name, 'test')
         self.assertEqual(first_col.type, 'STRING')
-        self.assertEqual(first_col.description._text, 'some_description')
+        self.assertEqual(first_col.description, 'some_description')
         self.assertEqual(result.is_view, False)
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_table_with_nested_records(self, mock_build):
         mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, NESTED_DATA)
         extractor = BigQueryMetadataExtractor()
@@ -257,7 +258,7 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertEqual(third_col.name, 'nested.nested2.ahah')
         self.assertEqual(third_col.type, 'STRING')
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_keypath_and_pagesize_can_be_set(self, mock_build):
         config_dict = {
             'extractor.bigquery_table_metadata.{}'.format(BigQueryMetadataExtractor.PROJECT_ID_KEY):
@@ -276,7 +277,7 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
             extractor.init(Scoped.get_scoped_conf(conf=conf,
                                                   scope=extractor.get_scope()))
 
-    @patch('databuilder.extractor.base_bigquery_extractor.build')
+    @patch('whale.extractor.base_bigquery_extractor.build')
     def test_table_part_of_table_date_range(self, mock_build):
         mock_build.return_value = MockBigQueryClient(ONE_DATASET, TABLE_DATE_RANGE, TABLE_DATA)
         extractor = BigQueryMetadataExtractor()

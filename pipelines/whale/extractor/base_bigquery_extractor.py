@@ -36,7 +36,10 @@ class BaseBigQueryExtractor(Extractor):
     def init(self, conf: ConfigTree) -> None:
         # should use key_path, or cred_key if the former doesn't exist
         key_path = conf.get_string(BaseBigQueryExtractor.KEY_PATH_KEY, None)
-        self.key_path = os.path.expanduser(key_path)
+        try:
+            self.key_path = os.path.expanduser(key_path)
+        except:
+            self.key_path = key_path
         self.cred_key = conf.get_string(BaseBigQueryExtractor.CRED_KEY, None)
         self.project_id = conf.get_string(BaseBigQueryExtractor.PROJECT_ID_KEY)
         self.pagesize = conf.get_int(
