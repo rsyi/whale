@@ -12,7 +12,7 @@ Whale installs all files within the `~/.whale` path. This path contains the foll
 ~/.whale
 ├── bin  
 ├── config  
-│   └── connections.yaml
+│   └── connections.yaml
 ├── libexec
 ├── logs
 ├── manifests
@@ -42,7 +42,7 @@ See the [Connection configuration](../setup/connection-configuration.md) section
 
 ### libexec
 
-`libexec` houses the virtual environment containing the `whale-pipelines` installation, as well as some scripts that are accessed by the rust-side of the program (`build_script.py` and `run_script.py`).
+`libexec` houses the virtual environment containing the `whale-pipelines` installation, as well as some scripts that are accessed by the rust-side of the program \(`build_script.py` and `run_script.py`\).
 
 The name `libexec` comes from the unix `/usr/libexec` directory, which houses binaries that are not intended to be accessed by the end-user. However, because these are written entirely in python and stored as a virtual environment, it is completely acceptable to modify these directly.
 

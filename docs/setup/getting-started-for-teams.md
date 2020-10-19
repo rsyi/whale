@@ -66,7 +66,7 @@ jobs:
 
       # Push to git
       - name: push-to-git
-        working-directory: ~/.whale
+        working-directory: /home/runner/.whale
         run: |
           git config user.name 'GHA Runner'
           git config user.email '<your_username>@users.noreply.github.com'
