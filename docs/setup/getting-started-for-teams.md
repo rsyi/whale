@@ -2,7 +2,7 @@
 
 ## Overview
 
-Whale supports a free hosted backend + lightweight GUI through github and github actions \(though any git remote server + CI/CD system will work - you'll simply have to [write your own config](getting-started-for-teams.md#manual-setup)\). This is possible because the metadata and user-generated content accessed by whale are stored as markdown in the `~/.whale` subdirectory.
+Whale supports a free hosted backend + lightweight GUI through Github and Github actions \(though any git remote server + CI/CD system will work - you'll simply have to [write your own config](getting-started-for-teams.md#manual-setup)\). This is possible because the metadata and user-generated content accessed by whale are stored as markdown in the `~/.whale` subdirectory.
 
 We have provided a series of simple commands and instructions to get started easily, but these can be [executed manually quite easily](getting-started-for-teams.md#advanced-usage) as well.
 
@@ -123,11 +123,65 @@ If you want improved logging, see [here](https://github.com/dataframehq/whale/bl
 
 ### Storing credentials
 
-If storing credentials as plaintext is a concern, a hacky workaround is to simply save the full `connections.yaml` file as a secret, then echo this into the `~/.whale/config/connections.yaml` file. For example, with github actions:
+If storing credentials as plaintext is a concern, a workaround is to simply save the full `connections.yaml` file as a Github secret \(named `CONNECTIONS` in the example below\), then echo this into the `~/.whale/config/connections.yaml` file. For example, with Github actions:
 
 ```text
 run: |
   echo '${{ secrets.CONNECTIONS }}' > ~/.whale/config/connections.yaml
+```
+
+Then remove the file before the push step.
+
+```text
+run: |
+  rm ~/.whale/config/connections.yaml
+```
+
+The full file would then be:
+
+```text
+name: Whale Runner
+on:
+  schedule:
+   - cron: "0 */12 * * *"
+
+jobs:
+  run-etl:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Setup python + clone repos
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - uses: actions/checkout@v2
+      - name: Copy to ~/.whale
+        run: |
+          cp -r . ~/.whale/
+      - uses: actions/checkout@v2
+        with:
+          repository: dataframehq/whale
+          path: whale
+
+      # Scrape from warehouse
+      - name: etl
+        working-directory: ./whale
+        run: |
+          make python
+          source ~/.whale/libexec/env/bin/activate
+          echo '${{ secrets.CONNECTIONS }}' > ~/.whale/config/connections.yaml
+          python3 ~/.whale/libexec/build_script.py
+          rm ~/.whale/config/connections.yaml
+
+      # Push to git
+      - name: push-to-git
+        working-directory: /home/runner/.whale
+        run: |
+          git config user.name 'GHA Runner'
+          git config user.email '<your_username>@users.noreply.github.com'
+          git add metadata manifests metrics
+          git commit -m "Automated push." || echo "No changes to commit"
+          git push
 ```
 
 For Bigquery, specifically, the credentials file alone could alternatively be echoed at runtime into the correct path, as follows:
