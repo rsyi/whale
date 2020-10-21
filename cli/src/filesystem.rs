@@ -144,11 +144,10 @@ pub fn get_tmp_manifest_filename() -> std::string::String {
 }
 
 pub fn get_open_command() -> std::string::String {
-    let editor = match std::env::var("EDITOR") {
+    match std::env::var("EDITOR") {
         Ok(val) => val,
         Err(_e) => "open".to_string(),
-    };
-    editor
+    }
 }
 
 pub fn get_recently_used_filename() -> std::string::String {

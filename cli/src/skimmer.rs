@@ -61,8 +61,7 @@ pub fn table_skim() {
     let custom_preview_command = serialization::read_config("preview_command", "");
 
     if custom_preview_command.is_empty() {
-        let bat_testing_command =
-            format!("command -v bat > /dev/null 2>&1 && echo true || echo false");
+        let bat_testing_command = "command -v bat > /dev/null 2>&1 && echo true || echo false".to_string();
         let output = Command::new("sh")
             .args(&["-c", &bat_testing_command])
             .output()
@@ -95,7 +94,7 @@ pub fn table_skim() {
     // `run_with` would read and show items from the stream
     let selected_items = Skim::run_with(&options, Some(items))
         .map(|out| out.selected_items)
-        .unwrap_or_else(|| Vec::new());
+        .unwrap_or_else(Vec::new);
 
     // let recently_used_filename = filesystem::get_recently_used_filename();
     for item in selected_items.iter() {

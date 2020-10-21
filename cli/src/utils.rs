@@ -28,17 +28,12 @@ pub fn get_input_as_bool() -> bool {
     let buffer: &str = raw_input.as_str().trim();
     let negative_inputs = ["n", "N", "f", "false", "False"];
 
-    if negative_inputs.contains(&buffer) {
-        false
-    } else {
-        true
-    }
+    negative_inputs.contains(&buffer)
 }
 
 pub fn get_input_with_message(message: &str) -> String {
     println!("\n{}", message.purple());
-    let buffer = get_input();
-    buffer
+    get_input()
 }
 
 pub fn pause() {
@@ -63,11 +58,8 @@ pub fn is_cron_expression_registered() -> bool {
         .output()
         .expect("Fgrep failed.");
     let stdout = String::from_utf8(result.stdout).unwrap();
-    if !stdout.trim().is_empty() {
-        true
-    } else {
-        false
-    }
+
+    !stdout.trim().is_empty()
 }
 
 pub fn convert_table_name_to_file_name(table_name: &str) -> String {

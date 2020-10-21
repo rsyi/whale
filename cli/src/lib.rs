@@ -226,17 +226,14 @@ Fetching and rebasing local changes from github.");
         let is_valid_cron: bool = utils::is_valid_cron_expression(&cron_string);
         if is_valid_cron {
             println!(
-                "\n{} {}.\n",
-                "Valid cron string detected:",
+                "\nValid cron string detected: {}.\n",
                 cron_string.yellow()
             );
         } else {
             println!(
-                "\n{} {} {} {}\n",
+                "\n{} Cron expression {} appears invalid. Proceed with caution\n",
                 "WARNING:".bold().red(),
-                "Cron expression",
                 cron_string.yellow(),
-                "appears invalid. Proceed with caution.",
             );
         }
 
@@ -278,7 +275,7 @@ Fetching and rebasing local changes from github.");
             if utils::is_cron_expression_registered() {
                 println!("{}", "Cron expression successfully registered.".cyan());
             } else {
-                println!("{} {}", "WARNING:".red(), "Cron tab failed to register.");
+                println!("{} Cron tab failed to register.", "WARNING:".red());
                 println!("If failures persist, manually add the following line to your crontab (accessed through {}).", "crontab -e".magenta());
                 println!("{}", whale_cron_expression.magenta());
             }

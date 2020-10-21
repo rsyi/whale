@@ -1,5 +1,5 @@
 use clap::{App, Arg, SubCommand};
-use whale;
+
 
 fn main() {
     let app = App::new("Whale CLI")

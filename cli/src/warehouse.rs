@@ -82,7 +82,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         );
         let has_warehouse_to_add: bool = utils::get_input_as_bool();
         if !has_warehouse_to_add {
-            return ();
+            return
         }
     }
 
@@ -162,8 +162,7 @@ pub struct BuildScript {
 
 impl BuildScript {
     pub fn prompt_add_details() {
-        let header = format!("
-If you have a python script that generates (a) a manifest and (b) files in the ./metadata directory, whale allows you to fully integrate this script through association with `wh pull`. You'll need to simply specify a python3 virtual environment, the path the script, and [optionally] a python3 binary (by default, whale will use whatever binary is aliased to `python3`. For a sample build script, see the documentation.");
+        let header = "If you have a python script that generates (a) a manifest and (b) files in the ./metadata directory, whale allows you to fully integrate this script through association with `wh pull`. You'll need to simply specify a python3 virtual environment, the path the script, and [optionally] a python3 binary (by default, whale will use whatever binary is aliased to `python3`. For a sample build script, see the documentation.";
         println!("{}", header);
 
         let build_script_message = "Enter the path to your build script.";
@@ -186,9 +185,9 @@ If you have a python script that generates (a) a manifest and (b) files in the .
         }
 
         let compiled_config = BuildScript {
-            build_script_path: build_script_path,
-            venv_path: venv_path,
-            python_binary_path: python_binary_path,
+            build_script_path,
+            venv_path,
+            python_binary_path,
         };
 
         compiled_config
@@ -266,7 +265,6 @@ impl GenericWarehouse {
         // port
         let port_msg = "Port?";
         let port_str: String = utils::get_input_with_message(port_msg)
-            .to_string()
             .trim()
             .to_string();
         let port: i32 = port_str.parse::<i32>().unwrap();
@@ -303,13 +301,13 @@ impl GenericWarehouse {
         }
 
         let compiled_config = GenericWarehouse {
-            name: name,
-            metadata_source: metadata_source,
-            uri: uri,
-            port: port,
-            username: username,
-            password: password,
-            cluster: cluster,
+            name,
+            metadata_source,
+            uri,
+            port,
+            username,
+            password,
+            cluster,
         };
 
         compiled_config
@@ -317,8 +315,8 @@ impl GenericWarehouse {
             .expect("Failed to register warehouse configuration");
 
         println!(
-            "{} {:?} {}",
-            "Added warehouse:", compiled_config.name, "to ~/.whale/config/connections.yaml.",
+            "Added warehouse: {:?} to ~/.whale/config/connections.yaml.",
+            compiled_config.name
         );
     }
 }
@@ -352,7 +350,6 @@ impl HiveMetastore {
         // port
         let port_msg = "Port?";
         let port_str: String = utils::get_input_with_message(port_msg)
-            .to_string()
             .trim()
             .to_string();
         let port: i32 = port_str.parse::<i32>().unwrap();
@@ -390,14 +387,14 @@ impl HiveMetastore {
         }
 
         let compiled_config = HiveMetastore {
-            name: name,
+            name,
             metadata_source: MetadataSource::HiveMetastore,
-            dialect: dialect,
-            uri: uri,
-            port: port,
-            username: username,
-            password: password,
-            database: database,
+            dialect,
+            uri,
+            port,
+            username,
+            password,
+            database,
         };
 
         compiled_config
@@ -405,8 +402,8 @@ impl HiveMetastore {
             .expect("Failed to register warehouse configuration");
 
         println!(
-            "{} {:?} {}",
-            "Added warehouse:", compiled_config.name, "to ~/.whale/config/connections.yaml.",
+            "Added warehouse: {:?} to ~/.whale/config/connections.yaml.",
+            compiled_config.name,
         );
     }
 }
@@ -445,7 +442,8 @@ impl Bigquery {
 
         let mut can_use_bigquery_env_var = false;
         let env_var: Option<String> = Bigquery::check_for_env_var();
-        if let Some(_) = env_var {
+
+        if env_var.is_some() {
             println!(
                 "Environment variable {} found.",
                 "GOOGLE_APPLICATION_CREDENTIALS".yellow()
@@ -489,11 +487,11 @@ impl Bigquery {
         project_id = Some(Bigquery::prompt_project_id());
 
         let compiled_config = Bigquery {
-            name: name,
+            name,
             metadata_source: MetadataSource::Bigquery,
-            key_path: key_path,
-            project_credentials: project_credentials,
-            project_id: project_id,
+            key_path,
+            project_credentials,
+            project_id,
         };
 
         compiled_config
@@ -501,10 +499,8 @@ impl Bigquery {
             .expect("Failed to register warehouse configuration");
 
         println!(
-            "{} {:?} {}",
-            "Added warehouse:",
+            "Added warehouse: {:?} to ~/.whale/config/connections.yaml.",
             &compiled_config.project_id.unwrap(),
-            "to ~/.whale/config/connections.yaml.",
         );
     }
 
@@ -544,13 +540,12 @@ impl Bigquery {
             "Enter the project_id you want to pull metadata from.".purple()
         );
         let project_id = utils::get_input();
-        let trimmed_project_id: String;
+
         if project_id == "" {
             println!("You must specify a project_id.");
-            return Bigquery::prompt_project_id();
+            Bigquery::prompt_project_id()
         } else {
-            trimmed_project_id = project_id.to_string().trim().to_string();
-            trimmed_project_id
+            project_id.trim().to_string()
         }
     }
 }

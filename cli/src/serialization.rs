@@ -88,7 +88,7 @@ pub fn read_config(key: &str, default: &str) -> String {
     let value;
     if let Ok(config_string) = fs::read_to_string(config_path) {
         let docs = YamlLoader::load_from_str(&config_string).unwrap();
-        if docs.len() > 0 {
+        if !docs.is_empty() {
             let doc = &docs[0];
             value = match &doc[key] {
                 Yaml::String(value) => value.to_string(),
