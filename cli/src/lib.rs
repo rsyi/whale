@@ -225,10 +225,7 @@ Fetching and rebasing local changes from github.");
         }
         let is_valid_cron: bool = utils::is_valid_cron_expression(&cron_string);
         if is_valid_cron {
-            println!(
-                "\nValid cron string detected: {}.\n",
-                cron_string.yellow()
-            );
+            println!("\nValid cron string detected: {}.\n", cron_string.yellow());
         } else {
             println!(
                 "\n{} Cron expression {} appears invalid. Proceed with caution\n",

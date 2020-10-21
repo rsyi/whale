@@ -1,6 +1,5 @@
 use clap::{App, Arg, SubCommand};
 
-
 fn main() {
     let app = App::new("Whale CLI")
         .about("Data WareHouse And Lake Explorer")
