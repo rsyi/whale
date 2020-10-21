@@ -1,17 +1,15 @@
-pub use serde::{Serialize, Deserialize};
+use crate::filesystem;
+pub use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::{
     collections::HashMap,
+    fs::{self, OpenOptions},
     io::{self, Write},
-    fs::{OpenOptions, self},
 };
-use crate::filesystem;
 use yaml_rust::{Yaml, YamlLoader};
 
-
 pub trait YamlWriter {
-    fn register_connection(&self) -> Result<(), io::Error>{
-
+    fn register_connection(&self) -> Result<(), io::Error> {
         let connections_filename = filesystem::get_connections_filename();
         let connections_path = Path::new(&*connections_filename);
 
@@ -19,23 +17,24 @@ pub trait YamlWriter {
         let mut new_docs = self.generate_yaml();
 
         // Open yaml file
-        let mut file = OpenOptions::new().write(true)
-                                 .create(true)
-                                 .append(true)
-                                 .open(connections_path)?;
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .append(true)
+            .open(connections_path)?;
 
         new_docs.push_str("\n");
         file.write_all(new_docs.as_bytes())?;
         Ok(())
-
     }
 
     fn generate_yaml(&self) -> String;
 }
 
 impl<T> YamlWriter for T
-    where T: Serialize {
-
+where
+    T: Serialize,
+{
     /// Creates yaml out of struct.
     ///
     /// serde_yaml requires the Serialize trait to be implemented, so rather than implementing
@@ -43,11 +42,9 @@ impl<T> YamlWriter for T
     /// trait.
     fn generate_yaml(&self) -> String {
         // Serialize struct as yaml string
-        serde_yaml::to_string(&self)
-            .unwrap()
+        serde_yaml::to_string(&self).unwrap()
     }
 }
-
 
 /// Update config/config.yaml with values from new_values.
 ///
@@ -57,7 +54,8 @@ pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
     let config_filename = filesystem::get_config_filename();
     let config_path = Path::new(&*config_filename);
 
-    let _file: fs::File = OpenOptions::new().write(true)
+    let _file: fs::File = OpenOptions::new()
+        .write(true)
         .create(true)
         .open(config_path)?;
 
@@ -65,18 +63,16 @@ pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
     let mut config;
     if let Ok(old_config) = serde_yaml::from_str::<serde_yaml::Value>(&old_config_string) {
         config = old_config;
-    }
-    else {
-        config = serde_yaml::Value::Mapping(
-            serde_yaml::Mapping::new()
-        );
+    } else {
+        config = serde_yaml::Value::Mapping(serde_yaml::Mapping::new());
     }
 
     for (key, value) in new_values {
         config[key] = value.into();
     }
 
-    let file: fs::File = OpenOptions::new().write(true)
+    let file: fs::File = OpenOptions::new()
+        .write(true)
         .create(true)
         .truncate(true)
         .open(config_path)?;
@@ -85,7 +81,6 @@ pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
     Ok(())
 }
 
-
 pub fn read_config(key: &str, default: &str) -> String {
     let config_filename = filesystem::get_config_filename();
     let config_path = Path::new(&*config_filename);
@@ -93,7 +88,7 @@ pub fn read_config(key: &str, default: &str) -> String {
     let value;
     if let Ok(config_string) = fs::read_to_string(config_path) {
         let docs = YamlLoader::load_from_str(&config_string).unwrap();
-        if docs.len() > 0 {
+        if !docs.is_empty() {
             let doc = &docs[0];
             value = match &doc[key] {
                 Yaml::String(value) => value.to_string(),
@@ -101,12 +96,10 @@ pub fn read_config(key: &str, default: &str) -> String {
                 Yaml::Integer(value) => value.to_string(),
                 _ => default.to_string(),
             };
-        }
-        else {
+        } else {
             value = default.to_string()
         }
-    }
-    else {
+    } else {
         value = default.to_string()
     };
 
