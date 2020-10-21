@@ -1,12 +1,12 @@
+use crate::filesystem;
 use colored::*;
 use regex::Regex;
 use std::{
-    fs::{OpenOptions},
+    fs::OpenOptions,
     io::{self, Write},
     path::Path,
     process::Command,
 };
-use crate::filesystem;
 
 pub fn get_input() -> String {
     let _ = io::stdout().flush();
@@ -17,13 +17,11 @@ pub fn get_input() -> String {
     buffer.trim().to_string()
 }
 
-
 pub fn get_integer_input() -> i32 {
     let buffer = get_input();
     let buffer_cast_as_int = buffer.parse::<i32>();
     buffer_cast_as_int.unwrap()
 }
-
 
 pub fn get_input_as_bool() -> bool {
     let raw_input = get_input();
@@ -32,12 +30,10 @@ pub fn get_input_as_bool() -> bool {
 
     if negative_inputs.contains(&buffer) {
         false
-    }
-    else {
+    } else {
         true
     }
 }
-
 
 pub fn get_input_with_message(message: &str) -> String {
     println!("\n{}", message.purple());
@@ -45,12 +41,14 @@ pub fn get_input_with_message(message: &str) -> String {
     buffer
 }
 
-
 pub fn pause() {
-    println!("[Press {} to continue, {} to exit]", "enter".green(), "CTRL+C".red());
+    println!(
+        "[Press {} to continue, {} to exit]",
+        "enter".green(),
+        "CTRL+C".red()
+    );
     let _ = get_input();
 }
-
 
 pub fn is_valid_cron_expression(expression: &str) -> bool {
     lazy_static! {
@@ -62,23 +60,20 @@ pub fn is_valid_cron_expression(expression: &str) -> bool {
 pub fn is_cron_expression_registered() -> bool {
     let result = Command::new("sh")
         .args(&["-c", "crontab -l | fgrep \"wh pull\""])
-        .output().expect("Fgrep failed.");
-    let stdout = String::from_utf8(result.stdout)
-        .unwrap();
+        .output()
+        .expect("Fgrep failed.");
+    let stdout = String::from_utf8(result.stdout).unwrap();
     if !stdout.trim().is_empty() {
         true
-    }
-    else {
+    } else {
         false
     }
 }
-
 
 pub fn convert_table_name_to_file_name(table_name: &str) -> String {
     let metadata_path = filesystem::get_metadata_dirname();
     format!("{}/{}.md", metadata_path, table_name)
 }
-
 
 pub fn touch(path: &Path) -> io::Result<()> {
     match OpenOptions::new().create(true).write(true).open(path) {
@@ -86,7 +81,6 @@ pub fn touch(path: &Path) -> io::Result<()> {
         Err(e) => Err(e),
     }
 }
-
 
 #[cfg(test)]
 mod tests {

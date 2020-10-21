@@ -1,14 +1,12 @@
-use std::path::{Path};
+use std::path::Path;
 use std::{
     collections::BTreeSet,
     env,
     fs::{self, OpenOptions},
-    io::{Write, BufWriter},
+    io::{BufWriter, Write},
 };
 
-
 pub fn create_file_structure() {
-
     let subdirs = [
         get_bin_dirname(),
         get_config_dirname(),
@@ -20,11 +18,9 @@ pub fn create_file_structure() {
     ];
 
     for subdir in subdirs.iter() {
-        fs::create_dir_all(Path::new(&*subdir))
-            .expect("Directory was not created succesfully.");
+        fs::create_dir_all(Path::new(&*subdir)).expect("Directory was not created succesfully.");
     }
 }
-
 
 pub fn deduplicate_file(file_path_string: &str) {
     let file_path = Path::new(file_path_string);
@@ -34,7 +30,8 @@ pub fn deduplicate_file(file_path_string: &str) {
         .create(true)
         .write(true)
         .truncate(true)
-        .open(&file_path_string) {
+        .open(&file_path_string)
+    {
         Ok(file) => {
             let mut writer = BufWriter::new(&file);
             for line in lines {
@@ -42,11 +39,10 @@ pub fn deduplicate_file(file_path_string: &str) {
                 writeln!(writer, "{}", line).unwrap();
             }
             writer.flush().expect("Unable to write to file.");
-        },
-        Err(err) => {panic!("Failed to open file: {}", err)}
+        }
+        Err(err) => panic!("Failed to open file: {}", err),
     }
 }
-
 
 pub fn append_to_file(contents: String, path: &str) {
     let mut file = OpenOptions::new()
@@ -59,141 +55,93 @@ pub fn append_to_file(contents: String, path: &str) {
 }
 
 pub fn get_activate_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_libexec_dirname(),
-                       "env/bin/activate");
+    let path = format!("{}/{}", get_libexec_dirname(), "env/bin/activate");
     path
 }
-
 
 pub fn get_base_dirname() -> std::string::String {
     shellexpand::tilde("~/.whale").into_owned()
 }
 
-
 pub fn get_bin_dirname() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_base_dirname(),
-                       "bin");
+    let path = format!("{}/{}", get_base_dirname(), "bin");
     path
 }
-
 
 pub fn get_build_script_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_libexec_dirname(),
-                       "build_script.py");
+    let path = format!("{}/{}", get_libexec_dirname(), "build_script.py");
     path
 }
-
 
 pub fn get_config_dirname() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_base_dirname(),
-                       "config");
+    let path = format!("{}/{}", get_base_dirname(), "config");
     path
 }
-
 
 pub fn get_config_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_config_dirname(),
-                       "config.yaml");
+    let path = format!("{}/{}", get_config_dirname(), "config.yaml");
     path
 }
-
 
 pub fn get_connections_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_config_dirname(),
-                       "connections.yaml");
+    let path = format!("{}/{}", get_config_dirname(), "connections.yaml");
     path
 }
-
 
 pub fn get_cron_log_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_logs_dirname(),
-                       "cron.log");
+    let path = format!("{}/{}", get_logs_dirname(), "cron.log");
     path
 }
 
-
 pub fn get_etl_command() -> std::string::String {
-    let path = format!("{}/{}/{}",
-                       get_base_dirname(),
-                       "bin",
-                       "whale");
+    let path = format!("{}/{}/{}", get_base_dirname(), "bin", "whale");
     if Path::new(&*path).exists() {
         format!("{} pull", path)
-    }
-    else {
+    } else {
         "wh pull".to_string()
     }
 }
-
 
 pub fn get_libexec_dirname() -> std::string::String {
     let executable = env::current_exe().unwrap();
     let executable = std::fs::canonicalize(executable).unwrap();
     let path = match executable.parent() {
         Some(name) => name,
-        _ => panic!()
+        _ => panic!(),
     };
-    let path = format!("{}/../{}",
-                       path.display(),
-                       "libexec");
+    let path = format!("{}/../{}", path.display(), "libexec");
     path
 }
-
 
 pub fn get_logs_dirname() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_base_dirname(),
-                       "logs");
+    let path = format!("{}/{}", get_base_dirname(), "logs");
     path
 }
-
 
 pub fn get_manifest_dirname() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_base_dirname(),
-                       "manifests");
+    let path = format!("{}/{}", get_base_dirname(), "manifests");
     path
 }
-
 
 pub fn get_manifest_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_manifest_dirname(),
-                       "manifest.txt");
+    let path = format!("{}/{}", get_manifest_dirname(), "manifest.txt");
     path
 }
-
 
 pub fn get_metadata_dirname() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_base_dirname(),
-                       "metadata");
+    let path = format!("{}/{}", get_base_dirname(), "metadata");
     path
 }
-
 
 pub fn get_metrics_dirname() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_base_dirname(),
-                       "metrics");
+    let path = format!("{}/{}", get_base_dirname(), "metrics");
     path
 }
-
 
 pub fn get_tmp_manifest_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_manifest_dirname(),
-                       "tmp_manifest.txt");
+    let path = format!("{}/{}", get_manifest_dirname(), "tmp_manifest.txt");
     path
 }
-
 
 pub fn get_open_command() -> std::string::String {
     let editor = match std::env::var("EDITOR") {
@@ -203,25 +151,17 @@ pub fn get_open_command() -> std::string::String {
     editor
 }
 
-
 pub fn get_recently_used_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_logs_dirname(),
-                       "recently_used.txt");
+    let path = format!("{}/{}", get_logs_dirname(), "recently_used.txt");
     path
 }
 
-
 pub fn get_run_script_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_libexec_dirname(),
-                       "run_script.py");
+    let path = format!("{}/{}", get_libexec_dirname(), "run_script.py");
     path
 }
 
 pub fn get_usage_filename() -> std::string::String {
-    let path = format!("{}/{}",
-                       get_logs_dirname(),
-                       "usage.csv");
+    let path = format!("{}/{}", get_logs_dirname(), "usage.csv");
     path
 }

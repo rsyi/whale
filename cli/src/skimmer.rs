@@ -1,14 +1,13 @@
+use crate::filesystem;
+use crate::serialization;
+use crate::utils;
 use skim::prelude::{Skim, SkimItemReader, SkimOptionsBuilder};
 use std::fs;
+use std::io::Cursor;
 use std::path::Path;
 use std::process::Command;
-use std::io::Cursor;
-use crate::filesystem;
-use crate::utils;
-use crate::serialization;
 
 pub fn table_skim() {
-
     let manifest_file_path = filesystem::get_manifest_filename();
     let tmp_manifest_file_path = filesystem::get_tmp_manifest_filename();
 
@@ -17,16 +16,13 @@ pub fn table_skim() {
     let table_manifest;
     let is_manifest_found: bool;
     if Path::new(&manifest_file_path).exists() {
-        table_manifest = fs::read_to_string(manifest_file_path)
-            .expect("Failed to read manifest.");
+        table_manifest = fs::read_to_string(manifest_file_path).expect("Failed to read manifest.");
         is_manifest_found = true;
-    }
-    else if Path::new(&tmp_manifest_file_path).exists() {
+    } else if Path::new(&tmp_manifest_file_path).exists() {
         table_manifest = fs::read_to_string(tmp_manifest_file_path)
             .expect("Failed to read manifest or tmp manifest.");
         is_manifest_found = true;
-    }
-    else {
+    } else {
         table_manifest = "No tables found.".to_string();
         is_manifest_found = false;
     }
@@ -35,8 +31,7 @@ pub fn table_skim() {
     let metadata_path = filesystem::get_metadata_dirname();
     if is_manifest_found {
         preview_arg = format!("{}/{}.md", metadata_path, "{}");
-    }
-    else {
+    } else {
         preview_arg = "<< EOF
     ___=____
   ,^        ^.      _
@@ -57,7 +52,8 @@ pub fn table_skim() {
 
  Good luck, and happy whaling!
 
-        ".to_string();
+        "
+        .to_string();
     }
 
     let reader;
@@ -65,7 +61,8 @@ pub fn table_skim() {
     let custom_preview_command = serialization::read_config("preview_command", "");
 
     if custom_preview_command.is_empty() {
-        let bat_testing_command = format!("command -v bat > /dev/null 2>&1 && echo true || echo false");
+        let bat_testing_command =
+            format!("command -v bat > /dev/null 2>&1 && echo true || echo false");
         let output = Command::new("sh")
             .args(&["-c", &bat_testing_command])
             .output()
@@ -77,12 +74,10 @@ pub fn table_skim() {
 
         if is_bat_installed {
             reader = "bat --color=always --style='changes'";
-        }
-        else {
+        } else {
             reader = "cat";
         }
-    }
-    else {
+    } else {
         reader = &custom_preview_command;
     }
 
@@ -118,5 +113,4 @@ pub fn table_skim() {
     }
 
     // filesystem::deduplicate_file(&recently_used_filename);
-
 }

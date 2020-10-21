@@ -1,42 +1,59 @@
-use whale;
 use clap::{App, Arg, SubCommand};
+use whale;
 
 fn main() {
     let app = App::new("Whale CLI")
         .about("Data WareHouse And Lake Explorer")
         .author("Robert Yi (@rsyi on github)")
-        .subcommand(SubCommand::with_name("init")
-            .about("Initializes the scheduler and extraction pipeline"))
+        .subcommand(
+            SubCommand::with_name("init")
+                .about("Initializes the scheduler and extraction pipeline"),
+        )
         //.subcommand(SubCommand::with_name("dash")
         //    .about("Show macro-level dashboard of metadata metadata"))
-        .subcommand(SubCommand::with_name("config")
-            .about("Open file containing whale config information"))
-        .subcommand(SubCommand::with_name("connections")
-            .about("Open file containing warehouse connection information"))
-        .subcommand(SubCommand::with_name("git-enable")
-            .about("Enable git"))
-        .subcommand(SubCommand::with_name("git-setup")
-            .about("Set up ~/.whale directory for git and run initial push")
-            .arg(Arg::with_name("remote")
-                 .help("Remote git address where whale will be backed up"))
-            )
-        .subcommand(SubCommand::with_name("etl")
-            .about("Manually runs the metadata extraction job (deprecated: use `wh pull` instead)"))
-        .subcommand(SubCommand::with_name("pull")
-            .about("Manually runs the metadata extraction job"))
-        .subcommand(SubCommand::with_name("run")
-            .about("Execute a query file")
-            .arg(Arg::with_name("sql_file")
-                 .help("File path that contains the sql file to run")
-                 .required(true))
-            .arg(Arg::with_name("warehouse_name")
-                 .short("w")
-                 .long("warehouse")
-                 .help("Warehouse name to run the query against")
-                 .required(false))
-            )
-        .subcommand(SubCommand::with_name("schedule")
-            .about("Register metadata scraping job with crontab"));
+        .subcommand(
+            SubCommand::with_name("config").about("Open file containing whale config information"),
+        )
+        .subcommand(
+            SubCommand::with_name("connections")
+                .about("Open file containing warehouse connection information"),
+        )
+        .subcommand(SubCommand::with_name("git-enable").about("Enable git"))
+        .subcommand(
+            SubCommand::with_name("git-setup")
+                .about("Set up ~/.whale directory for git and run initial push")
+                .arg(
+                    Arg::with_name("remote")
+                        .help("Remote git address where whale will be backed up"),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("etl").about(
+                "Manually runs the metadata extraction job (deprecated: use `wh pull` instead)",
+            ),
+        )
+        .subcommand(
+            SubCommand::with_name("pull").about("Manually runs the metadata extraction job"),
+        )
+        .subcommand(
+            SubCommand::with_name("run")
+                .about("Execute a query file")
+                .arg(
+                    Arg::with_name("sql_file")
+                        .help("File path that contains the sql file to run")
+                        .required(true),
+                )
+                .arg(
+                    Arg::with_name("warehouse_name")
+                        .short("w")
+                        .long("warehouse")
+                        .help("Warehouse name to run the query against")
+                        .required(false),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("schedule").about("Register metadata scraping job with crontab"),
+        );
 
     let matches = app.get_matches();
 
@@ -69,7 +86,7 @@ fn main() {
         Some("git-enable") => whale::Whale::git_enable(),
         Some("git-setup") => whale::Whale::git_setup(git_address),
         Some("run") => whale::Whale::run(sql_file, warehouse_name),
-        _ => whale::Whale::run_with(matches)
-    }.expect("Failed to run command.");
-
+        _ => whale::Whale::run_with(matches),
+    }
+    .expect("Failed to run command.");
 }

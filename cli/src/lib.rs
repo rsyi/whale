@@ -1,39 +1,32 @@
 mod tuievent;
 
-#[macro_use] extern crate lazy_static;
-use clap::{ArgMatches};
+#[macro_use]
+extern crate lazy_static;
+use crate::tuievent::{Event, Events};
+use clap::ArgMatches;
 use colored::*;
 use std::{
     io::{self, Write},
     process::Command,
 };
+use termion::{clear, event::Key, raw::IntoRawMode};
 use tui::{
     backend::TermionBackend,
-    layout::{Layout, Constraint, Direction},
+    layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     symbols,
     text::Span,
     widgets::{Axis, Block, Borders, Chart, Dataset, GraphType},
     Terminal,
 };
-use termion::{
-    clear,
-    event::Key,
-    raw::IntoRawMode,
-};
-use crate::tuievent::{
-    {Event, Events},
-};
 
-pub mod warehouse;
-pub mod skimmer;
-pub mod utils;
 pub mod filesystem;
 pub mod serialization;
-
+pub mod skimmer;
+pub mod utils;
+pub mod warehouse;
 
 const DEFAULT_CRON_STRING: &str = "0 */6 * * *";
-
 
 fn print_initialization_header() {
     let whale_header = "
@@ -45,26 +38,30 @@ oooo oooo    ooo  888 .oo.          :
    `888'`888'     888   888    |  o        \\___/  |
     `8'  `8'     o888o o888o  ~^~^~^~^~^~^~^~^~^~^~^~
 
-    Data Warehouse Command-Line Explorer".cyan().bold();
+    Data Warehouse Command-Line Explorer"
+        .cyan()
+        .bold();
 
     println!("{}", whale_header);
     // println!("
-// Whale needs to initialize the following file structure:
-//
-//  ~/.whale
-//  ├── config
-//  │   └── connections.yaml
-//  ├── logs
-//  └── metadata
-//
-// We'll check if this exists and make it if it doesn't.")
+    // Whale needs to initialize the following file structure:
+    //
+    //  ~/.whale
+    //  ├── config
+    //  │   └── connections.yaml
+    //  ├── logs
+    //  └── metadata
+    //
+    // We'll check if this exists and make it if it doesn't.")
 }
-
 
 fn print_scheduler_header() {
-    println!("\n{} [Default: {} (on the hour, every 6 hours)]", "Enter cron string.".purple(), DEFAULT_CRON_STRING.green());
+    println!(
+        "\n{} [Default: {} (on the hour, every 6 hours)]",
+        "Enter cron string.".purple(),
+        DEFAULT_CRON_STRING.green()
+    );
 }
-
 
 /// Holds all command-line tasks.
 ///
@@ -80,11 +77,12 @@ impl Whale {
             .unwrap();
         if is_git_etl_enabled {
             let whale_dirname = filesystem::get_base_dirname();
-            let command = format!("cd {} && (git status | grep Unmerged > /dev/null 2>&1 && echo true || echo false)", whale_dirname);
+            let command = format!(
+                "cd {} && (git status | grep Unmerged > /dev/null 2>&1 && echo true || echo false)",
+                whale_dirname
+            );
 
-            let output = Command::new("sh")
-                .args(&["-c", &command])
-                .output()?;
+            let output = Command::new("sh").args(&["-c", &command]).output()?;
             let is_unmerged_files_found = String::from_utf8_lossy(&output.stdout)
                 .trim()
                 .parse()
@@ -101,12 +99,16 @@ impl Whale {
         filesystem::create_file_structure();
 
         if !utils::is_cron_expression_registered() {
-            println!("\n{} [{}/{}]",
-                     "Would you like to register a cron job to periodically scrape metadata?".purple(),
-                     "Y".green(),
-                     "n".red()
-                     );
-            println!("This is resource-light and can be manually deleted by editing the file at {}.", "crontab -e".magenta());
+            println!(
+                "\n{} [{}/{}]",
+                "Would you like to register a cron job to periodically scrape metadata?".purple(),
+                "Y".green(),
+                "n".red()
+            );
+            println!(
+                "This is resource-light and can be manually deleted by editing the file at {}.",
+                "crontab -e".magenta()
+            );
             let is_scheduling_requested: bool = utils::get_input_as_bool();
             if is_scheduling_requested {
                 Whale::schedule(false)?;
@@ -129,28 +131,30 @@ impl Whale {
         if git_address == "None" {
             println!("You must supply a git remote.");
             Ok(())
-        }
-        else {
-            let init_command = format!("cd ~/.whale && git init && git remote add origin {}", git_address);
+        } else {
+            let init_command = format!(
+                "cd ~/.whale && git init && git remote add origin {}",
+                git_address
+            );
             let gitignore_command = "echo 'bin/\nlogs/\nconfig/config.yaml\nlibexec/' > .gitignore";
-            let git_push_command = "git add . && git commit -m 'Whale on our way' && git push -u origin master";
-            let full_command = format!("{} && {} && {}", init_command, gitignore_command, git_push_command);
-            let mut child = Command::new("sh")
-                .args(&["-c", &full_command])
-                .spawn()?;
+            let git_push_command =
+                "git add . && git commit -m 'Whale on our way' && git push -u origin master";
+            let full_command = format!(
+                "{} && {} && {}",
+                init_command, gitignore_command, git_push_command
+            );
+            let mut child = Command::new("sh").args(&["-c", &full_command]).spawn()?;
             child.wait()?;
 
             Ok(())
         }
     }
 
-    pub fn config() -> Result<(), io::Error>{
+    pub fn config() -> Result<(), io::Error> {
         let config_file = filesystem::get_config_filename();
         let editor = filesystem::get_open_command();
 
-        Command::new(editor)
-            .arg(config_file)
-            .status()?;
+        Command::new(editor).arg(config_file).status()?;
 
         Ok(())
     }
@@ -159,9 +163,7 @@ impl Whale {
         let connections_config_file = filesystem::get_connections_filename();
         let editor = filesystem::get_open_command();
 
-        Command::new(editor)
-            .arg(connections_config_file)
-            .status()?;
+        Command::new(editor).arg(connections_config_file).status()?;
 
         Ok(())
     }
@@ -178,21 +180,19 @@ Fetching and rebasing local changes from github.");
             let whale_dirname = filesystem::get_base_dirname();
 
             let command = format!("cd {} && git pull --rebase --autostash", whale_dirname);
-            let mut child = Command::new("sh")
-                .args(&["-c", &command])
-                .spawn()?;
+            let mut child = Command::new("sh").args(&["-c", &command]).spawn()?;
             child.wait()?;
-        }
-        else {
+        } else {
             // let build_script_path = filesystem::get_build_script_filename();
             // let build_script_path = Path::new(&*build_script_path);
             let python_alias = serialization::read_config("python3_alias", "python3");
             let activate_path = filesystem::get_activate_filename();
             let build_script_path = filesystem::get_build_script_filename();
-            let full_command = format!("source {} && {} {}", activate_path, python_alias, build_script_path);
-            let mut child = Command::new("sh")
-                .args(&["-c", &full_command])
-                .spawn()?;
+            let full_command = format!(
+                "source {} && {} {}",
+                activate_path, python_alias, build_script_path
+            );
+            let mut child = Command::new("sh").args(&["-c", &full_command]).spawn()?;
             child.wait()?;
 
             let manifest_path = filesystem::get_manifest_filename();
@@ -202,16 +202,16 @@ Fetching and rebasing local changes from github.");
         Ok(())
     }
 
-
-    pub fn run(sql_file: &str, warehouse_name: &str) -> Result<(), io::Error>{
+    pub fn run(sql_file: &str, warehouse_name: &str) -> Result<(), io::Error> {
         let python_alias = serialization::read_config("python3_alias", "python3");
         let activate_path = filesystem::get_activate_filename();
         let run_script_path = filesystem::get_run_script_filename();
         let arguments = format!("{} {}", sql_file, warehouse_name);
-        let full_command = format!("source {} && {} {} {}", activate_path, python_alias, run_script_path, arguments);
-        let mut child = Command::new("sh")
-            .args(&["-c", &full_command])
-            .spawn()?;
+        let full_command = format!(
+            "source {} && {} {} {}",
+            activate_path, python_alias, run_script_path, arguments
+        );
+        let mut child = Command::new("sh").args(&["-c", &full_command]).spawn()?;
         child.wait()?;
 
         Ok(())
@@ -228,23 +228,30 @@ Fetching and rebasing local changes from github.");
             println!(
                 "\n{} {}.\n",
                 "Valid cron string detected:",
-                cron_string.yellow());
-        }
-        else {
+                cron_string.yellow()
+            );
+        } else {
             println!(
                 "\n{} {} {} {}\n",
                 "WARNING:".bold().red(),
                 "Cron expression",
                 cron_string.yellow(),
                 "appears invalid. Proceed with caution.",
-                );
+            );
         }
 
         let mut can_add_crontab = true;
         if ask_for_permission {
-            println!("{} [{}, {}]", "Register metadata scraping job at this schedule in crontab?".purple(), "Y".green(), "n".red());
+            println!(
+                "{} [{}, {}]",
+                "Register metadata scraping job at this schedule in crontab?".purple(),
+                "Y".green(),
+                "n".red()
+            );
             println!("This will excise and replace any whale-based cron job you've already registered through this interface.");
-            println!("You can manually delete this later by editing the file accessed by `crontab -e`.");
+            println!(
+                "You can manually delete this later by editing the file accessed by `crontab -e`."
+            );
 
             can_add_crontab = utils::get_input_as_bool();
         }
@@ -252,36 +259,35 @@ Fetching and rebasing local changes from github.");
         if can_add_crontab {
             let whale_etl_command = filesystem::get_etl_command();
 
-            let whale_cron_expression = format!(
-                "{} {}",
-                cron_string,
-                whale_etl_command);
-            let scheduler_command = format!("(crontab -l | fgrep -v \"{}\"; echo \"{}\") | crontab -", whale_etl_command, whale_cron_expression);
+            let whale_cron_expression = format!("{} {}", cron_string, whale_etl_command);
+            let scheduler_command = format!(
+                "(crontab -l | fgrep -v \"{}\"; echo \"{}\") | crontab -",
+                whale_etl_command, whale_cron_expression
+            );
 
             Command::new("sh")
                 .args(&["-c", &scheduler_command])
                 .spawn()?;
 
-            println!("If you are prompted for permissions, allow and continue. [Press {} to continue]", "enter".green());
+            println!(
+                "If you are prompted for permissions, allow and continue. [Press {} to continue]",
+                "enter".green()
+            );
             utils::get_input();
 
             if utils::is_cron_expression_registered() {
                 println!("{}", "Cron expression successfully registered.".cyan());
-            }
-            else {
+            } else {
                 println!("{} {}", "WARNING:".red(), "Cron tab failed to register.");
                 println!("If failures persist, manually add the following line to your crontab (accessed through {}).", "crontab -e".magenta());
                 println!("{}", whale_cron_expression.magenta());
             }
-
         }
 
         Ok(())
     }
 
-
     pub fn dash() -> Result<(), io::Error> {
-
         const DATA2: [(f64, f64); 7] = [
             (0.0, 0.0),
             (10.0, 1.0),
@@ -303,17 +309,10 @@ Fetching and rebasing local changes from github.");
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
-                    .constraints(
-                        [
-                            Constraint::Percentage(50),
-                            Constraint::Percentage(50),
-                        ].as_ref()
-                    )
+                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
                     .split(f.size());
 
-                let block = Block::default()
-                     .title("Block")
-                     .borders(Borders::ALL);
+                let block = Block::default().title("Block").borders(Borders::ALL);
 
                 let datasets = vec![Dataset::default()
                     .name("count_distinct(nulls)")
@@ -327,7 +326,7 @@ Fetching and rebasing local changes from github.");
                         Axis::default()
                             .title("X Axis")
                             .style(Style::default().fg(Color::Gray))
-                            .bounds([0.0, 60.0])
+                            .bounds([0.0, 60.0]),
                     )
                     .y_axis(
                         Axis::default()
@@ -337,14 +336,12 @@ Fetching and rebasing local changes from github.");
                                 Span::styled("3", Style::default().add_modifier(Modifier::BOLD)),
                                 Span::raw("0"),
                             ])
-                            .bounds([0.0, 3.0])
+                            .bounds([0.0, 3.0]),
                     );
 
                 f.render_widget(chart, chunks[0]);
 
-                let block = Block::default()
-                     .title("Block 2")
-                     .borders(Borders::ALL);
+                let block = Block::default().title("Block 2").borders(Borders::ALL);
                 f.render_widget(block, chunks[1]);
             })?;
 
@@ -354,10 +351,10 @@ Fetching and rebasing local changes from github.");
                     if input == Key::Char('q') {
                         break;
                     }
-                },
-                Event::Tick => ()
+                }
+                Event::Tick => (),
             };
-        };
+        }
 
         Ok(())
     }
