@@ -82,7 +82,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         );
         let has_warehouse_to_add: bool = utils::get_input_as_bool();
         if !has_warehouse_to_add {
-            return
+            return;
         }
     }
 
@@ -264,9 +264,7 @@ impl GenericWarehouse {
 
         // port
         let port_msg = "Port?";
-        let port_str: String = utils::get_input_with_message(port_msg)
-            .trim()
-            .to_string();
+        let port_str: String = utils::get_input_with_message(port_msg).trim().to_string();
         let port: i32 = port_str.parse::<i32>().unwrap();
 
         // username
@@ -349,9 +347,7 @@ impl HiveMetastore {
 
         // port
         let port_msg = "Port?";
-        let port_str: String = utils::get_input_with_message(port_msg)
-            .trim()
-            .to_string();
+        let port_str: String = utils::get_input_with_message(port_msg).trim().to_string();
         let port: i32 = port_str.parse::<i32>().unwrap();
 
         // username

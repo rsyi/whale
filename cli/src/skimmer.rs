@@ -61,7 +61,8 @@ pub fn table_skim() {
     let custom_preview_command = serialization::read_config("preview_command", "");
 
     if custom_preview_command.is_empty() {
-        let bat_testing_command = "command -v bat > /dev/null 2>&1 && echo true || echo false".to_string();
+        let bat_testing_command =
+            "command -v bat > /dev/null 2>&1 && echo true || echo false".to_string();
         let output = Command::new("sh")
             .args(&["-c", &bat_testing_command])
             .output()
