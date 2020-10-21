@@ -27,8 +27,7 @@ pub fn get_input_as_bool() -> bool {
     let raw_input = get_input();
     let buffer: &str = raw_input.as_str().trim();
     let negative_inputs = ["n", "N", "f", "false", "False"];
-
-    negative_inputs.contains(&buffer)
+    !negative_inputs.contains(&buffer)
 }
 
 pub fn get_input_with_message(message: &str) -> String {
