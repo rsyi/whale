@@ -59,7 +59,7 @@ impl fmt::Display for MetadataSource {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             MetadataSource::Bigquery => write!(f, "Bigquery"),
-            MetadataSource::Glue=> write!(f, "Glue"),
+            MetadataSource::Glue => write!(f, "Glue"),
             MetadataSource::Hive => write!(f, "Hive"),
             MetadataSource::HiveMetastore => write!(f, "Hive Metastore"),
             MetadataSource::Postgres => write!(f, "Postgres"),
@@ -324,7 +324,6 @@ impl GenericWarehouse {
     }
 }
 
-
 #[derive(Serialize, Deserialize)]
 pub struct Glue {
     pub name: String,
@@ -336,7 +335,7 @@ impl Glue {
         // name
         let name: String = get_name();
 
-        let git_header = format!("Glue requires no further configuration. We will let boto3 handle the connection configuration.");
+        let git_header = "Glue requires no further configuration. We will let boto3 handle the connection configuration.";
         println!("{}", git_header);
 
         let compiled_config = Glue {
@@ -354,8 +353,6 @@ impl Glue {
         );
     }
 }
-
-
 
 #[derive(Serialize, Deserialize)]
 pub struct HiveMetastore {
