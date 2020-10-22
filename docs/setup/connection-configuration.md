@@ -8,6 +8,7 @@ We provide access to warehouse configuration through the `~/.whale/config/connec
 ---
 name: ~
 metadata_source: ~
+database: ~  # For all but bigquery
 
 ```
 
@@ -17,6 +18,7 @@ metadata_source: ~
   * Neo4j
   * Presto
   * Snowflake
+* **database** Specify a string here to restrict the scraping to a particular database under your connection. Specifying this modifies the SQLAlchemy conn string used for connection, using this string as the "database" field \(in ANSI SQL, this is known as the "catalog"\). See the [SQLAlchemy docs](https://docs.sqlalchemy.org/en/13/core/engines.html) for more details.
 
 ## Bigquery
 

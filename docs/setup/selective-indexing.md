@@ -8,13 +8,23 @@ To this end, we support regex and/or where clause appending to our metadata extr
 wh connections
 ```
 
-**Note:** For the `where_clause_suffix`-enabled warehouses, we follow the amundsen-databuilder pattern, for those familiar with it. For simplicity, we provide a list of metadata tables \(e.g. `information_schema`\) and their aliases, as well as a list of a few notable column names that are commonly used for filtering.
+**Note:** For the `where_clause_suffix`-enabled warehouses, we follow the amundsen-databuilder pattern, for those familiar with it. For simplicity, we provide a list of metadata tables \(e.g. `information_schema`\) and their aliases, as well as a list of a few notable column names that are commonly used for filtering. If you write a statement that includes a `%`, you'll need to escape it \(replace it with `%%`\), as we use the python library SQLAlchemy to execute your query, and python reserves `%` for string formatting.
 
 {% hint style="info" %}
 Once you run a scraping job \(`wh pull`, manually or through cron\), we will never _delete_ any table stubs, to avoid removing any personal documentation, so if you want to remove filtered tables scraped before adding a filter, they'll have to be deleted manually.
 {% endhint %}
 
-## Bigquery: included\_tables\_regex
+## Database-specific indexing
+
+For all sources except for Bigquery \(for which `project_id` is already an accepted configuration key\), we supply a **configuration key `database`** which enables users to pull data only from specific databases/clusters/catalogs under a connection.
+
+{% hint style="info" %}
+We ubiquitously use the name `database` for simplicity, though it often is described differently for different warehouse types. E.g. for postgres and snowflake it's typically called "database", while the ANSI sql standard labels this the "catalog", and amundsen calls this layer the "cluster", following the typical pattern in Hive & Presto-based setups with production-development replication.
+{% endhint %}
+
+## Source-specific instructions
+
+### Bigquery: included\_tables\_regex
 
 Because we access Bigquery through the google client API, we don't supply a `where_clause` like with the other warehouses. You can instead add the `included_tables_regex` with an associated regex expression. If the regex expression is matched, the table will be indexed.
 
@@ -30,7 +40,7 @@ included_tables_regex: ".*(?<!button_clicked)$"  # tables that don't end in "but
 
 The table to be matched by this regex will follow the format: `project_id.dataset.table_name`, so dataset- level restrictions can also occur here.
 
-## Hive Metastore: where\_clause\_suffix
+### Hive Metastore: where\_clause\_suffix
 
 ```text
 ---
@@ -54,7 +64,7 @@ Notable fields:
 * `d.NAME` \(table schema\)
 * `t.TABLE_NAME`
 
-## Postgres: where\_clause\_suffix
+### Postgres: where\_clause\_suffix
 
 ```text
 ---
@@ -64,6 +74,7 @@ metadata_source: Postgres
 where_clause_suffix: |
   where c.table_schema = 'schema1'
   and c.table_name = 'table1'
+  and c.table_schema not like 'dbt%%'
 ```
 
 Available metadata tables:
@@ -77,7 +88,7 @@ Notable fields:
 * `c.table_schema`
 * `c.table_name`
 
-## Presto: where\_clause\_suffix
+### Presto: where\_clause\_suffix
 
 ```text
 ---
@@ -100,7 +111,7 @@ Notable fields:
 * `a.table_schema`
 * `a.table_name`
 
-## Redshift
+### Redshift
 
 ```text
 ---
@@ -120,7 +131,7 @@ Notable fields:
 * `schema`
 * `name` \(table name\)
 
-## Snowflake
+### Snowflake
 
 ```text
 ---
