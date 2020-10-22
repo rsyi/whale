@@ -1,4 +1,5 @@
 amundsen-databuilder==3.3.2
+boto3
 google-api-python-client==1.10.0
 google-auth-httplib2==0.0.4
 google-auth-oauthlib==0.4.1

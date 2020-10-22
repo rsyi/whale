@@ -23,3 +23,7 @@ def test_run(mock_execution, get_connection):
 
 def test_pull_without_files(mock_file_structure):
     pull()
+
+
+def test_pull_glue(mock_file_structure):
+    pull()

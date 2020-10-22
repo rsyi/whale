@@ -18,6 +18,7 @@ from whale.utils.config import (
 
 from whale.utils.extractor_wrappers import (
     configure_bigquery_extractors,
+    configure_glue_extractors,
     configure_hive_metastore_extractors,
     configure_neo4j_extractors,
     configure_postgres_extractors,
@@ -70,13 +71,14 @@ def pull():
         connection = ConnectionConfigSchema(**raw_connection_dict)
 
         metadata_source_dict = {
-            "hivemetastore": configure_hive_metastore_extractors,
-            "presto": configure_presto_extractors,
-            "neo4j": configure_neo4j_extractors,
             "bigquery": configure_bigquery_extractors,
-            "snowflake": configure_snowflake_extractors,
+            "glue": configure_glue_extractors,
+            "hivemetastore": configure_hive_metastore_extractors,
+            "neo4j": configure_neo4j_extractors,
             "postgres": configure_postgres_extractors,
+            "presto": configure_presto_extractors,
             "redshift": configure_redshift_extractors,
+            "snowflake": configure_snowflake_extractors,
         }
 
         if connection.metadata_source == 'build_script':
