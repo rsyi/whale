@@ -15,6 +15,7 @@ from whale.extractor.snowflake_metadata_extractor \
 from whale.extractor.metric_runner import MetricRunner
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
+from databuilder.extractor.glue_extractor import GlueExtractor
 from databuilder.extractor.hive_table_metadata_extractor import HiveTableMetadataExtractor
 from databuilder.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
 from databuilder.extractor.redshift_metadata_extractor import RedshiftMetadataExtractor
@@ -67,6 +68,20 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
     extractors = [extractor, watermark_extractor]
     extractors, conf = add_metrics(extractors, conf, connection)
 
+    return extractors, conf
+
+
+def configure_glue_extractors(connection: ConnectionConfigSchema):
+    Extractor = GlueExtractor
+    extractor = Extractor()
+    scope = extractor.get_scope()
+
+    conf = ConfigFactory.from_dict({
+        f"{scope}.{Extractor.CLUSTER_KEY}": connection.cluster,
+        f"{scope}.{Extractor.FILTER_KEY}": connection.filter_key,
+    })
+
+    extractors = [extractor]
     return extractors, conf
 
 

@@ -1,3 +1,4 @@
+import boto3
 import google
 import googleapiclient
 import google_auth_httplib2
@@ -13,6 +14,7 @@ from whale.extractor.bigquery_metadata_extractor import BaseBigQueryExtractor
 from databuilder.extractor.base_postgres_metadata_extractor import BasePostgresMetadataExtractor
 from whale.utils.extractor_wrappers import (
     configure_bigquery_extractors,
+    configure_glue_extractors,
     configure_neo4j_extractors,
     configure_presto_extractors,
     configure_postgres_extractors,
@@ -39,6 +41,11 @@ TEST_BIGQUERY_CONNECTION_CONFIG = ConnectionConfigSchema(
     project_id='mock_project_id',
     page_size=10,
     filter_key='mock_filter_key'
+)
+
+TEST_GLUE_CONNECTION_CONFIG = ConnectionConfigSchema(
+    metadata_source='glue',
+    filters='mock_filter',
 )
 
 TEST_NEO4J_CONNECTION_CONFIG = ConnectionConfigSchema(
@@ -84,6 +91,18 @@ def test_configure_bigquery_extractor(*mock_settings):
     """
     extractors, conf = \
         configure_bigquery_extractors(TEST_BIGQUERY_CONNECTION_CONFIG)
+    extractor = extractors[0]
+    scoped_conf = Scoped.get_scoped_conf(conf, extractor.get_scope())
+    assert extractor.init(scoped_conf) == None
+
+
+@patch.object(boto3, 'client')
+def test_configure_glue_extractor(*mock_settings):
+    """
+    Test that the extractor can initialize.
+    """
+    extractors, conf = \
+        configure_glue_extractors(TEST_GLUE_CONNECTION_CONFIG)
     extractor = extractors[0]
     scoped_conf = Scoped.get_scoped_conf(conf, extractor.get_scope())
     assert extractor.init(scoped_conf) == None
