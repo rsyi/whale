@@ -249,7 +249,7 @@ pub struct GenericWarehouse {
     port: i32,
     username: Option<String>,
     password: Option<String>,
-    cluster: Option<String>,
+    database: Option<String>,
 }
 
 impl GenericWarehouse {
@@ -291,16 +291,16 @@ impl GenericWarehouse {
             password = Some(password_tmp);
         }
 
-        let cluster: Option<String>;
-        let cluster_msg = {
-            "[Optional] Enter a catalog/cluster within this connection if you'd like to restrict your metadata scrapes to only this catalog/cluster. By default, whale will otherwise scrape all metadata from all available catalogs/clusters."
+        let database: Option<String>;
+        let database_msg = {
+            "[Optional] Enter a catalog/database within this connection if you'd like to restrict your metadata scrapes to only this catalog/database. By default, whale will otherwise scrape all metadata from all available catalogs/databases."
         };
-        let cluster_msg = format!("{} {}", cluster_msg, "[default: None]");
-        let cluster_tmp = utils::get_input_with_message(&cluster_msg);
-        if cluster_tmp == "" {
-            cluster = None;
+        let database_msg = format!("{} {}", database_msg, "[default: None]");
+        let database_tmp = utils::get_input_with_message(&database_msg);
+        if database_tmp == "" {
+            database = None;
         } else {
-            cluster = Some(cluster_tmp);
+            database = Some(database_tmp);
         }
 
         let compiled_config = GenericWarehouse {
@@ -310,7 +310,7 @@ impl GenericWarehouse {
             port,
             username,
             password,
-            cluster,
+            database,
         };
 
         compiled_config
