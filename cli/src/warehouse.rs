@@ -22,6 +22,7 @@ impl fmt::Display for ParseMetadataSourceError {
 pub enum MetadataSource {
     Bigquery,
     GitServer,
+    Glue,
     Hive,
     HiveMetastore,
     Postgres,
@@ -37,6 +38,7 @@ impl FromStr for MetadataSource {
     fn from_str(warehouse: &str) -> Result<Self, Self::Err> {
         match warehouse {
             "bigquery" | "bq" | "b" => Ok(MetadataSource::Bigquery),
+            "glue" => Ok(MetadataSource::Glue),
             "hive" | "h" => Ok(MetadataSource::Hive),
             "hive_metastore" | "hive-metastore" | "hive metastore" | "hm" => {
                 Ok(MetadataSource::HiveMetastore)
@@ -57,6 +59,7 @@ impl fmt::Display for MetadataSource {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             MetadataSource::Bigquery => write!(f, "Bigquery"),
+            MetadataSource::Glue=> write!(f, "Glue"),
             MetadataSource::Hive => write!(f, "Hive"),
             MetadataSource::HiveMetastore => write!(f, "Hive Metastore"),
             MetadataSource::Postgres => write!(f, "Postgres"),
@@ -94,6 +97,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
 
     let supported_warehouse_types = [
         "bigquery",
+        "glue",
         "hive-metastore",
         "postgres",
         "presto",
@@ -124,6 +128,7 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         | Ok(MetadataSource::AmundsenNeo4j) => {
             GenericWarehouse::prompt_add_details(warehouse_enum.unwrap())
         }
+        Ok(MetadataSource::Glue) => Glue::prompt_add_details(),
         Ok(MetadataSource::HiveMetastore) => HiveMetastore::prompt_add_details(),
         Ok(MetadataSource::GitServer) => GitServer::prompt_add_details(),
         Ok(MetadataSource::BuildScript) => BuildScript::prompt_add_details(),
@@ -318,6 +323,39 @@ impl GenericWarehouse {
         );
     }
 }
+
+
+#[derive(Serialize, Deserialize)]
+pub struct Glue {
+    pub name: String,
+    pub metadata_source: MetadataSource, // Unused. We reference the `.git` dir instead.
+}
+
+impl Glue {
+    pub fn prompt_add_details() {
+        // name
+        let name: String = get_name();
+
+        let git_header = format!("Glue requires no further configuration. We will let boto3 handle the connection configuration.");
+        println!("{}", git_header);
+
+        let compiled_config = Glue {
+            name,
+            metadata_source: MetadataSource::Glue,
+        };
+
+        compiled_config
+            .register_connection()
+            .expect("Failed to register warehouse configuration");
+
+        println!(
+            "Added source: {:?} to ~/.whale/config/connections.yaml.",
+            compiled_config.name,
+        );
+    }
+}
+
+
 
 #[derive(Serialize, Deserialize)]
 pub struct HiveMetastore {
