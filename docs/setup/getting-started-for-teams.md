@@ -70,7 +70,7 @@ jobs:
         run: |
           git config user.name 'GHA Runner'
           git config user.email '<your_username>@users.noreply.github.com'
-          git add metadata manifests metrics
+          git add .
           git commit -m "Automated push." || echo "No changes to commit"
           git push
 
