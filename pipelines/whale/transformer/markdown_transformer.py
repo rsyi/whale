@@ -6,6 +6,7 @@ from whale.utils.markdown_delimiters import (
     COLUMN_DETAILS_DELIMITER
 )
 from databuilder.models.watermark import Watermark
+from databuilder.models.table_metadata import DescriptionMetadata
 
 import textwrap
 
@@ -26,7 +27,10 @@ class FormatterMixin():
         formatted_columns = self.format_columns(record)
 
         if record.description:
-            description = record.description + "\n"
+            if type(record.description) == DescriptionMetadata:
+                description = record.description._text + "\n"
+            else:
+                description = str(record.description) + "\n"
         else:
             description = ""
 
