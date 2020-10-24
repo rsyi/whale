@@ -21,7 +21,7 @@ make && make install
 The Makefile commands don't explicitly add an alias for the `whale` binary, so you'll want to add the following alias to your `.bash_profile` or `.zshrc` file.
 
 ```text
-alias wh=~/.whale/bin/wh
+alias wh=~/.whale/bin/whale
 ```
 
 This method is generally preferred for development as well, as the virtual environment is exposed and modifiable in `~/.whale/libexec/env`.
