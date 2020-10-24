@@ -1,6 +1,12 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    paths:
+    - "pipelines/**"
+  pull_request:
+    paths:
+    - "pipelines/**"
 
 jobs:
   build:
