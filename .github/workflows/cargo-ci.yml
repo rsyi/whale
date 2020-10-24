@@ -1,11 +1,14 @@
 ---
 # shamelessly lifted from https://github.com/actions-rs/meta/blob/master/recipes/quickstart.md
+name: Cargo-CI
 
 on:
-  - push
-  - pull_request
-
-name: Cargo-CI
+  push:
+    paths:
+    - "cli/**"
+  pull_request:
+    paths:
+    - "cli/**"
 
 jobs:
   fmt:
