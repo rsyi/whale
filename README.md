@@ -41,7 +41,7 @@ make && make install
 If you are running this multiple times, make sure `~/.whale/libexec` does not exist, or your virtual environment may not rebuild. We don't explicitly add an alias for the `whale` binary, so you'll want to add the following alias to your `.bash_profile` or `.zshrc` file.
 
 ```text
-alias wh=~/.whale/bin/wh
+alias wh=~/.whale/bin/whale
 ```
 
 ## Getting started
