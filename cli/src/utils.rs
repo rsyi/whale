@@ -53,9 +53,9 @@ pub fn is_valid_cron_expression(expression: &str) -> bool {
 
 pub fn is_cron_expression_registered() -> bool {
     let result = Command::new("sh")
-        .args(&["-c", "crontab -l | fgrep \"wh pull\""])
+        .args(&["-c", "crontab -l | grep -E \"wh|whale pull\""])
         .output()
-        .expect("Fgrep failed.");
+        .expect("grep failed.");
     let stdout = String::from_utf8(result.stdout).unwrap();
 
     !stdout.trim().is_empty()
