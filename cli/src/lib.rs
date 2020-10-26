@@ -255,7 +255,7 @@ Fetching and rebasing local changes from github.");
 
             let whale_cron_expression = format!("{} {}", cron_string, whale_etl_command);
             let scheduler_command = format!(
-                "(crontab -l | fgrep -v \"{}\"; echo \"{}\") | crontab -",
+                "(crontab -l | grep -v \"{}\"; echo \"{}\") | crontab -",
                 whale_etl_command, whale_cron_expression
             );
 
