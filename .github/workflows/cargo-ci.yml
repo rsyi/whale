@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
     - "cli/**"
+    - ".github/workflows/cargo-ci.yml"
 
 jobs:
   fmt:
@@ -88,3 +89,22 @@ jobs:
         with:
           command: test
           args: --manifest-path ./cli/Cargo.toml
+
+  codecov:
+    name: Code coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: actions-rs/tarpaulin@v0.1
+        with:
+          version: '0.9.0'
+          args: '--manifest-path /home/runner/work/whale/whale/cli/Cargo.toml -- --test-threads 1'
+      - uses: codecov/codecov-action@v1
+        with:
+          file: ./cobertura.xml
+
