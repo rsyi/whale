@@ -1,4 +1,4 @@
-name: CI
+name: Python-CI
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
   pull_request:
     paths:
     - "pipelines/**"
+    - ".github/workflows/python-ci.yml"
 
 jobs:
   build:
@@ -23,12 +24,11 @@ jobs:
       run: |
         mkdir -p ~/.whale/manifests
         echo '${{ secrets.BIGQUERY_JSON }}' > /var/tmp/credentials.json
-        pip install mock
+
+        python -m pip install --upgrade pip
         pip install -r pipelines/requirements.txt
+        pip install -r pipelines/dev-requirements.txt
         pip install pipelines/.
-        pip install flake8
-        pip install pytest-cov
-        pip install pytest
     - name: Run tests
       run: |
         make test
