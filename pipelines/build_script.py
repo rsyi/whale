@@ -7,11 +7,14 @@ from whale.utils.paths import ETL_LOG_PATH, LOGS_DIR
 
 Path(LOGS_DIR).mkdir(parents=True, exist_ok=True)
 stream_handler = logging.StreamHandler()
-rotating_handler = RotatingFileHandler(str(ETL_LOG_PATH), maxBytes=50*1024*1024, backupCount=5)
+rotating_handler = RotatingFileHandler(
+    str(ETL_LOG_PATH), maxBytes=50 * 1024 * 1024, backupCount=5
+)
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s:%(name)s:%(message)s",
     handlers=[rotating_handler, stream_handler],
-    level=logging.INFO)
+    level=logging.INFO,
+)
 
 LOGGER = logging.getLogger("whale")
 LOGGER.info("ETL process started.")

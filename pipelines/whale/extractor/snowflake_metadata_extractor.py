@@ -12,7 +12,7 @@ from whale.models.table_metadata import TableMetadata, ColumnMetadata
 from itertools import groupby
 
 
-TableKey = namedtuple('TableKey', ['schema', 'table_name'])
+TableKey = namedtuple("TableKey", ["schema", "table_name"])
 
 LOGGER = logging.getLogger(__name__)
 
@@ -25,6 +25,7 @@ class SnowflakeMetadataExtractor(Extractor):
         snowflake-connector-python
         snowflake-sqlalchemy
     """
+
     SQL_STATEMENT = """
     SELECT
         lower(c.column_name) AS col_name,
@@ -46,31 +47,32 @@ class SnowflakeMetadataExtractor(Extractor):
     {where_clause_suffix};
     """
 
-    WHERE_CLAUSE_SUFFIX_KEY = 'where_clause_suffix'
-    DATABASE_KEY = 'database'
-    CLUSTER_KEY = 'cluster'
+    WHERE_CLAUSE_SUFFIX_KEY = "where_clause_suffix"
+    DATABASE_KEY = "database"
+    CLUSTER_KEY = "cluster"
 
-    DEFAULT_CONFIG = ConfigFactory.from_dict({
-        WHERE_CLAUSE_SUFFIX_KEY: '',
-        DATABASE_KEY: 'snowflake',
-        CLUSTER_KEY: 'master',
-    })
+    DEFAULT_CONFIG = ConfigFactory.from_dict(
+        {
+            WHERE_CLAUSE_SUFFIX_KEY: "",
+            DATABASE_KEY: "snowflake",
+            CLUSTER_KEY: "master",
+        }
+    )
 
     def init(self, conf: ConfigTree) -> None:
-        self.conf = conf.with_fallback(
-            SnowflakeMetadataExtractor.DEFAULT_CONFIG)
-        self._database = self.conf.get_string(
-            SnowflakeMetadataExtractor.DATABASE_KEY)
-        self._cluster = '{}'.format(
-            self.conf.get_string(SnowflakeMetadataExtractor.CLUSTER_KEY))
-
-        self.sql_stmt = SnowflakeMetadataExtractor.SQL_STATEMENT.format(
-            where_clause_suffix=self.conf.get_string('where_clause_suffix'),
-            cluster=self._cluster,
-            database=self._database
+        self.conf = conf.with_fallback(SnowflakeMetadataExtractor.DEFAULT_CONFIG)
+        self._database = self.conf.get_string(SnowflakeMetadataExtractor.DATABASE_KEY)
+        self._cluster = "{}".format(
+            self.conf.get_string(SnowflakeMetadataExtractor.CLUSTER_KEY)
         )
 
-        LOGGER.info('SQL for snowflake: {}'.format(self.sql_stmt))
+        self.sql_stmt = SnowflakeMetadataExtractor.SQL_STATEMENT.format(
+            where_clause_suffix=self.conf.get_string("where_clause_suffix"),
+            cluster=self._cluster,
+            database=self._database,
+        )
+
+        LOGGER.info("SQL for snowflake: {}".format(self.sql_stmt))
 
         self._alchemy_extractor = SQLAlchemyExtractor()
         sql_alchemy_scope = self._alchemy_extractor.get_scope()
@@ -89,7 +91,7 @@ class SnowflakeMetadataExtractor(Extractor):
             return None
 
     def get_scope(self) -> str:
-        return 'extractor.snowflake'
+        return "extractor.snowflake"
 
     def _get_extract_iter(self) -> Iterator[TableMetadata]:
         """
@@ -97,33 +99,37 @@ class SnowflakeMetadataExtractor(Extractor):
         yields TableMetadata
         :return:
         """
-        for _, group in groupby(
-                self._get_raw_extract_iter(), self._get_table_key):
+        for _, group in groupby(self._get_raw_extract_iter(), self._get_table_key):
             columns = []
             for row in group:
-                column_description = \
-                    unidecode(row['col_description']) \
-                    if row['col_description'] else None
+                column_description = (
+                    unidecode(row["col_description"])
+                    if row["col_description"]
+                    else None
+                )
                 last_row = row
-                columns.append(ColumnMetadata(
-                    name=row['col_name'],
-                    description=column_description,
-                    col_type=row['col_type'],
-                    sort_order=row['col_sort_order'])
+                columns.append(
+                    ColumnMetadata(
+                        name=row["col_name"],
+                        description=column_description,
+                        col_type=row["col_type"],
+                        sort_order=row["col_sort_order"],
+                    )
                 )
 
-            description = \
-                unidecode(last_row['description']) \
-                if last_row['description'] else None
+            description = (
+                unidecode(last_row["description"]) if last_row["description"] else None
+            )
 
             yield TableMetadata(
-                    database=self._database,
-                    cluster=last_row['cluster'],
-                    schema=last_row['schema'],
-                    name=last_row['name'],
-                    description=description,
-                    columns=columns,
-                    is_view=last_row['is_view'] == 'true')
+                database=self._database,
+                cluster=last_row["cluster"],
+                schema=last_row["schema"],
+                name=last_row["name"],
+                description=description,
+                columns=columns,
+                is_view=last_row["is_view"] == "true",
+            )
 
     def _get_raw_extract_iter(self) -> Iterator[Dict[str, Any]]:
         """
@@ -142,6 +148,6 @@ class SnowflakeMetadataExtractor(Extractor):
         :return:
         """
         if row:
-            return TableKey(schema=row['schema'], table_name=row['name'])
+            return TableKey(schema=row["schema"], table_name=row["name"])
 
         return None

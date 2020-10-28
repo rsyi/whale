@@ -40,12 +40,17 @@ class WhaleTask(DefaultTask):
 
         with open(paths.TABLE_COUNT_PATH, "a") as csvfile:
             headers = ["start_time", "database_name", "number_tables"]
-            writer = csv.DictWriter(csvfile,
-                delimiter=",",
-                lineterminator="\n",
-                fieldnames=headers)
+            writer = csv.DictWriter(
+                csvfile, delimiter=",", lineterminator="\n", fieldnames=headers
+            )
 
             if not has_headers:
                 writer.writeheader()
 
-            writer.writerow({"start_time": self.start_time, "database_name": self.database_name, "number_tables": self.count})
+            writer.writerow(
+                {
+                    "start_time": self.start_time,
+                    "database_name": self.database_name,
+                    "number_tables": self.count,
+                }
+            )

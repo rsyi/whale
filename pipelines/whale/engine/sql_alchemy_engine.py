@@ -12,15 +12,17 @@ class SQLAlchemyEngine(Engine):
     An engine that connects via SQLAlchemy.
     """
 
-    CONN_STRING_KEY = 'conn_string'
-    MODEL_CLASS_KEY = 'model_class'
-    CREDENTIALS_PATH_KEY = 'credentials_path'
+    CONN_STRING_KEY = "conn_string"
+    MODEL_CLASS_KEY = "model_class"
+    CREDENTIALS_PATH_KEY = "credentials_path"
 
-    DEFAULT_CONFIG = ConfigFactory.from_dict({
-        CONN_STRING_KEY: None,
-        MODEL_CLASS_KEY: None,
-        CREDENTIALS_PATH_KEY: None,
-    })
+    DEFAULT_CONFIG = ConfigFactory.from_dict(
+        {
+            CONN_STRING_KEY: None,
+            MODEL_CLASS_KEY: None,
+            CREDENTIALS_PATH_KEY: None,
+        }
+    )
 
     def init(self, conf: ConfigTree):
         """
@@ -43,18 +45,17 @@ class SQLAlchemyEngine(Engine):
         Create a SQLAlchemy connection to `conn_string`.
         """
         if self.credentials_path is not None:
-            engine = create_engine(self.conn_string, credentials_path=self.credentials_path)
+            engine = create_engine(
+                self.conn_string, credentials_path=self.credentials_path
+            )
         else:
             engine = create_engine(self.conn_string)
         conn = engine.connect()
         return conn
 
     def execute(
-            self,
-            query: str,
-            is_dict_return_enabled: bool = False,
-            has_header: bool = False
-            ) -> Iterator:
+        self, query: str, is_dict_return_enabled: bool = False, has_header: bool = False
+    ) -> Iterator:
         """
         Execute `query` over `conn_string`, and yield rows.
 
@@ -67,7 +68,7 @@ class SQLAlchemyEngine(Engine):
             if has_header:
                 yield keys
 
-            if hasattr(self, 'model_class'):
+            if hasattr(self, "model_class"):
                 for row in results:
                     yield self.model_class(**row)
             else:
@@ -81,4 +82,4 @@ class SQLAlchemyEngine(Engine):
 
     def get_scope(self):
         # type: () -> str
-        return 'engine.sqlalchemy'
+        return "engine.sqlalchemy"
