@@ -65,10 +65,7 @@ class BaseSpannerExtractor(Extractor):
         self.spanner_service = build(
             "spanner", "v1", http=authed_http, cache_discovery=False
         )
-        self.logging_service = build(
-            "logging", "v2", http=authed_http, cache_discovery=False
-        )
-        self.iter = iter(self._iterate_over_tables())
+        self.iter = iter(self._iterate_over_databases())
 
     def extract(self) -> Any:
         try:
@@ -76,7 +73,7 @@ class BaseSpannerExtractor(Extractor):
         except StopIteration:
             return None
 
-    def _iterate_over_tables(self):
+    def _iterate_over_databases(self):
         for instance in self._retrieve_instances():
             for entry in self._retrieve_databases(instance):
                 yield (entry)

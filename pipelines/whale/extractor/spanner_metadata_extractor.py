@@ -40,26 +40,16 @@ class SpannerMetadataExtractor(BaseSpannerExtractor):
                     self.spanner_service.projects()
                     .instances()
                     .databases()
-                    .get(
-                        name=database_name,
-                    )
-                    .execute(num_retries=SpannerMetadataExtractor.NUM_RETRIES)
-                )
-
-                database_schema = (
-                    self.spanner_service.projects()
-                    .instances()
-                    .databases()
                     .getDdl(
                         database=database_name,
                     )
                     .execute(num_retries=SpannerMetadataExtractor.NUM_RETRIES)
                 )
 
-                if "statements" not in database_schema:
+                if "statements" not in database:
                     continue
 
-                for statement in database_schema["statements"]:
+                for statement in database["statements"]:
                     # DdlParse currently cannot handle MAX
                     ddl = statement.replace("(MAX)", "(10485760)")
 

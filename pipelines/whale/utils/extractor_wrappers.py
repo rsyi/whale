@@ -8,6 +8,8 @@ from whale.extractor.amundsen_neo4j_metadata_extractor \
     import AmundsenNeo4jMetadataExtractor
 from whale.extractor.bigquery_metadata_extractor \
     import BigQueryMetadataExtractor
+from whale.extractor.spanner_metadata_extractor \
+    import SpannerMetadataExtractor
 from whale.extractor.bigquery_watermark_extractor \
     import BigQueryWatermarkExtractor
 from whale.extractor.snowflake_metadata_extractor \
@@ -33,7 +35,6 @@ def get_sql_alchemy_conn_string_key(scope):
     conn_string_key = \
         f"{scope}.{SQL_ALCHEMY_SCOPE}.{SQLAlchemyExtractor.CONN_STRING}"
     return conn_string_key
-
 
 
 def add_metrics(extractors: list, conf: ConfigTree, connection):
@@ -66,6 +67,24 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
     })
 
     extractors = [extractor, watermark_extractor]
+    extractors, conf = add_metrics(extractors, conf, connection)
+
+    return extractors, conf
+
+
+def configure_spanner_extractors(connection: ConnectionConfigSchema):
+    Extractor = SpannerMetadataExtractor
+    extractor = Extractor()
+    scope = extractor.get_scope()
+
+    conf = ConfigFactory.from_dict({
+        f"{scope}.key_path": connection.key_path,
+        f"{scope}.project_id": connection.project_id,
+        f"{scope}.project_credentials": connection.project_credentials,
+        f"{scope}.page_size": connection.page_size,
+    })
+
+    extractors = [extractor]
     extractors, conf = add_metrics(extractors, conf, connection)
 
     return extractors, conf
