@@ -6,7 +6,7 @@
 * Automatically index all of the tables in your warehouse as plain markdown files -- so they're easily versionable, searchable, and editable either locally or through a remote git server.
 * Search for tables and documentation through the CLI or through a git remote server like Github.
 * Define and schedule basic metric calculations (in beta).
-* Run quality tests and systematically monitor anomalies (in roadmap). 
+* Run quality tests and systematically monitor anomalies (in roadmap).
 
 😁 [**Join the discussion on slack.**](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
 
