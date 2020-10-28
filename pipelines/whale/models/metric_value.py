@@ -11,18 +11,18 @@ class MetricValue(object):
     """
 
     def __init__(
-            self,
-            database: str,
-            cluster: str,
-            schema: str,
-            table: str,
-            execution_time: str,
-            name: str,
-            value: str,
-            description: str = None,
-            markdown_blob: str = None,
-            is_global: bool = False,
-            ):
+        self,
+        database: str,
+        cluster: str,
+        schema: str,
+        table: str,
+        execution_time: str,
+        name: str,
+        value: str,
+        description: str = None,
+        markdown_blob: str = None,
+        is_global: bool = False,
+    ):
         self.database = database
         self.cluster = cluster
         self.schema = schema
@@ -35,11 +35,12 @@ class MetricValue(object):
         self.markdown_blob = markdown_blob
 
     def record(self):
-        relative_file_path = get_table_file_path_relative(
-            self.database,
-            self.cluster,
-            self.schema,
-            self.table) + f"/{self.name}.csv"
+        relative_file_path = (
+            get_table_file_path_relative(
+                self.database, self.cluster, self.schema, self.table
+            )
+            + f"/{self.name}.csv"
+        )
         record_path = os.path.join(paths.METRICS_PATH, relative_file_path)
         record_dirname = os.path.dirname(record_path)
         Path(record_dirname).mkdir(parents=True, exist_ok=True)

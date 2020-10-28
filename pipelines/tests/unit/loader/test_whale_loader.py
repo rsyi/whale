@@ -20,45 +20,54 @@ def patched_config(tmp_path):
     new_tmp_manifest_path = tmp_path / tmp_manifest_subpath
     new_tmp_manifest_path.parent.mkdir()
 
-    return ConfigFactory.from_dict({
-        "base_directory": tmp_path / metadata_subpath,
-        "tmp_manifest_path": tmp_path / tmp_manifest_subpath,
-    })
+    return ConfigFactory.from_dict(
+        {
+            "base_directory": tmp_path / metadata_subpath,
+            "tmp_manifest_path": tmp_path / tmp_manifest_subpath,
+        }
+    )
+
 
 def test_load_no_catalog(patched_config):
     record = TableMetadata(
-        database='mock_database',
+        database="mock_database",
         cluster=None,
-        schema='mock_schema',
-        name='mock_table',
-        markdown_blob='Test',
+        schema="mock_schema",
+        name="mock_table",
+        markdown_blob="Test",
     )
     loader = whale_loader.WhaleLoader()
     loader.init(patched_config)
     loader.load(record)
 
     loader.close()
-    file_path = os.path.join(patched_config.get("base_directory"), 'mock_database/mock_schema.mock_table.md')
-    with open(file_path, 'r') as f:
+    file_path = os.path.join(
+        patched_config.get("base_directory"), "mock_database/mock_schema.mock_table.md"
+    )
+    with open(file_path, "r") as f:
         written_record = f.read()
 
     assert record.markdown_blob in written_record
 
+
 def test_load_catalog_specified(patched_config):
     record = TableMetadata(
-        database='mock_database',
-        cluster='mock_catalog',
-        schema='mock_schema',
-        name='mock_table',
-        markdown_blob='Test',
+        database="mock_database",
+        cluster="mock_catalog",
+        schema="mock_schema",
+        name="mock_table",
+        markdown_blob="Test",
     )
     loader = whale_loader.WhaleLoader()
     loader.init(patched_config)
     loader.load(record)
 
     loader.close()
-    file_path = os.path.join(patched_config.get("base_directory"), 'mock_database/mock_catalog.mock_schema.mock_table.md')
-    with open(file_path, 'r') as f:
+    file_path = os.path.join(
+        patched_config.get("base_directory"),
+        "mock_database/mock_catalog.mock_schema.mock_table.md",
+    )
+    with open(file_path, "r") as f:
         written_record = f.read()
 
     assert record.markdown_blob in written_record

@@ -2,27 +2,23 @@ from databuilder.transformer.base_transformer import Transformer
 import whale.models.table_metadata as metadata_model_whale
 import databuilder.models.table_metadata as metadata_model_amundsen
 from whale.models.metric_value import MetricValue
-from whale.utils.markdown_delimiters import (
-    COLUMN_DETAILS_DELIMITER
-)
+from whale.utils.markdown_delimiters import COLUMN_DETAILS_DELIMITER
 from databuilder.models.watermark import Watermark
 from databuilder.models.table_metadata import DescriptionMetadata
 
 import textwrap
 
 
-class FormatterMixin():
-
-    def format_table_metadata(
-            self,
-            record) -> metadata_model_whale.TableMetadata:
+class FormatterMixin:
+    def format_table_metadata(self, record) -> metadata_model_whale.TableMetadata:
         block_template = textwrap.dedent(
             """            # `{schema}.{name}`{view_statement}
             `{database}`{cluster_statement}
             {description}
             {column_details_delimiter}
             {columns}
-            """)
+            """
+        )
 
         formatted_columns = self.format_columns(record)
 
@@ -69,13 +65,12 @@ class FormatterMixin():
 
         if columns:
             column_template_no_desc = "* {buffered_type} `{name}`"
-            column_template = \
-                column_template_no_desc + "\n  - {description}"
+            column_template = column_template_no_desc + "\n  - {description}"
             formatted_columns_list = []
 
             for column in columns:
                 buffer_length = max(max_type_length - len(column.type), 0)
-                buffered_type = "[" + column.type + "]" + " "*buffer_length
+                buffered_type = "[" + column.type + "]" + " " * buffer_length
 
                 if column.description:
                     formatted_column_text = column_template.format(
@@ -105,6 +100,7 @@ class MarkdownTransformer(Transformer, FormatterMixin):
     """
     Transforms a TableMetadata record into a Markdown string.
     """
+
     def init(self, conf):
         self.conf = conf
         self.formatters = {

@@ -4,16 +4,17 @@ from typing import Iterable, List, Optional
 
 
 class ColumnMetadata:
-    COLUMN_KEY_FORMAT = '{db}://{cluster}.{schema}.{tbl}/{col}'
+    COLUMN_KEY_FORMAT = "{db}://{cluster}.{schema}.{tbl}/{col}"
 
-    def __init__(self,
-                 name: str,
-                 description: Optional[str],
-                 col_type: str,
-                 sort_order: int,
-                 tags: Optional[List[str]] = None,
-                 is_partition_column: Optional[bool] = None,
-                 ):
+    def __init__(
+        self,
+        name: str,
+        description: Optional[str],
+        col_type: str,
+        sort_order: int,
+        tags: Optional[List[str]] = None,
+        is_partition_column: Optional[bool] = None,
+    ):
         # type: (...) -> None
         """
         :param name:
@@ -30,13 +31,13 @@ class ColumnMetadata:
 
     def __repr__(self):
         # type: () -> str
-        return 'ColumnMetadata({!r}, {!r}, {!r}, {!r}, {!r})' \
-                .format(
-                    self.name,
-                    self.description,
-                    self.type,
-                    self.sort_order,
-                    self.is_partition_column)
+        return "ColumnMetadata({!r}, {!r}, {!r}, {!r}, {!r})".format(
+            self.name,
+            self.description,
+            self.type,
+            self.sort_order,
+            self.is_partition_column,
+        )
 
 
 class TableMetadata(object):
@@ -44,26 +45,27 @@ class TableMetadata(object):
     Simplified table metadata that contains columns, extended with
     markdown_blob.
     """
-    TABLE_KEY_FORMAT = '{db}://{cluster}.{schema}.{tbl}'
 
-    DATABASE_KEY_FORMAT = 'database://{db}'
+    TABLE_KEY_FORMAT = "{db}://{cluster}.{schema}.{tbl}"
 
-    CATALOG_KEY_FORMAT = '{db}://{cluster}'
+    DATABASE_KEY_FORMAT = "database://{db}"
+
+    CATALOG_KEY_FORMAT = "{db}://{cluster}"
 
     def __init__(
-            self,
-            database: str,
-            cluster: str,
-            schema: str,
-            name: str,
-            description: Optional[str] = None,
-            columns: Iterable[ColumnMetadata] = None,
-            is_view: bool = False,
-            markdown_blob: str = '',
-            tags: Optional[List] = None,
-            description_source: Optional[str] = None,
-            **kwargs
-            ):
+        self,
+        database: str,
+        cluster: str,
+        schema: str,
+        name: str,
+        description: Optional[str] = None,
+        columns: Iterable[ColumnMetadata] = None,
+        is_view: bool = False,
+        markdown_blob: str = "",
+        tags: Optional[List] = None,
+        description_source: Optional[str] = None,
+        **kwargs
+    ):
         # type: (...) -> None
         """
         :param database:
@@ -86,7 +88,7 @@ class TableMetadata(object):
         self.markdown_blob = markdown_blob
         self.attrs = None
         if isinstance(tags, str):
-            tags = list(filter(None, tags.split(',')))
+            tags = list(filter(None, tags.split(",")))
         if isinstance(tags, list):
             tags = [tag.lower().strip() for tag in tags]
         self.tags = tags
@@ -96,23 +98,22 @@ class TableMetadata(object):
 
     def __repr__(self):
         # type: () -> str
-        return 'TableMetadata({!r}, {!r}, {!r}, {!r} ' \
-               '{!r}, {!r}, {!r}, {!r})'.format(self.database,
-                                                self.cluster,
-                                                self.schema,
-                                                self.name,
-                                                self.description,
-                                                self.columns,
-                                                self.is_view,
-                                                self.tags)
+        return "TableMetadata({!r}, {!r}, {!r}, {!r} " "{!r}, {!r}, {!r}, {!r})".format(
+            self.database,
+            self.cluster,
+            self.schema,
+            self.name,
+            self.description,
+            self.columns,
+            self.is_view,
+            self.tags,
+        )
 
     def _get_table_key(self):
         # type: () -> str
         return TableMetadata.TABLE_KEY_FORMAT.format(
-            db=self.database,
-            cluster=self.cluster,
-            schema=self.schema,
-            tbl=self.name)
+            db=self.database, cluster=self.cluster, schema=self.schema, tbl=self.name
+        )
 
     def _get_database_key(self):
         # type: () -> str
@@ -121,8 +122,8 @@ class TableMetadata(object):
     def _get_cluster_key(self):
         # type: () -> str
         return TableMetadata.CATALOG_KEY_FORMAT.format(
-            db=self.database,
-            cluster=self.cluster)
+            db=self.database, cluster=self.cluster
+        )
 
     def _get_col_key(self, col):
         # type: (ColumnMetadata) -> str
@@ -131,33 +132,34 @@ class TableMetadata(object):
             cluster=self.cluster,
             schema=self.schema,
             tbl=self.name,
-            col=col.name)
+            col=col.name,
+        )
 
 
 class TableColumnStats:
     """
     Table stats model.
     """
-    LABEL = 'Stat'
-    KEY_FORMAT = '{db}://{cluster}.{schema}' \
-                 '.{table}/{col}/{stat_name}/'
-    STAT_Column_RELATION_TYPE = 'STAT_OF'
-    Column_STAT_RELATION_TYPE = 'STAT'
+
+    LABEL = "Stat"
+    KEY_FORMAT = "{db}://{cluster}.{schema}" ".{table}/{col}/{stat_name}/"
+    STAT_Column_RELATION_TYPE = "STAT_OF"
+    Column_STAT_RELATION_TYPE = "STAT"
 
     def __init__(
-            self,
-            table_name: str,
-            col_name: str,
-            stat_name: str,
-            stat_val: str,
-            start_epoch: str,
-            end_epoch: str,
-            db: str = 'hive',
-            cluster: str = 'gold',
-            schema: str = None
+        self,
+        table_name: str,
+        col_name: str,
+        stat_name: str,
+        stat_val: str,
+        start_epoch: str,
+        end_epoch: str,
+        db: str = "hive",
+        cluster: str = "gold",
+        schema: str = None,
     ):
         if schema is None:
-            self.schema, self.table = table_name.split('.')
+            self.schema, self.table = table_name.split(".")
         else:
             self.table = table_name.lower()
             self.schema = schema.lower()
@@ -177,7 +179,8 @@ class TableColumnStats:
             schema=self.schema,
             table=self.table,
             col=self.col_name,
-            stat_name=self.stat_name)
+            stat_name=self.stat_name,
+        )
 
     def get_col_key(self):
         # type: (...) -> str
@@ -187,4 +190,5 @@ class TableColumnStats:
             cluster=self.cluster,
             schema=self.schema,
             tbl=self.table,
-            col=self.col_name)
+            col=self.col_name,
+        )

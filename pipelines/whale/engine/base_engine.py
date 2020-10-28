@@ -24,4 +24,4 @@ class Engine(Scoped):
         pass
 
     def get_scope(self) -> str:
-        return 'engine'
+        return "engine"

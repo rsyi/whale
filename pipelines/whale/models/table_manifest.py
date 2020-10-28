@@ -7,9 +7,9 @@ class TableManifest(object):
     """
 
     def __init__(
-            self,
-            tables: list,
-            markdown_blob: str,
-            ):
+        self,
+        tables: list,
+        markdown_blob: str,
+    ):
         self.tables = tables
         self.markdown_blob = markdown_blob
