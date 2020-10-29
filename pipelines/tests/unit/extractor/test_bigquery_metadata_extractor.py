@@ -269,6 +269,7 @@ class MockBigQueryClient:
         return self.tables_method
 
 
+@patch("google.auth.default", lambda scopes: ["dummy", "dummy"])
 class TestBigQueryMetadataExtractor(unittest.TestCase):
     def setUp(self):
         # type: () -> None
