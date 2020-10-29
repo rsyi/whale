@@ -23,7 +23,6 @@ jobs:
     - name: Install dependencies
       run: |
         mkdir -p ~/.whale/manifests
-        echo '${{ secrets.BIGQUERY_JSON }}' > /var/tmp/credentials.json
 
         python -m pip install --upgrade pip
         pip install -r pipelines/requirements.txt
