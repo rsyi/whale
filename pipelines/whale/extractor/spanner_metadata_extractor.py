@@ -96,7 +96,7 @@ class SpannerMetadataExtractor(BaseSpannerExtractor):
 
                     # Using DdlParse to convert Spanner DDL to BQ JSON schema
                     try:
-                        parsed_ddl = json.loads(DdlParse().parse(ddl))
+                        parsed_ddl = DdlParse().parse(ddl).columns
                     except:
                         continue
 
