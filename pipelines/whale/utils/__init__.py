@@ -1,8 +1,12 @@
+import logging
 import os
 import shutil
 from pathlib import Path
 from whale.utils.markdown_delimiters import UGC_DELIMITER
 from whale.utils import paths
+
+LOGGER = logging.getLogger(__name__)
+
 
 TABLE_RELATIVE_FILE_PATH = "{database}/{cluster}.{schema}.{table}"
 CLUSTERLESS_TABLE_RELATIVE_FILE_PATH = "{database}/{schema}.{table}"
@@ -70,8 +74,13 @@ def transfer_manifest(tmp_manifest_path):
     if os.path.exists(tmp_manifest_path):
         os.rename(tmp_manifest_path, paths.MANIFEST_PATH)
     else:
-        print("No tmp manifest created.")
+        LOGGER.warn(f"No tmp manifest created at path: {tmp_manifest_path}")
 
 
 def copy_manifest(tmp_manifest_path):
-    shutil.copy(tmp_manifest_path, paths.MANIFEST_PATH)
+    if os.path.exists(tmp_manifest_path):
+        shutil.copy(tmp_manifest_path, paths.MANIFEST_PATH)
+    else:
+        LOGGER.warn(
+            f"No tmp manifest copied from {tmp_manifest_path} to {paths.MANIFEST_PATH}"
+        )
