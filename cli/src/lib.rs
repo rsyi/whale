@@ -2,23 +2,10 @@ mod tuievent;
 
 #[macro_use]
 extern crate lazy_static;
-use crate::tuievent::{Event, Events};
 use clap::ArgMatches;
 use colored::*;
-use std::{
-    io::{self, Write},
-    process::Command,
-};
-use termion::{clear, event::Key, raw::IntoRawMode};
-use tui::{
-    backend::TermionBackend,
-    layout::{Constraint, Direction, Layout},
-    style::{Color, Modifier, Style},
-    symbols,
-    text::Span,
-    widgets::{Axis, Block, Borders, Chart, Dataset, GraphType},
-    Terminal,
-};
+use std::io;
+use std::process::Command;
 
 pub mod filesystem;
 pub mod serialization;
@@ -43,16 +30,6 @@ oooo oooo    ooo  888 .oo.          :
         .bold();
 
     println!("{}", whale_header);
-    // println!("
-    // Whale needs to initialize the following file structure:
-    //
-    //  ~/.whale
-    //  ├── config
-    //  │   └── connections.yaml
-    //  ├── logs
-    //  └── metadata
-    //
-    // We'll check if this exists and make it if it doesn't.")
 }
 
 fn print_scheduler_header() {
@@ -116,14 +93,12 @@ impl Whale {
         }
 
         let is_first_warehouse = true;
-        warehouse::prompt_add_warehouse(is_first_warehouse);
-
+        warehouse::whutils::prompt_add_warehouse(is_first_warehouse);
         Ok(())
     }
 
     pub fn git_enable() -> Result<(), io::Error> {
-        warehouse::GitServer::prompt_add_details();
-
+        warehouse::gitserver::GitServer::prompt_add_details();
         Ok(())
     }
 
@@ -145,7 +120,6 @@ impl Whale {
             );
             let mut child = Command::new("sh").args(&["-c", &full_command]).spawn()?;
             child.wait()?;
-
             Ok(())
         }
     }
@@ -153,18 +127,14 @@ impl Whale {
     pub fn config() -> Result<(), io::Error> {
         let config_file = filesystem::get_config_filename();
         let editor = filesystem::get_open_command();
-
         Command::new(editor).arg(config_file).status()?;
-
         Ok(())
     }
 
     pub fn connections() -> Result<(), io::Error> {
         let connections_config_file = filesystem::get_connections_filename();
         let editor = filesystem::get_open_command();
-
         Command::new(editor).arg(connections_config_file).status()?;
-
         Ok(())
     }
 
@@ -183,8 +153,6 @@ Fetching and rebasing local changes from github.");
             let mut child = Command::new("sh").args(&["-c", &command]).spawn()?;
             child.wait()?;
         } else {
-            // let build_script_path = filesystem::get_build_script_filename();
-            // let build_script_path = Path::new(&*build_script_path);
             let python_alias = serialization::read_config("python3_alias", "python3");
             let activate_path = filesystem::get_activate_filename();
             let build_script_path = filesystem::get_build_script_filename();
@@ -198,7 +166,6 @@ Fetching and rebasing local changes from github.");
             let manifest_path = filesystem::get_manifest_filename();
             filesystem::deduplicate_file(&manifest_path);
         }
-
         Ok(())
     }
 
@@ -213,7 +180,6 @@ Fetching and rebasing local changes from github.");
         );
         let mut child = Command::new("sh").args(&["-c", &full_command]).spawn()?;
         child.wait()?;
-
         Ok(())
     }
 
@@ -277,79 +243,6 @@ Fetching and rebasing local changes from github.");
                 println!("{}", whale_cron_expression.magenta());
             }
         }
-
-        Ok(())
-    }
-
-    pub fn dash() -> Result<(), io::Error> {
-        const DATA2: [(f64, f64); 7] = [
-            (0.0, 0.0),
-            (10.0, 1.0),
-            (20.0, 0.5),
-            (30.0, 1.5),
-            (40.0, 1.0),
-            (50.0, 2.5),
-            (60.0, 3.0),
-        ];
-
-        let events = Events::new();
-        let mut stdout = io::stdout().into_raw_mode()?;
-        write!(stdout, "{}", clear::All)?;
-        let backend = TermionBackend::new(stdout);
-        let mut terminal = Terminal::new(backend)?;
-
-        loop {
-            terminal.draw(|f| {
-                let chunks = Layout::default()
-                    .direction(Direction::Vertical)
-                    .margin(1)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                    .split(f.size());
-
-                let block = Block::default().title("Block").borders(Borders::ALL);
-
-                let datasets = vec![Dataset::default()
-                    .name("count_distinct(nulls)")
-                    .marker(symbols::Marker::Braille)
-                    .style(Style::default().fg(Color::Yellow))
-                    .graph_type(GraphType::Line)
-                    .data(&DATA2)];
-                let chart = Chart::new(datasets)
-                    .block(block)
-                    .x_axis(
-                        Axis::default()
-                            .title("X Axis")
-                            .style(Style::default().fg(Color::Gray))
-                            .bounds([0.0, 60.0]),
-                    )
-                    .y_axis(
-                        Axis::default()
-                            .title("Y Axis")
-                            .style(Style::default().fg(Color::Gray))
-                            .labels(vec![
-                                Span::styled("3", Style::default().add_modifier(Modifier::BOLD)),
-                                Span::raw("0"),
-                            ])
-                            .bounds([0.0, 3.0]),
-                    );
-
-                f.render_widget(chart, chunks[0]);
-
-                let block = Block::default().title("Block 2").borders(Borders::ALL);
-                f.render_widget(block, chunks[1]);
-            })?;
-
-            let input = events.next().unwrap();
-            match input {
-                Event::Input(input) => {
-                    if input == Key::Char('q') {
-                        break;
-                    }
-                }
-                Event::Tick => (),
-            };
-        }
-
         Ok(())
     }
 }
