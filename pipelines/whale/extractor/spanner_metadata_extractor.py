@@ -1,7 +1,7 @@
 import json
 import logging
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 
 from pyhocon import ConfigTree  # noqa: F401
 from typing import List, Any  # noqa: F401
@@ -13,6 +13,40 @@ from ddlparse import DdlParse
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def format_spanner_fields(column_name, column_contents):
+
+    if column_contents.array_dimensional <= 1:
+        type = column_contents._data_type
+
+    else:
+        # multiple dimensional array data type
+        type = "RECORD"
+
+        fields = OrderedDict()
+        fields_cur = fields
+
+        for i in range(1, column_contents.array_dimensional):
+            is_last = True if i == column_contents.array_dimensional - 1 else False
+
+            fields_cur['fields'] = [OrderedDict()]
+            fields_cur = fields_cur['fields'][0]
+
+            fields_cur['name'] = "dimension_{}".format(i)
+            fields_cur['type'] = column_contents.bigquery_legacy_data_type if is_last else "RECORD"
+            fields_cur['mode'] = column_contents.bigquery_mode if is_last else "REPEATED"
+
+    col = OrderedDict()
+    col['name'] = column_name
+    col['type'] = type
+    col['mode'] = column_contents.bigquery_mode
+    if column_contents.description is not None:
+        col['description'] = column_contents.description
+    if column_contents.array_dimensional > 1:
+        col['fields'] = fields['fields']
+
+    return json.dumps(col, ensure_ascii=False)
 
 
 class SpannerMetadataExtractor(BaseSpannerExtractor):
@@ -62,13 +96,14 @@ class SpannerMetadataExtractor(BaseSpannerExtractor):
 
                     # Using DdlParse to convert Spanner DDL to BQ JSON schema
                     try:
-                        schema = json.loads(DdlParse().parse(ddl).to_bigquery_fields())
+                        parsed_ddl = json.loads(DdlParse().parse(ddl))
                     except:
                         continue
 
                     cols = []
                     total_cols = 0
-                    for column in schema:
+                    for column_name, column_contents in parsed_ddl.items():
+                        column = format_spanner_fields(column_name, column_contents)
                         total_cols = self._iterate_over_cols(
                             "", column, cols, total_cols + 1
                         )
