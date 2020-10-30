@@ -34,7 +34,7 @@ def format_spanner_fields(column_name, column_contents):
             fields_cur = fields_cur['fields'][0]
 
             fields_cur['name'] = "dimension_{}".format(i)
-            fields_cur['type'] = column_contents.bigquery_legacy_data_type if is_last else "RECORD"
+            fields_cur['type'] = column_contents._data_type if is_last else "RECORD"
             fields_cur['mode'] = column_contents.bigquery_mode if is_last else "REPEATED"
 
     col = OrderedDict()
