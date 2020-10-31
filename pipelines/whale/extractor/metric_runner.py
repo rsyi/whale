@@ -20,6 +20,8 @@ SQLALCHEMY_CONN_STRING_KEY = (
     f"{SQLALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CONN_STRING_KEY}"
 )
 
+LOGGER = logging.getLogger(__name__)
+
 
 class MetricRunner(SQLAlchemyEngine):
 
@@ -86,11 +88,16 @@ class MetricRunner(SQLAlchemyEngine):
                 # Loop through all metrics defined in this ```metrics section.
                 for metric_name, metric_details in metric_yaml.items():
                     execution_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    result = list(
-                        self.execute(
-                            metric_details["sql"], is_dict_return_enabled=False
+
+                    try:
+                        result = list(
+                            self.execute(
+                                metric_details["sql"], is_dict_return_enabled=False
+                            )
                         )
-                    )
+                    except:
+                        LOGGER.warn("Failed execution of metric: {metric_name} in {table_stub_path}. Continuing.")
+
                     try:
                         cleaned_result = result[0][0]
                     except:
