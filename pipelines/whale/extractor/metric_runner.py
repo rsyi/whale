@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 from pyhocon import ConfigFactory
@@ -27,10 +28,7 @@ class MetricRunner(SQLAlchemyEngine):
 
     DATABASE_KEY = "database"
     DEFAULT_CONFIG = ConfigFactory.from_dict(
-        {
-            "table_stub_paths": None,
-            SQLALCHEMY_CONN_STRING_KEY: None,
-        }
+        {"table_stub_paths": None, SQLALCHEMY_CONN_STRING_KEY: None,}
     )
 
     def init(self, conf):
@@ -96,7 +94,9 @@ class MetricRunner(SQLAlchemyEngine):
                             )
                         )
                     except:
-                        LOGGER.warn("Failed execution of metric: {metric_name} in {table_stub_path}. Continuing.")
+                        LOGGER.warn(
+                            "Failed execution of metric: {metric_name} in {table_stub_path}. Continuing."
+                        )
 
                     try:
                         cleaned_result = result[0][0]
