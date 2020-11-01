@@ -93,37 +93,38 @@ class MetricRunner(SQLAlchemyEngine):
                                 metric_details["sql"], is_dict_return_enabled=False
                             )
                         )
-                    except:
-                        LOGGER.warn(
-                            "Failed execution of metric: {metric_name} in {table_stub_path}. Continuing."
+
+                        try:
+                            cleaned_result = result[0][0]
+                        except:
+                            cleaned_result = None
+
+                        if "description" in metric_details:
+                            description = metric_details["description"]
+                        else:
+                            description = None
+
+                        if "is_global" in metric_details:
+                            is_global = metric_details["is_global"]
+                        else:
+                            is_global = False
+
+                        yield MetricValue(
+                            database=database,
+                            cluster=cluster,
+                            schema=schema,
+                            table=table,
+                            name=metric_name,
+                            description=description,
+                            execution_time=execution_time,
+                            value=cleaned_result,
+                            is_global=is_global,
                         )
 
-                    try:
-                        cleaned_result = result[0][0]
                     except:
-                        cleaned_result = None
-
-                    if "description" in metric_details:
-                        description = metric_details["description"]
-                    else:
-                        description = None
-
-                    if "is_global" in metric_details:
-                        is_global = metric_details["is_global"]
-                    else:
-                        is_global = False
-
-                    yield MetricValue(
-                        database=database,
-                        cluster=cluster,
-                        schema=schema,
-                        table=table,
-                        name=metric_name,
-                        description=description,
-                        execution_time=execution_time,
-                        value=cleaned_result,
-                        is_global=is_global,
-                    )
+                        LOGGER.warn(
+                            f"Failed execution of metric: {metric_name} in {table_stub_path}. Continuing."
+                        )
 
     def _get_metrics_queries_from_table_stub_path(self, table_stub_path):
         sections = sections_from_markdown(table_stub_path)

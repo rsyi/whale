@@ -28,6 +28,8 @@ def parse_programmatic_blob(programmatic_blob):
         + PARTITIONS_DELIMITER
         + "|"
         + USAGE_DELIMITER
+        + "|"
+        + METRICS_DELIMITER
         + ")"
     )
 
