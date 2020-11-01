@@ -199,7 +199,6 @@ def _update_metric(sections, record):
         "execution_time": record.execution_time,
         "value": record.value,
     }
-    print(metrics_dict)
     new_section = _get_section_from_metrics(metrics_dict)
     sections[METRICS_SECTION] = format_yaml_section(new_section, METRICS_DELIMITER)
     return sections
