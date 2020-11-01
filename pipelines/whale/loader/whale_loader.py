@@ -174,7 +174,7 @@ def _update_watermark(sections, record):
 def _get_data_from_section(section, delimiter):
     # Remove the delimiter
     if section:
-        section = section.split(delimiter)[0]
+        section = section.split(delimiter)[-1]
         if "```" in section:
             sections_split_by_backtick = section.split("```")
             section = "\n".join(sections_split_by_backtick)
@@ -199,6 +199,7 @@ def _update_metric(sections, record):
         "execution_time": record.execution_time,
         "value": record.value,
     }
+    print(metrics_dict)
     new_section = _get_section_from_metrics(metrics_dict)
     sections[METRICS_SECTION] = format_yaml_section(new_section, METRICS_DELIMITER)
     return sections

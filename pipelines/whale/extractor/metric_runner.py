@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 from pyhocon import ConfigFactory
@@ -20,15 +21,14 @@ SQLALCHEMY_CONN_STRING_KEY = (
     f"{SQLALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CONN_STRING_KEY}"
 )
 
+LOGGER = logging.getLogger(__name__)
+
 
 class MetricRunner(SQLAlchemyEngine):
 
     DATABASE_KEY = "database"
     DEFAULT_CONFIG = ConfigFactory.from_dict(
-        {
-            "table_stub_paths": None,
-            SQLALCHEMY_CONN_STRING_KEY: None,
-        }
+        {"table_stub_paths": None, SQLALCHEMY_CONN_STRING_KEY: None,}
     )
 
     def init(self, conf):
@@ -86,37 +86,45 @@ class MetricRunner(SQLAlchemyEngine):
                 # Loop through all metrics defined in this ```metrics section.
                 for metric_name, metric_details in metric_yaml.items():
                     execution_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    result = list(
-                        self.execute(
-                            metric_details["sql"], is_dict_return_enabled=False
-                        )
-                    )
+
                     try:
-                        cleaned_result = result[0][0]
+                        result = list(
+                            self.execute(
+                                metric_details["sql"], is_dict_return_enabled=False
+                            )
+                        )
+
+                        try:
+                            cleaned_result = result[0][0]
+                        except:
+                            cleaned_result = None
+
+                        if "description" in metric_details:
+                            description = metric_details["description"]
+                        else:
+                            description = None
+
+                        if "is_global" in metric_details:
+                            is_global = metric_details["is_global"]
+                        else:
+                            is_global = False
+
+                        yield MetricValue(
+                            database=database,
+                            cluster=cluster,
+                            schema=schema,
+                            table=table,
+                            name=metric_name,
+                            description=description,
+                            execution_time=execution_time,
+                            value=cleaned_result,
+                            is_global=is_global,
+                        )
+
                     except:
-                        cleaned_result = None
-
-                    if "description" in metric_details:
-                        description = metric_details["description"]
-                    else:
-                        description = None
-
-                    if "is_global" in metric_details:
-                        is_global = metric_details["is_global"]
-                    else:
-                        is_global = False
-
-                    yield MetricValue(
-                        database=database,
-                        cluster=cluster,
-                        schema=schema,
-                        table=table,
-                        name=metric_name,
-                        description=description,
-                        execution_time=execution_time,
-                        value=cleaned_result,
-                        is_global=is_global,
-                    )
+                        LOGGER.warn(
+                            f"Failed execution of metric: {metric_name} in {table_stub_path}. Continuing."
+                        )
 
     def _get_metrics_queries_from_table_stub_path(self, table_stub_path):
         sections = sections_from_markdown(table_stub_path)
