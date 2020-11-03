@@ -27,6 +27,7 @@ google-crc32c==1.0.0
 google-resumable-media==1.1.0
 googleapis-common-protos==1.52.0
 grpcio==1.32.0
+grpcio-gcp==0.2.2
 httplib2==0.18.1
 idna==2.9
 isodate==0.6.0
