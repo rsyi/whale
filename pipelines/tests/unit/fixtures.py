@@ -1,6 +1,7 @@
 import pytest
 from whale.utils import paths
 
+
 @pytest.fixture()
 def mock_file_structure(monkeypatch, tmp_path):
     for attr_name, path in {

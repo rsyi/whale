@@ -6,24 +6,32 @@ from whale.utils.markdown_delimiters import (
     BLOCK_END_DELIMITER,
     PARTITIONS_DELIMITER,
     USAGE_DELIMITER,
-    UGC_DELIMITER
+    UGC_DELIMITER,
 )
 
-HEADER_SECTION = 'header'
-COLUMN_DETAILS_SECTION = 'column_details'
-PARTITION_SECTION = 'partition'
-USAGE_SECTION = 'usage'
-UGC_SECTION = 'ugc'
-DEFINED_METRICS_SECTION = 'defined_metrics'
-METRICS_SECTION = 'metrics'
-NOTES_SECTION = 'notes'
+HEADER_SECTION = "header"
+COLUMN_DETAILS_SECTION = "column_details"
+PARTITION_SECTION = "partition"
+USAGE_SECTION = "usage"
+UGC_SECTION = "ugc"
+DEFINED_METRICS_SECTION = "defined_metrics"
+METRICS_SECTION = "metrics"
+NOTES_SECTION = "notes"
 
 
 def parse_programmatic_blob(programmatic_blob):
 
-    regex_to_match = "(" + COLUMN_DETAILS_DELIMITER \
-        + "|" + PARTITIONS_DELIMITER \
-        + "|" + USAGE_DELIMITER + ")"
+    regex_to_match = (
+        "("
+        + COLUMN_DETAILS_DELIMITER
+        + "|"
+        + PARTITIONS_DELIMITER
+        + "|"
+        + USAGE_DELIMITER
+        + "|"
+        + METRICS_DELIMITER
+        + ")"
+    )
 
     splits = re.split(regex_to_match, programmatic_blob)
 
@@ -54,8 +62,9 @@ def parse_programmatic_blob(programmatic_blob):
 
 
 def parse_ugc(ugc_blob):
-    regex_to_match = "(" + DEFINED_METRICS_DELIMITER \
-        + "|" + BLOCK_END_DELIMITER + ")"  # To reduce priority, END_DELIMITERS always go last
+    regex_to_match = (
+        "(" + DEFINED_METRICS_DELIMITER + "|" + BLOCK_END_DELIMITER + ")"
+    )  # To reduce priority, END_DELIMITERS always go last
     splits = re.split(regex_to_match, ugc_blob)
 
     state = NOTES_SECTION
@@ -97,13 +106,14 @@ def sections_from_markdown(file_path):
 
 
 def markdown_from_sections(sections: dict):
-    programmatic_blob = sections[HEADER_SECTION] \
-        + sections[COLUMN_DETAILS_SECTION]\
-        + sections[PARTITION_SECTION]\
-        + sections[USAGE_SECTION] \
+    programmatic_blob = (
+        sections[HEADER_SECTION]
+        + sections[COLUMN_DETAILS_SECTION]
+        + sections[PARTITION_SECTION]
+        + sections[USAGE_SECTION]
         + sections[METRICS_SECTION]
+    )
 
     ugc_blob = sections[UGC_SECTION]
     final_blob = UGC_DELIMITER.join([programmatic_blob, ugc_blob])
     return final_blob
-

@@ -12,9 +12,7 @@ from whale.loader.whale_loader import WhaleLoader
 from whale.models.connection_config import ConnectionConfigSchema
 from whale.transformer.markdown_transformer import MarkdownTransformer
 from whale.utils import copy_manifest, transfer_manifest
-from whale.utils.config import (
-    get_connection,
-    read_connections)
+from whale.utils.config import get_connection, read_connections
 
 from whale.utils.extractor_wrappers import (
     configure_bigquery_extractors,
@@ -27,14 +25,13 @@ from whale.utils.extractor_wrappers import (
     configure_redshift_extractors,
     configure_snowflake_extractors,
     configure_unscoped_sqlalchemy_engine,
-    run_build_script)
+    run_build_script,
+)
 
 LOGGER = logging.getLogger(__name__)
 
 
-def run(
-        sql,
-        warehouse_name=None):
+def run(sql, warehouse_name=None):
     """
     Runs sql queries against warehouse_name defined in ~/.whale/config/connections.yaml.
     If no warehouse_name is given, the first is used.
@@ -49,11 +46,18 @@ def run(
     df = pd.DataFrame(table, columns=headers)
     return df
 
+
 def pull():
     """
     Pulls down all metadata & metrics from user-defined warehouse connections in ~/.whale/config/connections.yaml.
     """
-    for path in [paths.CONFIG_DIR, paths.LOGS_DIR, paths.MANIFEST_DIR, paths.METADATA_PATH, paths.METRICS_PATH]:
+    for path in [
+        paths.CONFIG_DIR,
+        paths.LOGS_DIR,
+        paths.MANIFEST_DIR,
+        paths.METADATA_PATH,
+        paths.METRICS_PATH,
+    ]:
         Path(path).mkdir(parents=True, exist_ok=True)
 
     raw_connection_dicts = read_connections()
@@ -64,8 +68,8 @@ def pull():
     i = 0
     while os.path.exists(tmp_manifest_path):
         tmp_manifest_path = os.path.join(
-            paths.BASE_DIR,
-            "manifests/tmp_manifest_" + str(i) + ".txt")
+            paths.BASE_DIR, "manifests/tmp_manifest_" + str(i) + ".txt"
+        )
         i += 1
 
     for raw_connection_dict in raw_connection_dicts:
@@ -83,15 +87,15 @@ def pull():
             "snowflake": configure_snowflake_extractors,
         }
 
-        if connection.metadata_source == 'build_script':
+        if connection.metadata_source == "build_script":
             run_build_script(connection)
             break
         else:
             configurer = metadata_source_dict[connection.metadata_source]
             extractors, conf = configurer(connection)
 
-        manifest_key = 'loader.whale.tmp_manifest_path'
-        conf.put('loader.whale.database_name', connection.name)
+        manifest_key = "loader.whale.tmp_manifest_path"
+        conf.put("loader.whale.database_name", connection.name)
         conf.put(manifest_key, tmp_manifest_path)
 
         for i, extractor in enumerate(extractors):

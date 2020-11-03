@@ -8,12 +8,13 @@ from whale.utils import paths
 from whale.utils import task_wrappers
 
 
+@patch("google.auth.default", lambda scopes: ["dummy", "dummy"])
 @patch.object(task_wrappers, "get_connection")
 @patch.object(SQLAlchemyEngine, "execute")
 def test_run(mock_execution, get_connection):
     mock_execution.return_value = iter([["hi"], [0]])
     get_connection.return_value = {
-        "metadata_source": "Bigquery",
+        "metadata_source": "bigquery",
     }
     sql = "select count(anonymous_id) from `bigquery-sample-no-prod-stuff`.census.button_clicked;"
     df = run(sql)

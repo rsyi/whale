@@ -11,6 +11,7 @@ filler
 ```
 """
 
+
 def test_parse_ugc():
     sections = parse_ugc(TEST_BLOB)
-    assert sections['defined_metrics'][0] == "\n" + METRIC_STATEMENT + "\n"
+    assert sections["defined_metrics"][0] == "\n" + METRIC_STATEMENT + "\n"

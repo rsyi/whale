@@ -59,7 +59,9 @@ class SpannerMetadataExtractor(Extractor):
     def init(self, conf):
         self.conf = conf.with_fallback(SpannerMetadataExtractor.DEFAULT_CONFIG)
         self._project_id = conf.get_string(SpannerMetadataExtractor.PROJECT_ID_KEY)
-        self._connection_name = conf.get_string(SpannerMetadataExtractor.CONNECTION_NAME_KEY)
+        self._connection_name = conf.get_string(
+            SpannerMetadataExtractor.CONNECTION_NAME_KEY
+        )
         self._instance_id = self.conf.get_string(
             SpannerMetadataExtractor.INSTANCE_ID_KEY
         )

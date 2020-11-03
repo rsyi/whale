@@ -24,9 +24,8 @@ install: python
 
 .PHONY: test_python
 test_python:
-	${python3_alias} -b -m pytest ${python_directory}/tests
-	pytest --cov=whale --cov-report=xml ${python_directory}/tests/
-	flake8 ${python_directory}/whale/. --exit-zero
+	${python3_alias} -b -m pytest -o log_cli=true ${python_directory}/tests --cov=whale --cov-report=xml
+	flake8 ${python_directory}/whale/ --exit-zero
 
 .PHONY: test
 test: test_python

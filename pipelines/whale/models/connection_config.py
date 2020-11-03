@@ -3,34 +3,35 @@ from typing import Optional, List
 
 class ConnectionConfigSchema(object):
     def __init__(
-            self,
-            metadata_source: str,
-            dialect: Optional[str] = None,
-            uri: Optional[str] = None,
-            port: Optional[int] = None,
-            username: Optional[str] = None,
-            password: Optional[str] = None,
-            name: Optional[str] = None,
-            database: Optional[str] = None,
-            instance: Optional[str] = None,
-            cluster: Optional[str] = None,
-            included_schemas: List = [],
-            excluded_schemas: List = [],
-            included_keys: Optional[List[str]] = None,
-            excluded_keys: Optional[List[str]] = None,
-            included_key_regex: Optional[str] = None,
-            excluded_key_regex: Optional[str] = None,
-            included_tables_regex: Optional[str] = None,
-            build_script_path: Optional[str] = None,
-            venv_path: Optional[str] = None,
-            python_binary: Optional[str] = None,
-            key_path: Optional[str] = None,
-            project_id: Optional[str] = None,
-            project_credentials: Optional[str] = None,
-            page_size: Optional[str] = None,
-            filter_key: Optional[str] = None,
-            where_clause_suffix: Optional[str] = "",
-            **kwargs):
+        self,
+        metadata_source: str,
+        dialect: Optional[str] = None,
+        uri: Optional[str] = None,
+        port: Optional[int] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        name: Optional[str] = None,
+        database: Optional[str] = None,
+        instance: Optional[str] = None,
+        cluster: Optional[str] = None,
+        included_schemas: List = [],
+        excluded_schemas: List = [],
+        included_keys: Optional[List[str]] = None,
+        excluded_keys: Optional[List[str]] = None,
+        included_key_regex: Optional[str] = None,
+        excluded_key_regex: Optional[str] = None,
+        included_tables_regex: Optional[str] = None,
+        build_script_path: Optional[str] = None,
+        venv_path: Optional[str] = None,
+        python_binary: Optional[str] = None,
+        key_path: Optional[str] = None,
+        project_id: Optional[str] = None,
+        project_credentials: Optional[str] = None,
+        page_size: Optional[str] = None,
+        filter_key: Optional[str] = None,
+        where_clause_suffix: Optional[str] = "",
+        **kwargs,
+    ):
 
         self.uri = uri
         self.port = port
@@ -64,18 +65,16 @@ class ConnectionConfigSchema(object):
 
         self.infer_conn_string()
 
-
     def infer_conn_string(self):
         if self.metadata_source == "bigquery":
             project_id = self.project_id
-            conn_string = \
-                    f"bigquery://{project_id}"
+            conn_string = f"bigquery://{project_id}"
         elif self.metadata_source == "neo4j":
             conn_string = f"bolt://{self.uri}:{self.port}"
         else:
-            username_password_placeholder = \
-                f"{self.username}:{self.password}" \
-                if self.password is not None else ""
+            username_password_placeholder = (
+                f"{self.username}:{self.password}" if self.password is not None else ""
+            )
 
             if self.metadata_source in ["redshift"]:
                 self.dialect = "postgres"
@@ -87,8 +86,6 @@ class ConnectionConfigSchema(object):
             port = self.port
             database = self.database or ""
 
-            conn_string = \
-                f"{self.dialect}://{username_password_placeholder}@{uri}:{port}/{database}"
+            conn_string = f"{self.dialect}://{username_password_placeholder}@{uri}:{port}/{database}"
 
         self.conn_string = conn_string
-

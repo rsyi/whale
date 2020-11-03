@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 from pyhocon import ConfigFactory
@@ -11,20 +12,27 @@ from whale.utils import get_table_info_from_path
 from whale.utils.parsers import (
     parse_ugc,
     sections_from_markdown,
-    DEFINED_METRICS_SECTION)
+    DEFINED_METRICS_SECTION,
+)
 from whale.models.metric_value import MetricValue
 
 SQLALCHEMY_ENGINE_SCOPE = SQLAlchemyEngine().get_scope()
-SQLALCHEMY_CONN_STRING_KEY = f"{SQLALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CONN_STRING_KEY}"
+SQLALCHEMY_CONN_STRING_KEY = (
+    f"{SQLALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CONN_STRING_KEY}"
+)
+
+LOGGER = logging.getLogger(__name__)
 
 
 class MetricRunner(SQLAlchemyEngine):
 
     DATABASE_KEY = "database"
-    DEFAULT_CONFIG = ConfigFactory.from_dict({
-        "table_stub_paths": None,
-        SQLALCHEMY_CONN_STRING_KEY: None,
-    })
+    DEFAULT_CONFIG = ConfigFactory.from_dict(
+        {
+            "table_stub_paths": None,
+            SQLALCHEMY_CONN_STRING_KEY: None,
+        }
+    )
 
     def init(self, conf):
         self.conf = conf.with_fallback(self.DEFAULT_CONFIG)
@@ -50,14 +58,16 @@ class MetricRunner(SQLAlchemyEngine):
 
     def _find_all_table_stub_paths(self) -> list:
         try:
-            results = \
-                subprocess.check_output(
-                    f"grep -l '```metrics' ~/.whale/metadata/{self.database}/* -d skip",
-                    shell=True)
+            results = subprocess.check_output(
+                f"grep -l '```metrics' ~/.whale/metadata/{self.database}/* -d skip",
+                shell=True,
+            )
             results = results.decode("utf-8")
             table_stubs_with_metrics = results.split("\n")[:-1]
-            table_stub_paths = \
-                [os.path.join(METADATA_PATH, table_stub) for table_stub in table_stubs_with_metrics]
+            table_stub_paths = [
+                os.path.join(METADATA_PATH, table_stub)
+                for table_stub in table_stubs_with_metrics
+            ]
         except subprocess.CalledProcessError:
             table_stub_paths = []
         return table_stub_paths
@@ -68,7 +78,9 @@ class MetricRunner(SQLAlchemyEngine):
             super().init(self.sql_alch_conf)
         for table_stub_path in self.table_stub_paths:
             database, cluster, schema, table = get_table_info_from_path(table_stub_path)
-            metric_yamls = self._get_metrics_queries_from_table_stub_path(table_stub_path)
+            metric_yamls = self._get_metrics_queries_from_table_stub_path(
+                table_stub_path
+            )
 
             # Get all ```metrics definitions in each file (there can be multiple)
             for metric_yaml in metric_yamls:
@@ -77,35 +89,44 @@ class MetricRunner(SQLAlchemyEngine):
                 # Loop through all metrics defined in this ```metrics section.
                 for metric_name, metric_details in metric_yaml.items():
                     execution_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    result = list(self.execute(
-                        metric_details["sql"],
-                        is_dict_return_enabled=False
-                    ))
+
                     try:
-                        cleaned_result = result[0][0]
+                        result = list(
+                            self.execute(
+                                metric_details["sql"], is_dict_return_enabled=False
+                            )
+                        )
+
+                        try:
+                            cleaned_result = result[0][0]
+                        except:
+                            cleaned_result = None
+
+                        if "description" in metric_details:
+                            description = metric_details["description"]
+                        else:
+                            description = None
+
+                        if "is_global" in metric_details:
+                            is_global = metric_details["is_global"]
+                        else:
+                            is_global = False
+
+                        yield MetricValue(
+                            database=database,
+                            cluster=cluster,
+                            schema=schema,
+                            table=table,
+                            name=metric_name,
+                            description=description,
+                            execution_time=execution_time,
+                            value=cleaned_result,
+                            is_global=is_global,
+                        )
+
                     except:
-                        cleaned_result = None
-
-                    if "description" in metric_details:
-                        description = metric_details["description"]
-                    else:
-                        description = None
-
-                    if "is_global" in metric_details:
-                        is_global = metric_details["is_global"]
-                    else:
-                        is_global = False
-
-                    yield MetricValue(
-                        database=database,
-                        cluster=cluster,
-                        schema=schema,
-                        table=table,
-                        name=metric_name,
-                        description=description,
-                        execution_time=execution_time,
-                        value=cleaned_result,
-                        is_global=is_global,
+                        LOGGER.warn(
+                            f"Failed execution of metric: {metric_name} in {table_stub_path}. Continuing."
                         )
 
     def _get_metrics_queries_from_table_stub_path(self, table_stub_path):
@@ -114,4 +135,4 @@ class MetricRunner(SQLAlchemyEngine):
         return ugc_sections[DEFINED_METRICS_SECTION]
 
     def get_scope(self):
-        return 'extractor.markdown_metric'
+        return "extractor.markdown_metric"
