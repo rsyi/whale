@@ -22,6 +22,7 @@ class SpannerMetadataExtractor(Extractor):
     """
 
     INSTANCE_ID_KEY = "instance_id"
+    CONNECTION_NAME_KEY = "connection_name"
     DATABASE_ID_KEY = "database_id"
     KEY_PATH_KEY = "key_path"
     PROJECT_CREDENTIALS_KEY = "project_credentials"
@@ -50,6 +51,7 @@ class SpannerMetadataExtractor(Extractor):
     # Config keys.
     DEFAULT_CONFIG = ConfigFactory.from_dict(
         {
+            CONNECTION_NAME_KEY: "spanner",
             WHERE_CLAUSE_SUFFIX_KEY: "",
         }
     )
@@ -57,6 +59,7 @@ class SpannerMetadataExtractor(Extractor):
     def init(self, conf):
         self.conf = conf.with_fallback(SpannerMetadataExtractor.DEFAULT_CONFIG)
         self._project_id = conf.get_string(SpannerMetadataExtractor.PROJECT_ID_KEY)
+        self._connection_name = conf.get_string(SpannerMetadataExtractor.CONNECTION_NAME_KEY)
         self._instance_id = self.conf.get_string(
             SpannerMetadataExtractor.INSTANCE_ID_KEY
         )
@@ -128,7 +131,7 @@ class SpannerMetadataExtractor(Extractor):
                 schema = "{}.{}".format(self._instance_id, self._database_id)
 
                 yield TableMetadata(
-                    database="spanner",
+                    database=self._connection_name or "spanner",
                     cluster=self._project_id,
                     schema=schema,
                     name=last_row["name"],

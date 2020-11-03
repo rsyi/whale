@@ -84,6 +84,7 @@ def configure_spanner_extractors(connection: ConnectionConfigSchema):
 
     conf = ConfigFactory.from_dict(
         {
+            f"{scope}.{Extractor.CONNECTION_NAME_KEY}": connection.name,
             f"{scope}.{Extractor.DATABASE_ID_KEY}": connection.database,
             f"{scope}.{Extractor.INSTANCE_ID_KEY}": connection.instance,
             f"{scope}.{Extractor.KEY_PATH_KEY}": connection.key_path,
