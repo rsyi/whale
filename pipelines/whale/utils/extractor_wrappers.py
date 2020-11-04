@@ -8,6 +8,7 @@ from whale.extractor.amundsen_neo4j_metadata_extractor import (
     AmundsenNeo4jMetadataExtractor,
 )
 from whale.extractor.bigquery_metadata_extractor import BigQueryMetadataExtractor
+from whale.extractor.spanner_metadata_extractor import SpannerMetadataExtractor
 from whale.extractor.bigquery_watermark_extractor import BigQueryWatermarkExtractor
 from whale.extractor.snowflake_metadata_extractor import SnowflakeMetadataExtractor
 from whale.extractor.metric_runner import MetricRunner
@@ -71,6 +72,27 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
     )
 
     extractors = [extractor, watermark_extractor]
+    extractors, conf = add_metrics(extractors, conf, connection)
+
+    return extractors, conf
+
+
+def configure_spanner_extractors(connection: ConnectionConfigSchema):
+    Extractor = SpannerMetadataExtractor
+    extractor = Extractor()
+    scope = extractor.get_scope()
+
+    conf = ConfigFactory.from_dict(
+        {
+            f"{scope}.{Extractor.CONNECTION_NAME_KEY}": connection.name,
+            f"{scope}.{Extractor.DATABASE_ID_KEY}": connection.database,
+            f"{scope}.{Extractor.INSTANCE_ID_KEY}": connection.instance,
+            f"{scope}.{Extractor.KEY_PATH_KEY}": connection.key_path,
+            f"{scope}.{Extractor.PROJECT_ID_KEY}": connection.project_id,
+        }
+    )
+
+    extractors = [extractor]
     extractors, conf = add_metrics(extractors, conf, connection)
 
     return extractors, conf

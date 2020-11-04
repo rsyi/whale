@@ -16,6 +16,7 @@ from whale.utils.config import get_connection, read_connections
 
 from whale.utils.extractor_wrappers import (
     configure_bigquery_extractors,
+    configure_spanner_extractors,
     configure_glue_extractors,
     configure_hive_metastore_extractors,
     configure_neo4j_extractors,
@@ -76,6 +77,7 @@ def pull():
 
         metadata_source_dict = {
             "bigquery": configure_bigquery_extractors,
+            "spanner": configure_spanner_extractors,
             "glue": configure_glue_extractors,
             "hivemetastore": configure_hive_metastore_extractors,
             "neo4j": configure_neo4j_extractors,
