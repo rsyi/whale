@@ -58,8 +58,8 @@ class SpannerMetadataExtractor(Extractor):
 
     def init(self, conf):
         self.conf = conf.with_fallback(SpannerMetadataExtractor.DEFAULT_CONFIG)
-        self._project_id = conf.get_string(SpannerMetadataExtractor.PROJECT_ID_KEY)
-        self._connection_name = conf.get_string(
+        self._project_id = self.conf.get_string(SpannerMetadataExtractor.PROJECT_ID_KEY)
+        self._connection_name = self.conf.get_string(
             SpannerMetadataExtractor.CONNECTION_NAME_KEY
         )
         self._instance_id = self.conf.get_string(
@@ -115,6 +115,7 @@ class SpannerMetadataExtractor(Extractor):
             results = snapshot.execute_sql(self.sql_stmt)
             header = SpannerMetadataExtractor.HEADER
             headered_results = [dict(zip(header, result)) for result in results]
+            schema = "{}.{}".format(self._instance_id, self._database_id)
 
             for _, group in groupby(headered_results, self._get_table_key):
                 columns = []
@@ -129,8 +130,6 @@ class SpannerMetadataExtractor(Extractor):
                             row["col_sort_order"],
                         )
                     )
-
-                schema = "{}.{}".format(self._instance_id, self._database_id)
 
                 yield TableMetadata(
                     database=self._connection_name or "spanner",
