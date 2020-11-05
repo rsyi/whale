@@ -34,7 +34,7 @@ brew install dataframehq/tap/whale
 
 ### All others
 
-Clone this directory and run the following in the base directory of the repo:
+Make sure [rust](https://www.rust-lang.org/tools/install) is installed on your local system. Then, clone this directory and run the following in the base directory of the repo:
 
 ```text
 make && make install
