@@ -8,9 +8,15 @@
 brew install dataframehq/tap/whale
 ```
 
-### All others
+### All others \(and local development\)
 
-All other systems should \(a\) clone the whale repository and run \(b\)**`make && make install`** in the base directory of the repo:
+{% hint style="warning" %}
+You'll need to have rust installed for the following commands to work.
+
+\*\*\*\*[**Click here for installation instructions**](https://www.rust-lang.org/tools/install)**.**
+{% endhint %}
+
+If you are not on macOS \(or are looking to build whale from source for development purposes\), you should \(a\) clone the whale repository and run \(b\)**`make && make install`** in the base directory of the repo.
 
 ```text
 git clone https://github.com/dataframehq/whale.git
