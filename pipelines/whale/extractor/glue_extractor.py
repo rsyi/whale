@@ -19,7 +19,7 @@ class GlueExtractor(Extractor):
         self._filters = conf.get(GlueExtractor.FILTER_KEY)
         self._glue = boto3.client("glue")
         self._extract_iter: Union[None, Iterator] = None
-        self._connection_name = conf.get(GlueExtractor.CONNECTION_NAME_KEY) or ""
+        self._connection_name = conf.get(GlueExtractor.CONNECTION_NAME_KEY, None) or ""
 
     def extract(self) -> Union[TableMetadata, None]:
         if not self._extract_iter:
@@ -53,13 +53,10 @@ class GlueExtractor(Extractor):
                 location=row["StorageDescriptor"]["Location"], name=row["Name"]
             )
 
-            print("CONNECTION:", self._connection_name)
             if self._connection_name:
                 database = self._connection_name + "/" + row["DatabaseName"]
             else:
                 database = row["DatabaseName"]
-
-            print("DB:", database)
 
             yield TableMetadata(
                 database,
