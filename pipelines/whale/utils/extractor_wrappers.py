@@ -10,11 +10,11 @@ from whale.extractor.amundsen_neo4j_metadata_extractor import (
 from whale.extractor.bigquery_metadata_extractor import BigQueryMetadataExtractor
 from whale.extractor.spanner_metadata_extractor import SpannerMetadataExtractor
 from whale.extractor.bigquery_watermark_extractor import BigQueryWatermarkExtractor
+from whale.extractor.glue_extractor import GlueExtractor
 from whale.extractor.snowflake_metadata_extractor import SnowflakeMetadataExtractor
 from whale.extractor.metric_runner import MetricRunner
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
-from databuilder.extractor.glue_extractor import GlueExtractor
 from databuilder.extractor.hive_table_metadata_extractor import (
     HiveTableMetadataExtractor,
 )
@@ -105,7 +105,7 @@ def configure_glue_extractors(connection: ConnectionConfigSchema):
 
     conf = ConfigFactory.from_dict(
         {
-            f"{scope}.{Extractor.CLUSTER_KEY}": connection.cluster,
+            f"{scope}.{Extractor.CONNECTION_NAME_KEY}": connection.name,
             f"{scope}.{Extractor.FILTER_KEY}": connection.filter_key,
         }
     )

@@ -76,7 +76,12 @@ class WhaleLoader(Loader):
 
         schema = record.schema
         cluster = record.cluster
-        database = self.database_name or record.database
+        if (
+            "/" in record.database
+        ):  # TODO: In general, we should always use self.database_name, unless we override the amundsen extractor and add subdirectories
+            database = record.database
+        else:  # ... so we have to do this.
+            database = self.database_name or record.database
 
         if cluster == "None":  # edge case for Hive Metastore
             cluster = None
