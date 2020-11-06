@@ -76,6 +76,84 @@ class TestGlueExtractor(unittest.TestCase):
             actual = extractor.extract()
             expected = TableMetadata(
                 "test_database",
+                None,
+                None,
+                "test_catalog_test_schema_test_table",
+                "a table for testing",
+                [
+                    ColumnMetadata("col_id1", "description of id1", "bigint", 0),
+                    ColumnMetadata("col_id2", "description of id2", "bigint", 1),
+                    ColumnMetadata("is_active", None, "boolean", 2),
+                    ColumnMetadata("source", "description of source", "varchar", 3),
+                    ColumnMetadata(
+                        "etl_created_at",
+                        "description of etl_created_at",
+                        "timestamp",
+                        4,
+                    ),
+                    ColumnMetadata("ds", None, "varchar", 5),
+                    ColumnMetadata(
+                        "partition_key1", "description of partition_key1", "string", 6
+                   ),
+                ],
+                False,
+            )
+            self.assertEqual(expected.__repr__(), actual.__repr__())
+            self.assertIsNone(extractor.extract())
+
+    def test_extraction_with_single_result_location_parsing(self) -> None:
+        with patch.object(GlueExtractor, "_search_tables") as mock_search:
+            mock_search.return_value = [
+                {
+                    "Name": "test_catalog_test_schema_test_table",
+                    "DatabaseName": "test_database",
+                    "Description": "a table for testing",
+                    "StorageDescriptor": {
+                        "Columns": [
+                            {
+                                "Name": "col_id1",
+                                "Type": "bigint",
+                                "Comment": "description of id1",
+                            },
+                            {
+                                "Name": "col_id2",
+                                "Type": "bigint",
+                                "Comment": "description of id2",
+                            },
+                            {"Name": "is_active", "Type": "boolean"},
+                            {
+                                "Name": "source",
+                                "Type": "varchar",
+                                "Comment": "description of source",
+                            },
+                            {
+                                "Name": "etl_created_at",
+                                "Type": "timestamp",
+                                "Comment": "description of etl_created_at",
+                            },
+                            {"Name": "ds", "Type": "varchar"},
+                        ],
+                        "Location": "test_catalog.test_schema.test_table",
+                    },
+                    "PartitionKeys": [
+                        {
+                            "Name": "partition_key1",
+                            "Type": "string",
+                            "Comment": "description of partition_key1",
+                        },
+                    ],
+                    "TableType": "EXTERNAL_TABLE",
+                }
+            ]
+
+            extractor = GlueExtractor()
+            conf = ConfigFactory.from_dict({
+                GlueExtractor.IS_LOCATION_PARSING_ENABLED_KEY: True
+            })
+            extractor.init(conf)
+            actual = extractor.extract()
+            expected = TableMetadata(
+                "test_database",
                 "test_catalog",
                 "test_schema",
                 "test_table",
@@ -94,7 +172,7 @@ class TestGlueExtractor(unittest.TestCase):
                     ColumnMetadata("ds", None, "varchar", 5),
                     ColumnMetadata(
                         "partition_key1", "description of partition_key1", "string", 6
-                    ),
+                   ),
                 ],
                 False,
             )
@@ -191,9 +269,9 @@ class TestGlueExtractor(unittest.TestCase):
 
             expected = TableMetadata(
                 "test_database",
-                "test_catalog",
-                "test_schema",
-                "test_table",
+                None,
+                None,
+                "test_catalog_test_schema_test_table",
                 "test table",
                 [
                     ColumnMetadata("col_id1", "description of col_id1", "bigint", 0),
@@ -217,9 +295,9 @@ class TestGlueExtractor(unittest.TestCase):
 
             expected = TableMetadata(
                 "test_database",
-                "test_catalog1",
-                "test_schema1",
-                "test_table1",
+                None,
+                None,
+                "test_catalog1_test_schema1_test_table1",
                 "test table 1",
                 [
                     ColumnMetadata("col_name", "description of col_name", "varchar", 0),
@@ -230,9 +308,9 @@ class TestGlueExtractor(unittest.TestCase):
 
             expected = TableMetadata(
                 "test_database",
-                "test_catalog",
-                "test_schema",
-                "test_view",
+                None,
+                None,
+                "test_catalog_test_schema_test_view",
                 "test view 1",
                 [
                     ColumnMetadata("col_id3", "description of col_id3", "varchar", 0),
