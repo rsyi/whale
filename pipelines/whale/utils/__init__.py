@@ -10,6 +10,7 @@ LOGGER = logging.getLogger(__name__)
 
 TABLE_RELATIVE_FILE_PATH = "{database}/{cluster}.{schema}.{table}"
 CLUSTERLESS_TABLE_RELATIVE_FILE_PATH = "{database}/{schema}.{table}"
+SCHEMALESS_TABLE_RELATIVE_FILE_PATH = "{database}/{table}"
 
 
 def get_table_file_path_base(
@@ -26,9 +27,14 @@ def get_table_file_path_relative(database, cluster, schema, table):
             database=database, cluster=cluster, schema=schema, table=table
         )
     else:
-        relative_file_path = CLUSTERLESS_TABLE_RELATIVE_FILE_PATH.format(
-            database=database, schema=schema, table=table
-        )
+        if schema is not None:
+            relative_file_path = CLUSTERLESS_TABLE_RELATIVE_FILE_PATH.format(
+                database=database, schema=schema, table=table
+            )
+        else:
+            relative_file_path = SCHEMALESS_TABLE_RELATIVE_FILE_PATH.format(
+                database=database, table=table
+            )
     return relative_file_path
 
 
@@ -51,11 +57,15 @@ def get_table_info_from_path(
     database = str(database).split("/")[-1]
     table_components = table_string.split(".")
     table = table_components[-2]
-    schema = table_components[-3]
     if len(table_components) == 4:
         cluster = table_components[-4]
+        schema = table_components[-3]
+    elif len(table_components) == 3:
+        cluster = None
+        schema = table_components[-3]
     else:
         cluster = None
+        schema = None
     return database, cluster, schema, table
 
 

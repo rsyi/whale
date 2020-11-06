@@ -12,7 +12,7 @@ import textwrap
 class FormatterMixin:
     def format_table_metadata(self, record) -> metadata_model_whale.TableMetadata:
         block_template = textwrap.dedent(
-            """            # `{schema}.{name}`{view_statement}
+            """            # `{schema_statement}{name}`{view_statement}
             `{database}`{cluster_statement}
             {description}
             {column_details_delimiter}
@@ -36,12 +36,19 @@ class FormatterMixin:
             cluster = record.cluster
 
         if cluster is not None:
-            cluster_statement = f"| `{cluster}`"
+            cluster_statement = f" | `{cluster}`"
         else:
             cluster_statement = ""
 
+        if (
+            record.schema == None
+        ):  # edge case for Glue, which puts everything in record.table
+            schema_statement = ""
+        else:
+            schema_statement = f"{record.schema}."
+
         markdown_blob = block_template.format(
-            schema=record.schema,
+            schema_statement=schema_statement,
             name=record.name,
             view_statement=" [view]" if record.is_view else "",
             database=record.database,

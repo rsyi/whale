@@ -12,14 +12,24 @@ class GlueExtractor(Extractor):
 
     CONNECTION_NAME_KEY = "connection_name"
     FILTER_KEY = "filters"
-    DEFAULT_CONFIG = ConfigFactory.from_dict({FILTER_KEY: None})
+    IS_LOCATION_PARSING_ENABLED_KEY = "is_location_parsing_enabled"
+    DEFAULT_CONFIG = ConfigFactory.from_dict(
+        {
+            FILTER_KEY: None,
+            IS_LOCATION_PARSING_ENABLED_KEY: False,
+            CONNECTION_NAME_KEY: None,
+        }
+    )
 
     def init(self, conf: ConfigTree) -> None:
         conf = conf.with_fallback(GlueExtractor.DEFAULT_CONFIG)
         self._filters = conf.get(GlueExtractor.FILTER_KEY)
+        self._connection_name = conf.get(GlueExtractor.CONNECTION_NAME_KEY) or ""
+        self._is_location_parsing_enabled = conf.get(
+            GlueExtractor.IS_LOCATION_PARSING_ENABLED_KEY
+        )
         self._glue = boto3.client("glue")
         self._extract_iter: Union[None, Iterator] = None
-        self._connection_name = conf.get(GlueExtractor.CONNECTION_NAME_KEY, None) or ""
 
     def extract(self) -> Union[TableMetadata, None]:
         if not self._extract_iter:
@@ -49,9 +59,14 @@ class GlueExtractor(Extractor):
                 )
                 i += 1
 
-            catalog, schema, table = self._parse_location(
-                location=row["StorageDescriptor"]["Location"], name=row["Name"]
-            )
+            if self._is_location_parsing_enabled:
+                catalog, schema, table = self._parse_location(
+                    location=row["StorageDescriptor"]["Location"], name=row["Name"]
+                )
+            else:
+                catalog = None
+                schema = None
+                table = row["Name"]
 
             if self._connection_name:
                 database = self._connection_name + "/" + row["DatabaseName"]
