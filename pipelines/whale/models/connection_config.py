@@ -14,6 +14,7 @@ class ConnectionConfigSchema(object):
         database: Optional[str] = None,
         instance: Optional[str] = None,
         cluster: Optional[str] = None,
+        is_location_parsing_enabled: bool = False,
         included_schemas: List = [],
         excluded_schemas: List = [],
         included_keys: Optional[List[str]] = None,
@@ -45,6 +46,7 @@ class ConnectionConfigSchema(object):
         self.database = database
         self.instance = instance
         self.cluster = cluster
+        self.is_location_parsing_enabled = is_location_parsing_enabled
         self.included_schemas = included_schemas
         self.excluded_schemas = excluded_schemas
         self.included_keys = included_keys
