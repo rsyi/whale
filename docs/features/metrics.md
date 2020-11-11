@@ -1,6 +1,6 @@
 # Metrics
 
-Whale supports automatic barebones metric definition and scheduled calculation. Metrics are defined by creating a ```````metrics```` block, as explained below. Any metrics defined in this way will be automatically be scheduled alongside the metadata scraping job.
+Whale supports automatic barebones metric definition and scheduled calculation. Metrics are defined by creating a ```````metrics```` block, as explained below. Any metric defined in this way will automatically be scheduled alongside the metadata scraping job.
 
 ## Basic usage
 
@@ -61,7 +61,7 @@ distinct-registrations:
 ```
 ```
 
-These metrics will be scheduled, with the latest calculations injected into the programmatically portion of the table stub. An example is shown below:
+These metrics will be scheduled, with the latest calculations injected into the programmatic portion of the table stub. An example is shown below:
 
 ```text
 schema.table

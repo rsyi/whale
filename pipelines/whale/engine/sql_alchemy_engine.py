@@ -16,14 +16,6 @@ class SQLAlchemyEngine(Engine):
     MODEL_CLASS_KEY = "model_class"
     CREDENTIALS_PATH_KEY = "credentials_path"
 
-    DEFAULT_CONFIG = ConfigFactory.from_dict(
-        {
-            CONN_STRING_KEY: None,
-            MODEL_CLASS_KEY: None,
-            CREDENTIALS_PATH_KEY: None,
-        }
-    )
-
     def init(self, conf: ConfigTree):
         """
         Establish connection, import data model class (if provided)
