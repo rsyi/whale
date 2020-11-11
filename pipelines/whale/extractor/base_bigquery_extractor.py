@@ -4,6 +4,7 @@ import os
 import re
 from collections import namedtuple
 
+from google.cloud import datacatalog_v1
 import google.oauth2.service_account
 import google_auth_httplib2
 from googleapiclient.discovery import build
@@ -28,6 +29,7 @@ class BaseBigQueryExtractor(Extractor):
     PAGE_SIZE_KEY = "page_size"
     FILTER_KEY = "filter"
     _DEFAULT_SCOPES = [
+        "https://www.googleapis.com/auth/cloud-platform",
         "https://www.googleapis.com/auth/bigquery.readonly",
     ]
     DEFAULT_PAGE_SIZE = 300
@@ -79,8 +81,8 @@ class BaseBigQueryExtractor(Extractor):
         self.bigquery_service = build(
             "bigquery", "v2", http=authed_http, cache_discovery=False
         )
-        self.logging_service = build(
-            "logging", "v2", http=authed_http, cache_discovery=False
+        self.datacatalog_service = datacatalog_v1.DataCatalogClient(
+            credentials=credentials
         )
         self.iter = iter(self._iterate_over_tables())
 

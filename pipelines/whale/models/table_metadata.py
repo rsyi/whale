@@ -1,6 +1,6 @@
 import copy
 
-from typing import Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Union
 
 
 class ColumnMetadata:
@@ -12,7 +12,7 @@ class ColumnMetadata:
         description: Optional[str],
         col_type: str,
         sort_order: int,
-        tags: Optional[List[str]] = None,
+        tags: Optional[Union[List[Dict], List[str]]] = None,
         is_partition_column: Optional[bool] = None,
     ):
         # type: (...) -> None
@@ -31,11 +31,12 @@ class ColumnMetadata:
 
     def __repr__(self):
         # type: () -> str
-        return "ColumnMetadata({!r}, {!r}, {!r}, {!r}, {!r})".format(
+        return "ColumnMetadata({!r}, {!r}, {!r}, {!r}, {!r}, {!r})".format(
             self.name,
             self.description,
             self.type,
             self.sort_order,
+            self.tags,
             self.is_partition_column,
         )
 
@@ -62,7 +63,8 @@ class TableMetadata(object):
         columns: Iterable[ColumnMetadata] = None,
         is_view: bool = False,
         markdown_blob: str = "",
-        tags: Optional[List] = None,
+        tags: Optional[Union[List[Dict], List[str]]] = None,
+        labels: Optional[Union[Dict, List[str]]] = None,
         description_source: Optional[str] = None,
         **kwargs
     ):
@@ -76,6 +78,7 @@ class TableMetadata(object):
         :param columns:
         :param is_view:
         :param tags:
+        :param labels:
         :param kwargs:
         """
         self.database = database
@@ -92,13 +95,14 @@ class TableMetadata(object):
         if isinstance(tags, list):
             tags = [tag.lower().strip() for tag in tags]
         self.tags = tags
+        self.labels = labels
 
         if kwargs:
             self.attrs = copy.deepcopy(kwargs)
 
     def __repr__(self):
         # type: () -> str
-        return "TableMetadata({!r}, {!r}, {!r}, {!r} " "{!r}, {!r}, {!r}, {!r})".format(
+        return "TableMetadata({!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r})".format(
             self.database,
             self.cluster,
             self.schema,
@@ -107,6 +111,7 @@ class TableMetadata(object):
             self.columns,
             self.is_view,
             self.tags,
+            self.labels,
         )
 
     def _get_table_key(self):

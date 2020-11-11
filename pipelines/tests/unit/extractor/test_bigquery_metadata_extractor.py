@@ -45,6 +45,7 @@ ONE_TABLE = {
                 "tableId": "nested_recs",
             },
             "type": "TABLE",
+            "labels": {"label1": "test1", "label2": "label2"},
             "creationTime": "1557578974009",
         }
     ],
@@ -143,6 +144,7 @@ TABLE_DATA = {
     "lastModifiedTime": "1557577756370",
     "type": "TABLE",
     "location": "EU",
+    "labels": {"label_1": "test_label_1", "label_2": "test_label_2"},
 }  # noqa
 NO_SCHEMA = {
     "kind": "bigquery#table",
@@ -240,6 +242,64 @@ NESTED_DATA = {
     "type": "TABLE",
     "location": "EU",
 }  # noqa
+ENTRY = {
+    "name": "projects/your-project-here/locations/us/entryGroups/@bigquery/entries/cHJvamVjdHMvd2hhbGUtZGV2LTI5NDgxMi9kYXRhc2V0cy90ZXN0aW5nL3RhYmxlcy90YWJsZTE",
+    "type": "TABLE",
+    "description": "this is a table",
+    "schema": {
+        "columns": [
+            {
+                "type": "STRING",
+                "description": "testcol1",
+                "mode": "NULLABLE",
+                "column": "col1",
+            },
+            {
+                "type": "DOUBLE",
+                "description": "testcol2",
+                "mode": "NULLABLE",
+                "column": "col2",
+            },
+            {
+                "type": "INT64",
+                "description": "testcol3",
+                "mode": "NULLABLE",
+                "column": "col3",
+            },
+            {"type": "STRING", "mode": "NULLABLE", "column": "col4"},
+        ]
+    },
+    "sourceSystemTimestamps": {
+        "createTime": "2020-11-06T13:27:22.537Z",
+        "updateTime": "2020-11-06T15:34:57.325Z",
+    },
+    "linkedResource": "//bigquery.googleapis.com/projects/your-project-here/datasets/testing/tables/table1",
+    "bigqueryTableSpec": {"tableSourceType": "BIGQUERY_TABLE"},
+    "integratedSystem": "BIGQUERY",
+}
+TAGS = {
+    "tags": [
+        {
+            "name": "projects/your-project-here/locations/us/entryGroups/@bigquery/entries/cHJvamVjdHMvd2hhbGUtZGV2LTI5NDgxMi9kYXRhc2V0cy90ZXN0aW5nL3RhYmxlcy90YWJsZTE/tags/CXy_PbcgFLIaW",
+            "template": "projects/your-project-here/locations/europe-west2/tagTemplates/demo_tag",
+            "fields": {
+                "demo2": {"displayName": "demo2", "boolValue": "true"},
+                "demo1": {"displayName": "demo1", "stringValue": "test1", "order": 1},
+            },
+            "templateDisplayName": "demo-tag",
+        },
+        {
+            "name": "projects/your-project-here/locations/us/entryGroups/@bigquery/entries/cHJvamVjdHMvd2hhbGUtZGV2LTI5NDgxMi9kYXRhc2V0cy90ZXN0aW5nL3RhYmxlcy90YWJsZTE/tags/CYPqPyHt4oku",
+            "template": "projects/your-project-here/locations/europe-west2/tagTemplates/demo_tag",
+            "fields": {
+                "demo1": {"displayName": "demo1", "stringValue": "test1", "order": 1},
+                "demo2": {"displayName": "demo2", "boolValue": "true"},
+            },
+            "column": "test4",
+            "templateDisplayName": "demo-tag",
+        },
+    ]
+}
 
 
 try:
@@ -269,6 +329,18 @@ class MockBigQueryClient:
         return self.tables_method
 
 
+class MockDataCatalogClient:
+    def __init__(self, entry_data, tags_data):
+        self.entry = entry_data
+        self.tags = tags_data
+
+    def lookup_entry(self, request):
+        return self.entry
+
+    def list_tags(self, request):
+        return self.tags
+
+
 @patch("google.auth.default", lambda scopes: ["dummy", "dummy"])
 class TestBigQueryMetadataExtractor(unittest.TestCase):
     def setUp(self):
@@ -282,8 +354,12 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.conf = ConfigFactory.from_dict(config_dict)
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_can_handle_datasets(self, mock_build):
-        mock_build.return_value = MockBigQueryClient(NO_DATASETS, None, None)
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_can_handle_datasets(self, mock_datacatalogue, mock_bigquery):
+        mock_bigquery.return_value = MockBigQueryClient(NO_DATASETS, None, None)
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
+        )
         extractor = BigQueryMetadataExtractor()
         extractor.init(
             Scoped.get_scoped_conf(conf=self.conf, scope=extractor.get_scope())
@@ -292,8 +368,12 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertIsNone(result)
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_empty_dataset(self, mock_build):
-        mock_build.return_value = MockBigQueryClient(ONE_DATASET, NO_TABLES, None)
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_empty_dataset(self, mock_datacatalogue, mock_bigquery):
+        mock_bigquery.return_value = MockBigQueryClient(ONE_DATASET, NO_TABLES, None)
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
+        )
         extractor = BigQueryMetadataExtractor()
         extractor.init(
             Scoped.get_scoped_conf(conf=self.conf, scope=extractor.get_scope())
@@ -302,7 +382,8 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertIsNone(result)
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_accepts_dataset_filter_by_label(self, mock_build):
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_accepts_dataset_filter_by_label(self, mock_datacatalogue, mock_bigquery):
         config_dict = {
             "extractor.bigquery_table_metadata.{}".format(
                 BigQueryMetadataExtractor.PROJECT_ID_KEY
@@ -313,15 +394,26 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         }
         conf = ConfigFactory.from_dict(config_dict)
 
-        mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, TABLE_DATA)
+        mock_bigquery.return_value = MockBigQueryClient(
+            ONE_DATASET, ONE_TABLE, TABLE_DATA
+        )
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
+        )
         extractor = BigQueryMetadataExtractor()
         extractor.init(Scoped.get_scoped_conf(conf=conf, scope=extractor.get_scope()))
         result = extractor.extract()
         self.assertIsInstance(result, TableMetadata)
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_table_without_schema(self, mock_build):
-        mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, NO_SCHEMA)
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_table_without_schema(self, mock_datacatalogue, mock_bigquery):
+        mock_bigquery.return_value = MockBigQueryClient(
+            ONE_DATASET, ONE_TABLE, NO_SCHEMA
+        )
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
+        )
         extractor = BigQueryMetadataExtractor()
         extractor.init(
             Scoped.get_scoped_conf(conf=self.conf, scope=extractor.get_scope())
@@ -337,8 +429,12 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertEqual(result.is_view, False)
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_table_without_columns(self, mock_build):
-        mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, NO_COLS)
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_table_without_columns(self, mock_datacatalogue, mock_bigquery):
+        mock_bigquery.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, NO_COLS)
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
+        )
         extractor = BigQueryMetadataExtractor()
         extractor.init(
             Scoped.get_scoped_conf(conf=self.conf, scope=extractor.get_scope())
@@ -354,8 +450,14 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertEqual(result.is_view, False)
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_view(self, mock_build):
-        mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_VIEW, VIEW_DATA)
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_view(self, mock_datacatalogue, mock_bigquery):
+        mock_bigquery.return_value = MockBigQueryClient(
+            ONE_DATASET, ONE_VIEW, VIEW_DATA
+        )
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
+        )
         extractor = BigQueryMetadataExtractor()
         extractor.init(
             Scoped.get_scoped_conf(conf=self.conf, scope=extractor.get_scope())
@@ -365,8 +467,14 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertEqual(result.is_view, True)
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_normal_table(self, mock_build):
-        mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, TABLE_DATA)
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_normal_table(self, mock_datacatalogue, mock_bigquery):
+        mock_bigquery.return_value = MockBigQueryClient(
+            ONE_DATASET, ONE_TABLE, TABLE_DATA
+        )
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
+        )
         extractor = BigQueryMetadataExtractor()
         extractor.init(
             Scoped.get_scoped_conf(conf=self.conf, scope=extractor.get_scope())
@@ -378,17 +486,60 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertEqual(result.schema, "fdgdfgh")
         self.assertEqual(result.name, "nested_recs")
         self.assertEqual(result.description, "")
+        self.assertEqual(result.is_view, False)
+        self.assertEqual(
+            result.tags,
+            {
+                "name": "projects/your-project-here/locations/us/entryGroups/@bigquery/entries/cHJvamVjdHMvd2hhbGUtZGV2LTI5NDgxMi9kYXRhc2V0cy90ZXN0aW5nL3RhYmxlcy90YWJsZTE/tags/CXy_PbcgFLIaW",
+                "template": "projects/your-project-here/locations/europe-west2/tagTemplates/demo_tag",
+                "fields": {
+                    "demo2": {"displayName": "demo2", "boolValue": "true"},
+                    "demo1": {
+                        "displayName": "demo1",
+                        "stringValue": "test1",
+                        "order": 1,
+                    },
+                },
+                "templateDisplayName": "demo-tag",
+            },
+        )
+        self.assertEqual(
+            result.labels, {"label_1": "test_label_1", "label_2": "test_label_2"}
+        )
 
         first_col = result.columns[0]
         self.assertEqual(first_col.name, "test")
         self.assertEqual(first_col.type, "STRING")
         self.assertEqual(first_col.description, "some_description")
-        self.assertEqual(result.is_view, False)
+        self.assertEqual(first_col.tags, None)
+
+        fourth_col = result.columns[3]
+        self.assertEqual(
+            fourth_col.tags,
+            {
+                "name": "projects/your-project-here/locations/us/entryGroups/@bigquery/entries/cHJvamVjdHMvd2hhbGUtZGV2LTI5NDgxMi9kYXRhc2V0cy90ZXN0aW5nL3RhYmxlcy90YWJsZTE/tags/CYPqPyHt4oku",
+                "template": "projects/your-project-here/locations/europe-west2/tagTemplates/demo_tag",
+                "fields": {
+                    "demo1": {
+                        "displayName": "demo1",
+                        "stringValue": "test1",
+                        "order": 1,
+                    },
+                    "demo2": {"displayName": "demo2", "boolValue": "true"},
+                },
+                "column": "test4",
+                "templateDisplayName": "demo-tag",
+            },
+        )
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_table_with_nested_records(self, mock_build):
-        mock_build.return_value = MockBigQueryClient(
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_table_with_nested_records(self, mock_datacatalogue, mock_bigquery):
+        mock_bigquery.return_value = MockBigQueryClient(
             ONE_DATASET, ONE_TABLE, NESTED_DATA
+        )
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
         )
         extractor = BigQueryMetadataExtractor()
         extractor.init(
@@ -407,7 +558,8 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         self.assertEqual(third_col.type, "STRING")
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_keypath_and_pagesize_can_be_set(self, mock_build):
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_keypath_and_pagesize_can_be_set(self, mock_datacatalogue, mock_bigquery):
         config_dict = {
             "extractor.bigquery_table_metadata.{}".format(
                 BigQueryMetadataExtractor.PROJECT_ID_KEY
@@ -421,7 +573,12 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
         }
         conf = ConfigFactory.from_dict(config_dict)
 
-        mock_build.return_value = MockBigQueryClient(ONE_DATASET, ONE_TABLE, TABLE_DATA)
+        mock_bigquery.return_value = MockBigQueryClient(
+            ONE_DATASET, ONE_TABLE, TABLE_DATA
+        )
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
+        )
         extractor = BigQueryMetadataExtractor()
 
         with self.assertRaises(FileNotFoundError):
@@ -430,9 +587,13 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
             )
 
     @patch("whale.extractor.base_bigquery_extractor.build")
-    def test_table_part_of_table_date_range(self, mock_build):
-        mock_build.return_value = MockBigQueryClient(
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_table_part_of_table_date_range(self, mock_datacatalogue, mock_bigquery):
+        mock_bigquery.return_value = MockBigQueryClient(
             ONE_DATASET, TABLE_DATE_RANGE, TABLE_DATA
+        )
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, TAGS
         )
         extractor = BigQueryMetadataExtractor()
         extractor.init(
