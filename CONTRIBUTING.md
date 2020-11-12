@@ -3,6 +3,21 @@
 
 Whale welcomes all contributions and corrections. Before contributing, please make sure you have read the guidelines below.
 
+## 🌳 Setting up your environment
+### Python
+The python client is accessed by the rust client through `./pipelines/build_script.py` and `./pipelines/run_script.py`.  For development purposes, therefore, it is generally sufficient to install only the python client by creating a virtual environment, activating it, then running the following command in the `./pipelines/` directory:
+```
+pip install -e .
+```
+This command installs a symlink to the pipelines directory in site-packages for the current virtual environment. Any tests can then be run within this environment. 
+
+If you'd like to QA some new functionality against a real warehouse connection, you can run `python build_script.py` or `python run_script.py`, within the `./pipelines/` directory. (You'll need to define a connection to a warehouse within `~/.whale/config/connections.yaml` either manually or using `wh init` for this to work.)
+
+### Rust
+The rust side of things handles all things related to the local CLI, but also provides an interface to the python client. In general, for pure terminal user interface changes, it is reasonable to simply run the typical `cargo` checks within the `./cli/` directory.
+
+If your changes involve adjustments to the python interface, we recommend manually installing the full stack by running `make && make install`.
+
 ## 📘 General instructions
 Pull requests are the easiest and preferred method to contribute to any repo at Github.
 
