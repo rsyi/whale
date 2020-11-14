@@ -104,9 +104,9 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
                                 )
 
                 table_tag = None
-                if "tags" in tags_dict:
+                if tags_dict and "tags" in tags_dict:
                     for tag in tags_dict["tags"]:
-                        if not "column" in tag:
+                        if "column" not in tag:
                             table_tag = tag
 
                 table_meta = TableMetadata(
@@ -137,7 +137,7 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
             col_name = column["name"]
 
         tags = None
-        if "tags" in tags_dict:
+        if tags_dict and "tags" in tags_dict:
             for tag in tags_dict["tags"]:
                 if "column" in tag:
                     if tag["column"] == col_name:

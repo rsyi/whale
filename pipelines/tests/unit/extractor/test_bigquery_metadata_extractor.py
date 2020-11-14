@@ -300,6 +300,7 @@ TAGS = {
         },
     ]
 }
+NO_TAGS = {}
 
 
 try:
@@ -531,6 +532,23 @@ class TestBigQueryMetadataExtractor(unittest.TestCase):
                 "templateDisplayName": "demo-tag",
             },
         )
+
+    @patch("whale.extractor.base_bigquery_extractor.build")
+    @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
+    def test_table_without_tags(self, mock_datacatalogue, mock_bigquery):
+        mock_bigquery.return_value = MockBigQueryClient(
+            ONE_DATASET, ONE_TABLE, TABLE_DATA
+        )
+        mock_datacatalogue.DataCatalogClient.return_value = MockDataCatalogClient(
+            ENTRY, NO_TAGS
+        )
+        extractor = BigQueryMetadataExtractor()
+        extractor.init(
+            Scoped.get_scoped_conf(conf=self.conf, scope=extractor.get_scope())
+        )
+        result = extractor.extract()
+
+        self.assertEqual(result.tags, None)
 
     @patch("whale.extractor.base_bigquery_extractor.build")
     @patch("whale.extractor.base_bigquery_extractor.datacatalog_v1")
