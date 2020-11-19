@@ -1,4 +1,5 @@
 import logging
+import json
 from collections import namedtuple
 
 from pyhocon import ConfigTree  # noqa: F401
@@ -67,6 +68,26 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
                     .execute(num_retries=BigQueryMetadataExtractor.NUM_RETRIES)
                 )
 
+                tags_dict = None
+                try:
+                    # Fetch entry for given linked_resource
+                    entry = self.datacatalog_service.lookup_entry(
+                        request={
+                            "linked_resource": f"//bigquery.googleapis.com/projects/{tableRef['projectId']}/datasets/{tableRef['datasetId']}/tables/{tableRef['tableId']}"
+                        }
+                    )
+                    if not isinstance(entry, dict):
+                        entry_json = entry.__class__.to_json(entry)
+                        entry = json.loads(entry_json)
+
+                    # Fetch tags for given entry
+                    tags = self.datacatalog_service.list_tags(
+                        request={"parent": entry["name"]}
+                    )
+                    tags_dict = dict(tags)
+                except Exception as e:
+                    LOGGER.warning(f"Error fetching tags from Data Catalog: {e}")
+
                 cols = []
                 if self._is_table_match_regex(tableRef):
                     # BigQuery tables also have interesting metadata about
@@ -79,8 +100,14 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
                             total_cols = 0
                             for column in schema["fields"]:
                                 total_cols = self._iterate_over_cols(
-                                    "", column, cols, total_cols + 1
+                                    tags_dict, "", column, cols, total_cols + 1
                                 )
+
+                table_tag = None
+                if tags_dict and "tags" in tags_dict:
+                    for tag in tags_dict["tags"]:
+                        if "column" not in tag:
+                            table_tag = tag
 
                 table_meta = TableMetadata(
                     database="bigquery",
@@ -90,17 +117,31 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
                     description=table.get("description", ""),
                     columns=cols,
                     is_view=table["type"] == "VIEW",
+                    tags=table_tag,
+                    labels=table.get("labels", ""),
                 )
 
                 yield (table_meta)
 
     def _iterate_over_cols(
-        self, parent: str, column: str, cols: List[ColumnMetadata], total_cols: int
+        self,
+        tags_dict: dict,
+        parent: str,
+        column: str,
+        cols: List[ColumnMetadata],
+        total_cols: int,
     ) -> int:
         if len(parent) > 0:
             col_name = "{parent}.{field}".format(parent=parent, field=column["name"])
         else:
             col_name = column["name"]
+
+        tags = None
+        if tags_dict and "tags" in tags_dict:
+            for tag in tags_dict["tags"]:
+                if "column" in tag:
+                    if tag["column"] == col_name:
+                        tags = tag
 
         if column["type"] == "RECORD":
             col = ColumnMetadata(
@@ -108,11 +149,14 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
                 description=column.get("description", ""),
                 col_type=column["type"],
                 sort_order=total_cols,
+                tags=tags,
             )
             cols.append(col)
             total_cols += 1
             for field in column["fields"]:
-                total_cols = self._iterate_over_cols(col_name, field, cols, total_cols)
+                total_cols = self._iterate_over_cols(
+                    tags_dict, col_name, field, cols, total_cols
+                )
             return total_cols
         else:
             col = ColumnMetadata(
@@ -120,6 +164,7 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
                 description=column.get("description", ""),
                 col_type=column["type"],
                 sort_order=total_cols,
+                tags=tags,
             )
             cols.append(col)
             return total_cols + 1

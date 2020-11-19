@@ -84,13 +84,13 @@ def transfer_manifest(tmp_manifest_path):
     if os.path.exists(tmp_manifest_path):
         os.rename(tmp_manifest_path, paths.MANIFEST_PATH)
     else:
-        LOGGER.warn(f"No tmp manifest created at path: {tmp_manifest_path}")
+        LOGGER.warning(f"No tmp manifest created at path: {tmp_manifest_path}")
 
 
 def copy_manifest(tmp_manifest_path):
     if os.path.exists(tmp_manifest_path):
         shutil.copy(tmp_manifest_path, paths.MANIFEST_PATH)
     else:
-        LOGGER.warn(
+        LOGGER.warning(
             f"No tmp manifest copied from {tmp_manifest_path} to {paths.MANIFEST_PATH}"
         )
