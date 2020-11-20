@@ -94,7 +94,7 @@ class TestGlueExtractor(unittest.TestCase):
                     ColumnMetadata("ds", None, "varchar", 5),
                     ColumnMetadata(
                         "partition_key1", "description of partition_key1", "string", 6
-                   ),
+                    ),
                 ],
                 False,
             )
@@ -147,9 +147,9 @@ class TestGlueExtractor(unittest.TestCase):
             ]
 
             extractor = GlueExtractor()
-            conf = ConfigFactory.from_dict({
-                GlueExtractor.IS_LOCATION_PARSING_ENABLED_KEY: True
-            })
+            conf = ConfigFactory.from_dict(
+                {GlueExtractor.IS_LOCATION_PARSING_ENABLED_KEY: True}
+            )
             extractor.init(conf)
             actual = extractor.extract()
             expected = TableMetadata(
@@ -172,7 +172,7 @@ class TestGlueExtractor(unittest.TestCase):
                     ColumnMetadata("ds", None, "varchar", 5),
                     ColumnMetadata(
                         "partition_key1", "description of partition_key1", "string", 6
-                   ),
+                    ),
                 ],
                 False,
             )

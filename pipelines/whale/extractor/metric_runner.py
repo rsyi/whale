@@ -58,6 +58,7 @@ class MetricRunner(SQLAlchemyEngine):
 
     def _find_all_table_stub_paths(self) -> list:
         try:
+            # TODO: Translate this into Python code
             results = subprocess.check_output(
                 f"grep -l '```metrics' ~/.whale/metadata/{self.database}/* -d skip",
                 shell=True,
@@ -125,7 +126,7 @@ class MetricRunner(SQLAlchemyEngine):
                         )
 
                     except:
-                        LOGGER.warn(
+                        LOGGER.warning(
                             f"Failed execution of metric: {metric_name} in {table_stub_path}. Continuing."
                         )
 
