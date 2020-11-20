@@ -102,7 +102,6 @@ def pull():
             is_metadata_extractor = i == 0
             task = WhaleTask(
                 extractor=extractor,
-                transformer=MarkdownTransformer(),
                 loader=WhaleLoader(),
             )
             task.init(conf)
