@@ -227,7 +227,7 @@ def _update_metric(sections, record):
 
 def format_table_metadata(record) -> metadata_model_whale.TableMetadata:
     block_template = textwrap.dedent(
-        """            # `{schema_statement}{name}`{view_statement}
+        """        # `{schema_statement}{name}`{view_statement}
         `{database}`{cluster_statement}
         {description}
         {column_details_delimiter}
