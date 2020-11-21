@@ -33,6 +33,7 @@ grpcio-gcp==0.2.2
 httplib2==0.18.1
 idna==2.9
 isodate==0.6.0
+Jinja2==2.11.2
 jmespath==0.10.0
 msrest==0.6.19
 neo4j-driver==1.7.6
