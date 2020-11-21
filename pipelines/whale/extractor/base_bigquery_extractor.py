@@ -24,6 +24,7 @@ LOGGER = logging.getLogger(__name__)
 class BaseBigQueryExtractor(Extractor):
     PROJECT_ID_KEY = "project_id"
     KEY_PATH_KEY = "key_path"
+    CONNECTION_NAME_KEY = "connection_name"
     # sometimes we don't have a key path, but only have an variable
     CRED_KEY = "project_cred"
     PAGE_SIZE_KEY = "page_size"
@@ -39,6 +40,7 @@ class BaseBigQueryExtractor(Extractor):
 
     def init(self, conf: ConfigTree) -> None:
         # should use key_path, or cred_key if the former doesn't exist
+        self._database = conf.get_string(BaseBigQueryExtractor.CONNECTION_NAME_KEY, "bigquery")
         key_path = conf.get_string(BaseBigQueryExtractor.KEY_PATH_KEY, None)
         try:
             self.key_path = os.path.expanduser(key_path)

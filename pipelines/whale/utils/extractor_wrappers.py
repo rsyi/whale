@@ -58,12 +58,14 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
 
     conf = ConfigFactory.from_dict(
         {
+            f"{scope}.connection_name": connection.name,
             f"{scope}.key_path": connection.key_path,
             f"{scope}.project_id": connection.project_id,
             f"{scope}.project_credentials": connection.project_credentials,
             f"{scope}.page_size": connection.page_size,
             f"{scope}.filter_key": connection.filter_key,
             f"{scope}.included_tables_regex": connection.included_tables_regex,
+            f"{watermark_scope}.connection_name": connection.name,
             f"{watermark_scope}.key_path": connection.key_path,
             f"{watermark_scope}.project_id": connection.project_id,
             f"{watermark_scope}.project_credentials": connection.project_credentials,
