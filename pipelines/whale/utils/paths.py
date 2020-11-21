@@ -15,7 +15,7 @@ METRICS_PATH = BASE_DIR / "metrics/"
 TMP_MANIFEST_PATH = MANIFEST_DIR / "tmp_manifest.txt"
 ETL_LOG_PATH = LOGS_DIR / "cron.log"
 TABLE_COUNT_PATH = LOGS_DIR / "table_count.csv"
-TEMPLATE_PATH = BASE_DIR / "tempates/"
+TEMPLATE_DIR = BASE_DIR / "templates/"
 
 
 def get_subdir_without_whale(path):

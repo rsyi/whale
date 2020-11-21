@@ -11,6 +11,7 @@ cachetools==4.1.1
 certifi==2020.6.20
 cffi==1.14.3
 chardet==3.0.4
+colored==1.1.0
 cryptography==3.2
 elasticsearch==6.8.1
 future==0.18.2

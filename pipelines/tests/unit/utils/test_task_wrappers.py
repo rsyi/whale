@@ -3,7 +3,7 @@ import pytest
 from mock import patch
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from whale.utils.task_wrappers import run, pull
-from ..fixtures import mock_file_structure
+from ..fixtures import mock_whale_dir
 from whale.utils import paths
 from whale.utils import task_wrappers
 
@@ -22,5 +22,5 @@ def test_run(mock_execution, get_connection):
     assert "hi" in df.columns
 
 
-def test_pull_without_files(mock_file_structure):
+def test_pull_without_files(mock_whale_dir):
     pull()
