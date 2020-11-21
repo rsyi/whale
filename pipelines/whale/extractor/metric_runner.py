@@ -9,6 +9,7 @@ from databuilder import Scoped
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from whale.utils.paths import METADATA_PATH
 from whale.utils import get_table_info_from_path
+from whale.utils.sql import template_query
 from whale.utils.parsers import (
     parse_ugc,
     sections_from_markdown,
@@ -92,6 +93,8 @@ class MetricRunner(SQLAlchemyEngine):
                     execution_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
                     try:
+                        query = metric_details["sql"]
+                        query = template_query(query, connection_name=database)
                         result = list(
                             self.execute(
                                 metric_details["sql"], is_dict_return_enabled=False
