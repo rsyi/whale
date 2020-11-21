@@ -79,7 +79,7 @@ class BigQueryWatermarkExtractor(BaseBigQueryExtractor):
                     datetime.datetime.fromtimestamp(
                         float(table["creationTime"]) / 1000
                     ).strftime("%Y-%m-%d %H:%M:%S"),
-                    "bigquery",
+                    self._database,
                     tableRef["datasetId"],
                     prefix,
                     "__table__={partition_id}".format(partition_id=td["low"]),
@@ -91,7 +91,7 @@ class BigQueryWatermarkExtractor(BaseBigQueryExtractor):
                     datetime.datetime.fromtimestamp(
                         float(table["creationTime"]) / 1000
                     ).strftime("%Y-%m-%d %H:%M:%S"),
-                    "bigquery",
+                    self._database,
                     tableRef["datasetId"],
                     prefix,
                     "__table__={partition_id}".format(partition_id=td["high"]),

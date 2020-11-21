@@ -7,10 +7,10 @@ import yaml
 from pathlib import Path
 
 from whale.utils import paths
+from whale.utils.sql import template_query
 from whale.task import WhaleTask
 from whale.loader.whale_loader import WhaleLoader
 from whale.models.connection_config import ConnectionConfigSchema
-from whale.transformer.markdown_transformer import MarkdownTransformer
 from whale.utils import copy_manifest, transfer_manifest
 from whale.utils.config import get_connection, read_connections
 
@@ -40,6 +40,9 @@ def run(sql, warehouse_name=None):
     connection = ConnectionConfigSchema(**connection_dict)
     engine, conf = configure_unscoped_sqlalchemy_engine(connection)
     engine.init(conf)
+    sql = template_query(sql, connection_name=connection.name)
+    LOGGER.info(f"Templated query:\n{sql}")
+
     result = engine.execute(sql, has_header=True)
     headers = next(result)
     table = list(result)
@@ -102,7 +105,6 @@ def pull():
             is_metadata_extractor = i == 0
             task = WhaleTask(
                 extractor=extractor,
-                transformer=MarkdownTransformer(),
                 loader=WhaleLoader(),
             )
             task.init(conf)

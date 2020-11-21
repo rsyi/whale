@@ -4,6 +4,7 @@ import yaml
 from pathlib import Path
 from pyhocon import ConfigFactory, ConfigTree
 import re
+import textwrap
 from typing import Any  # noqa: F401
 
 from databuilder.loader.base_loader import Loader
@@ -23,11 +24,14 @@ from whale.utils.parsers import (
 import whale.models.table_metadata as metadata_model_whale
 from whale.models.metric_value import MetricValue
 from databuilder.models.watermark import Watermark
+from databuilder.models.table_metadata import DescriptionMetadata
+import databuilder.models.table_metadata as metadata_model_amundsen
 
 from whale.utils.markdown_delimiters import (
     COLUMN_DETAILS_DELIMITER,
     METRICS_DELIMITER,
     PARTITIONS_DELIMITER,
+    TAGS_DELIMITER,
 )
 
 from whale.utils.parsers import (
@@ -128,26 +132,18 @@ class WhaleLoader(Loader):
 
 def update_markdown(file_path, record):
     # Key (on record type) functions that take actions on a table stub
-    section_methods = {MetricValue: _update_metric, Watermark: _update_watermark}
+    section_methods = {
+        MetricValue: _update_metric,
+        Watermark: _update_watermark,
+        metadata_model_whale.TableMetadata: _update_table_metadata,
+        metadata_model_amundsen.TableMetadata: _update_table_metadata,
+    }
 
     sections = sections_from_markdown(file_path)
     # The table metadata record has both a header and column details. Add
     # custom logic to handle both.
-    if type(record) == metadata_model_whale.TableMetadata:
-        table_details = re.split(COLUMN_DETAILS_DELIMITER, record.markdown_blob)
-        header = table_details[0]
-        column_details = "".join(table_details[1:])
-        sections[HEADER_SECTION] = header
-        # Since we split on COLUMN_DETAILS_DELIMITER, reintroduce it
-        sections[COLUMN_DETAILS_SECTION] = (
-            COLUMN_DETAILS_DELIMITER + column_details + "\n"
-        )
-    else:
-        section_method = section_methods[type(record)]
-        sections = section_method(sections, record)
-
-    if hasattr(record, "record"):
-        record.record()
+    section_method = section_methods[type(record)]
+    sections = section_method(sections, record)
 
     new_file_text = markdown_from_sections(sections)
     safe_write(file_path, new_file_text)
@@ -196,6 +192,24 @@ def _get_section_from_watermarks(watermarks):
     return section
 
 
+def _update_table_metadata(sections, record):
+    table_metadata_blob = format_table_metadata(record)
+
+    table_details = re.split(COLUMN_DETAILS_DELIMITER, table_metadata_blob)
+    header = table_details[0]
+    column_details = "".join(table_details[1:])
+    sections[HEADER_SECTION] = header
+    # Since we split on COLUMN_DETAILS_DELIMITER, reintroduce it
+    sections[COLUMN_DETAILS_SECTION] = COLUMN_DETAILS_DELIMITER + column_details + "\n"
+
+    # tag_blob = format_tags(record)
+    # sections[TAGS_DELIMITER] = (
+    #     TAGS_DELIMITER + tag_blob + "\n"
+    # )
+
+    return sections
+
+
 def _update_metric(sections, record):
     section_to_update = sections[METRICS_SECTION]
     metrics_dict = _get_metrics_from_section(section_to_update)
@@ -207,6 +221,90 @@ def _update_metric(sections, record):
     new_section = _get_section_from_metrics(metrics_dict)
     sections[METRICS_SECTION] = format_yaml_section(new_section, METRICS_DELIMITER)
     return sections
+
+
+def format_table_metadata(record) -> metadata_model_whale.TableMetadata:
+    block_template = textwrap.dedent(
+        """        # `{schema_statement}{name}`{view_statement}
+        `{database}`{cluster_statement}
+        {description}
+        {column_details_delimiter}
+        {columns}
+        """
+    )
+
+    formatted_columns = format_columns(record)
+
+    if record.description:
+        if type(record.description) == DescriptionMetadata:
+            description = record.description._text + "\n"
+        else:
+            description = str(record.description) + "\n"
+    else:
+        description = ""
+
+    if record.cluster == "None":  # edge case for Hive Metastore
+        cluster = None
+    else:
+        cluster = record.cluster
+
+    if cluster is not None:
+        cluster_statement = f" | `{cluster}`"
+    else:
+        cluster_statement = ""
+
+    if (
+        record.schema == None
+    ):  # edge case for Glue, which puts everything in record.table
+        schema_statement = ""
+    else:
+        schema_statement = f"{record.schema}."
+
+    markdown_blob = block_template.format(
+        schema_statement=schema_statement,
+        name=record.name,
+        view_statement=" [view]" if record.is_view else "",
+        database=record.database,
+        cluster_statement=cluster_statement,
+        description=description,
+        column_details_delimiter=COLUMN_DETAILS_DELIMITER,
+        columns=formatted_columns,
+    )
+
+    return markdown_blob
+
+
+def format_columns(record) -> str:
+    max_type_length = 9
+    columns = record.columns
+
+    if columns:
+        column_template_no_desc = "* {buffered_type} `{name}`"
+        column_template = column_template_no_desc + "\n  - {description}"
+        formatted_columns_list = []
+
+        for column in columns:
+            buffer_length = max(max_type_length - len(column.type), 0)
+            buffered_type = "[" + column.type + "]" + " " * buffer_length
+
+            if column.description:
+                formatted_column_text = column_template.format(
+                    buffered_type=buffered_type,
+                    name=column.name,
+                    description=column.description,
+                )
+            else:
+                formatted_column_text = column_template_no_desc.format(
+                    buffered_type=buffered_type,
+                    name=column.name,
+                )
+
+            formatted_columns_list.append(formatted_column_text)
+
+        formatted_columns = "\n".join(formatted_columns_list)
+        return formatted_columns
+    else:
+        return ""
 
 
 def _get_metrics_from_section(section):

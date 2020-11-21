@@ -34,7 +34,6 @@ def test_load_no_catalog(patched_config):
         cluster=None,
         schema="mock_schema",
         name="mock_table",
-        markdown_blob="Test",
     )
     loader = whale_loader.WhaleLoader()
     loader.init(patched_config)
@@ -47,7 +46,9 @@ def test_load_no_catalog(patched_config):
     with open(file_path, "r") as f:
         written_record = f.read()
 
-    assert record.markdown_blob in written_record
+    assert "mock_schema" in written_record
+    assert "mock_table" in written_record
+    assert "mock_database" in written_record
 
 
 def test_load_catalog_specified(patched_config):
@@ -56,7 +57,6 @@ def test_load_catalog_specified(patched_config):
         cluster="mock_catalog",
         schema="mock_schema",
         name="mock_table",
-        markdown_blob="Test",
     )
     loader = whale_loader.WhaleLoader()
     loader.init(patched_config)
@@ -70,4 +70,7 @@ def test_load_catalog_specified(patched_config):
     with open(file_path, "r") as f:
         written_record = f.read()
 
-    assert record.markdown_blob in written_record
+    assert "mock_schema" in written_record
+    assert "mock_table" in written_record
+    assert "mock_catalog" in written_record
+    assert "mock_database" in written_record

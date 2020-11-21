@@ -9,6 +9,7 @@ from databuilder import Scoped
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from whale.utils.paths import METADATA_PATH
 from whale.utils import get_table_info_from_path
+from whale.utils.sql import template_query
 from whale.utils.parsers import (
     parse_ugc,
     sections_from_markdown,
@@ -92,11 +93,9 @@ class MetricRunner(SQLAlchemyEngine):
                     execution_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
                     try:
-                        result = list(
-                            self.execute(
-                                metric_details["sql"], is_dict_return_enabled=False
-                            )
-                        )
+                        query = metric_details["sql"]
+                        query = template_query(query, connection_name=database)
+                        result = list(self.execute(query, is_dict_return_enabled=False))
 
                         try:
                             cleaned_result = result[0][0]
@@ -125,9 +124,9 @@ class MetricRunner(SQLAlchemyEngine):
                             is_global=is_global,
                         )
 
-                    except:
+                    except Exception as e:
                         LOGGER.warning(
-                            f"Failed execution of metric: {metric_name} in {table_stub_path}. Continuing."
+                            f"Failed execution of metric: {metric_name} in {table_stub_path}.\nError: {e}.\nContinuing."
                         )
 
     def _get_metrics_queries_from_table_stub_path(self, table_stub_path):

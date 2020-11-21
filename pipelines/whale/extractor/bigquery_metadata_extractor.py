@@ -110,7 +110,7 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
                             table_tag = tag
 
                 table_meta = TableMetadata(
-                    database="bigquery",
+                    database=self._database,
                     cluster=tableRef["projectId"],
                     schema=tableRef["datasetId"],
                     name=table_id,
