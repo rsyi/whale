@@ -137,7 +137,7 @@ def update_markdown(file_path, record):
         Watermark: _update_watermark,
         metadata_model_whale.TableMetadata: _update_table_metadata,
         metadata_model_amundsen.TableMetadata: _update_table_metadata,
-        }
+    }
 
     sections = sections_from_markdown(file_path)
     # The table metadata record has both a header and column details. Add
@@ -200,9 +200,7 @@ def _update_table_metadata(sections, record):
     column_details = "".join(table_details[1:])
     sections[HEADER_SECTION] = header
     # Since we split on COLUMN_DETAILS_DELIMITER, reintroduce it
-    sections[COLUMN_DETAILS_SECTION] = (
-        COLUMN_DETAILS_DELIMITER + column_details + "\n"
-    )
+    sections[COLUMN_DETAILS_SECTION] = COLUMN_DETAILS_DELIMITER + column_details + "\n"
 
     # tag_blob = format_tags(record)
     # sections[TAGS_DELIMITER] = (

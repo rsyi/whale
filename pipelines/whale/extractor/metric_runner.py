@@ -95,11 +95,7 @@ class MetricRunner(SQLAlchemyEngine):
                     try:
                         query = metric_details["sql"]
                         query = template_query(query, connection_name=database)
-                        result = list(
-                            self.execute(
-                                query, is_dict_return_enabled=False
-                            )
-                        )
+                        result = list(self.execute(query, is_dict_return_enabled=False))
 
                         try:
                             cleaned_result = result[0][0]

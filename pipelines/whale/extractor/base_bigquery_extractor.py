@@ -40,7 +40,9 @@ class BaseBigQueryExtractor(Extractor):
 
     def init(self, conf: ConfigTree) -> None:
         # should use key_path, or cred_key if the former doesn't exist
-        self._database = conf.get_string(BaseBigQueryExtractor.CONNECTION_NAME_KEY, "bigquery")
+        self._database = conf.get_string(
+            BaseBigQueryExtractor.CONNECTION_NAME_KEY, "bigquery"
+        )
         key_path = conf.get_string(BaseBigQueryExtractor.KEY_PATH_KEY, None)
         try:
             self.key_path = os.path.expanduser(key_path)

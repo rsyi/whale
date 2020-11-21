@@ -15,7 +15,7 @@ def template_query(query, connection_name=""):
     templated query.
     """
     # First determine the connection type, and look for a "connection_name.sql" file in templates.
-    template_file_path = (TEMPLATE_DIR / (connection_name + ".sql"))
+    template_file_path = TEMPLATE_DIR / (connection_name + ".sql")
     is_template_file_path_found = template_file_path.is_file()
 
     if is_template_file_path_found:
@@ -35,13 +35,15 @@ def validate_templates():
         for template_file in TEMPLATE_DIR.glob("**/*"):
             _validate_and_print_result(template_file)
     else:
-        warning_text = textwrap.dedent("""
+        warning_text = textwrap.dedent(
+            """
         No templates folder found.
 
         To create templates, create .sql files in ~/.whale/templates/, named after your connection names. For example, if you have a connection named `bq-1`, create a file `bq-1.sql`.
 
         To see your available connection names, run `wh connections`.
-        """)
+        """
+        )
         print(warning_text)
 
 
