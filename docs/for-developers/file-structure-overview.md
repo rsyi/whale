@@ -17,7 +17,8 @@ Whale installs all files within the `~/.whale` path. This path contains the foll
 ├── logs
 ├── manifests
 ├── metadata
-└── metrics
+├── metrics
+└── templates
 ```
 
 ## Subdirectories
@@ -63,4 +64,8 @@ The metadata directory stores all warehouse metadata. When typing `enter` on a s
 ### metrics
 
 The metrics directory stores all calculated metrics \(along with a timestamp of when the metrics were calculated\). The folder structure follows the same structure as the metadata folder, except the table name is used as a folder to house \(and prevent collisions over\) metric names: `warehouse_name/catalog.schema.table/metric-name.md`.
+
+### templates
+
+The templates directory is where users can add their own Jinja2 templates. When named in the form `warehouse-connection-name.sql`, these templates are pre-pended to any queries run against the warehouse with connection name `warehouse-connection-name`. See the [Jinja2 templating](../features/jinja2-templating.md) section for more details. Connection names can be found by running `wh connections`, in the `name` field of each yaml block. 
 

@@ -33,6 +33,41 @@ project_id:
 
 Only one of `key_path` and `project_credentials` are required.
 
+## Cloud spanner
+
+```text
+---
+name: 
+metadata_source: spanner
+instance: 
+database:
+project_id:
+```
+
+**To do:** Unlike Bigquery, we currently don't allow you to specify `key_path` or `project_credentials` explicitly.
+
+## Glue
+
+```text
+---
+name: whatever-you-want  # Optional
+metadata_source: Glue
+```
+
+A `name` parameter will place all of your glue documentation within a separate folder, as is done with the other extractors. But because Glue is already a metadata aggregator, this may not be optimal, particularly if you connect to other warehouses with whale directly. In this case, the `name` parameter can be omitted, and the table stubs will reside within subdirectories named after the underlying warehouse/instance.
+
+For example, with `name`, your files will be organized like this:
+
+```text
+your-name/my-instance/postgres_public_table
+```
+
+Without `name`, your files will be stored like this:
+
+```text
+my-instance/postgres_public_table
+```
+
 ## Hive metastore
 
 ```text

@@ -12,6 +12,7 @@
 
 * [Metrics](features/metrics.md)
 * [Running SQL queries](features/running-sql-queries.md)
+* [Jinja2 templating](features/jinja2-templating.md)
 
 ## Customization
 

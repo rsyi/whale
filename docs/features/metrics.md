@@ -1,6 +1,10 @@
 # Metrics
 
-Whale supports automatic barebones metric definition and scheduled calculation. Metrics are defined by creating a ```````metrics```` block, as explained below. Any metric defined in this way will automatically be scheduled alongside the metadata scraping job.
+{% hint style="info" %}
+**Supported connections:** BigQuery, Postgres, Presto, Redshift, Snowflake
+{% endhint %}
+
+Whale supports automatic barebones metric definition and scheduled calculation. Metrics are defined by creating a ```````metrics```` block, as explained below. Any metric defined in this way will automatically be scheduled alongside the metadata scraping job. Metric definitions support Jinja2 templating -- for more information on how to set this up, see [Jinja2 templating](jinja2-templating.md).
 
 ## Basic usage
 
@@ -12,8 +16,8 @@ metric-name:
   sql: |
     select statement
 ```
-```
 
+```text
 For example, below two metrics, `null-registrations` and `distinct-registrations` are defined:
 
 ```text
@@ -31,8 +35,8 @@ distinct-registrations:
     from mart.user_signups
     where user_id is not null
 ```
-```
 
+```text
 The same block is shown within the context of a full table stub, below:
 
 ```text
@@ -59,8 +63,8 @@ distinct-registrations:
     from mart.user_signups
     where user_id is not null
 ```
-```
 
+```text
 These metrics will be scheduled, with the latest calculations injected into the programmatic portion of the table stub. An example is shown below:
 
 ```text
@@ -91,7 +95,8 @@ distinct-registrations:
     from mart.user_signups
     where user_id is not null
 ```
-```
+
+\`\`\`
 
 A full list of all historical values are saved in `~/.whale/metrics`.
 
