@@ -97,7 +97,7 @@ class MetricRunner(SQLAlchemyEngine):
                         query = template_query(query, connection_name=database)
                         result = list(
                             self.execute(
-                                metric_details["sql"], is_dict_return_enabled=False
+                                query, is_dict_return_enabled=False
                             )
                         )
 
@@ -128,9 +128,9 @@ class MetricRunner(SQLAlchemyEngine):
                             is_global=is_global,
                         )
 
-                    except:
+                    except Exception as e:
                         LOGGER.warning(
-                            f"Failed execution of metric: {metric_name} in {table_stub_path}. Continuing."
+                            f"Failed execution of metric: {metric_name} in {table_stub_path}.\nError: {e}.\nContinuing."
                         )
 
     def _get_metrics_queries_from_table_stub_path(self, table_stub_path):
