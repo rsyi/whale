@@ -14,11 +14,12 @@ jobs:
       with:
         python-version: 3.8
     - name: Build wheel
+      working-directory: ./pipelines
       run: |
-        cd pipelines
         pip install --upgrade setuptools wheel
         python setup.py sdist bdist_wheel --universal
     - name: Deploy to Pypi
+      working-directory: ./pipelines
       uses: pypa/gh-action-pypi-publish@v1.2.1
       with:
         user: ${{ secrets.PYPI_USERNAME }}
