@@ -65,6 +65,7 @@ retrying==1.3.3
 rsa==4.6
 s3transfer==0.3.3
 six==1.15.0
+slack-sdk==3.0.0
 snowflake-connector-python==2.3.2
 snowflake-sqlalchemy==1.2.3
 SQLAlchemy==1.3.19
