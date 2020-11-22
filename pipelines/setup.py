@@ -16,7 +16,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/dataframehq/whale",
     python_requires=">=3.6",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=[
         "amundsen-databuilder>=2.0.0",
         "pandas",
