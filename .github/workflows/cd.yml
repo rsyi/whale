@@ -19,11 +19,11 @@ jobs:
         pip install --upgrade setuptools wheel
         python setup.py sdist bdist_wheel --universal
     - name: Deploy to Pypi
-      working-directory: ./pipelines
       uses: pypa/gh-action-pypi-publish@v1.2.1
       with:
         user: ${{ secrets.PYPI_USERNAME }}
         password: ${{ secrets.PYPI_PASSWORD }}
+        packages_dir: pipelines/dist/
 
   release-osx:
     runs-on: macos-latest
