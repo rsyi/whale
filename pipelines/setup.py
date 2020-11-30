@@ -6,9 +6,13 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
+# TODO: this is a hack until I get around to specifying exact requirements
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setuptools.setup(
     name="whale-pipelines",
-    version="1.2.1rc0",
+    version="1.2.1",
     author="Robert Yi",
     author_email="robert@ryi.me",
     description="A pared-down metadata scraper + SQL runner.",
@@ -17,12 +21,6 @@ setuptools.setup(
     url="https://github.com/dataframehq/whale",
     python_requires=">=3.6",
     packages=find_packages(exclude=["tests", "tests.*"]),
-    install_requires=[
-        "amundsen-databuilder>=2.0.0",
-        "pandas",
-        "pyyaml",
-        "pyhocon>=0.3.42",
-        "SQLAlchemy>=1.3.19",
-    ],
+    install_requires=requirements,
     include_package_data=True,
 )
