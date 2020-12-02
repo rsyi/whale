@@ -23,7 +23,7 @@ pub trait YamlWriter {
             .append(true)
             .open(connections_path)?;
 
-        new_docs.push_str("\n");
+        new_docs.push('\n');
         file.write_all(new_docs.as_bytes())?;
         Ok(())
     }
