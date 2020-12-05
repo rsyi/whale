@@ -15,7 +15,7 @@ from whale.utils.parsers import (
     sections_from_markdown,
     DEFINED_METRICS_SECTION,
 )
-from whale.models.metric_value import MetricValue
+from whale.models.metric_value import MetricValue, SlackAlert
 
 SQLALCHEMY_ENGINE_SCOPE = SQLAlchemyEngine().get_scope()
 SQLALCHEMY_CONN_STRING_KEY = (
@@ -59,7 +59,6 @@ class MetricRunner(SQLAlchemyEngine):
 
     def _find_all_table_stub_paths(self) -> list:
         try:
-            # TODO: Translate this into Python code
             results = subprocess.check_output(
                 f"grep -l '```metrics' ~/.whale/metadata/{self.database}/* -d skip",
                 shell=True,
@@ -92,47 +91,57 @@ class MetricRunner(SQLAlchemyEngine):
                 for metric_name, metric_details in metric_yaml.items():
                     execution_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-                    try:
-                        query = metric_details["sql"]
-                        query = template_query(query, connection_name=database)
-                        result = list(self.execute(query, is_dict_return_enabled=False))
+                    sql_result = self._compute_sql_result(
+                        metric_details["sql"], database
+                    )
 
-                        try:
-                            cleaned_result = result[0][0]
-                        except:
-                            cleaned_result = None
+                    description = metric_details.get("description")
+                    is_global = metric_details.get("is_global", False)
+                    alerts = metric_details.get("alerts")
 
-                        if "description" in metric_details:
-                            description = metric_details["description"]
-                        else:
-                            description = None
+                    self._send_slack_alerts(alerts, sql_result)
 
-                        if "is_global" in metric_details:
-                            is_global = metric_details["is_global"]
-                        else:
-                            is_global = False
+                    yield MetricValue(
+                        database=database,
+                        cluster=cluster,
+                        schema=schema,
+                        table=table,
+                        name=metric_name,
+                        description=description,
+                        execution_time=execution_time,
+                        value=sql_result,
+                        is_global=is_global,
+                    )
 
-                        yield MetricValue(
-                            database=database,
-                            cluster=cluster,
-                            schema=schema,
-                            table=table,
-                            name=metric_name,
-                            description=description,
-                            execution_time=execution_time,
-                            value=cleaned_result,
-                            is_global=is_global,
-                        )
+    def _compute_sql_result(self, sql_query, database):
+        connected_query = template_query(sql_query, connection_name=database)
+        result = list(self.execute(connected_query, is_dict_return_enabled=False))
 
-                    except Exception as e:
-                        LOGGER.warning(
-                            f"Failed execution of metric: {metric_name} in {table_stub_path}.\nError: {e}.\nContinuing."
-                        )
+        try:
+            return result[0][0]
+        except Exception as e:
+            LOGGER.warning("Running {sql_query} led to {e}.")
+            return None
 
     def _get_metrics_queries_from_table_stub_path(self, table_stub_path):
         sections = sections_from_markdown(table_stub_path)
         ugc_sections = parse_ugc(sections["ugc"])
         return ugc_sections[DEFINED_METRICS_SECTION]
+
+    def _send_slack_alerts(self, alerts, sql_result):
+        if not alerts:
+            return
+
+        alert_list = alerts if isinstance(alerts, list) else [alerts]
+
+        for alert in alert_list:
+            slack_alert = SlackAlert(
+                condition=alert["condition"],
+                message=alert["message"],
+                channels=alert["slack"],
+            )
+
+            slack_alert.send_slack_alert(sql_result)
 
     def get_scope(self):
         return "extractor.markdown_metric"
