@@ -11,7 +11,7 @@ use yaml_rust::{Yaml, YamlLoader};
 pub trait YamlWriter {
     fn register_connection(&self) -> Result<(), io::Error> {
         let connections_filename = filesystem::get_connections_filename();
-        let connections_path = Path::new(&*connections_filename);
+        let connections_path = Path::new(&connections_filename);
 
         // Format yaml docs
         let mut new_docs = self.generate_yaml();
@@ -52,7 +52,7 @@ where
 /// new_values, and adds them to the deserialized yaml object.
 pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
     let config_filename = filesystem::get_config_filename();
-    let config_path = Path::new(&*config_filename);
+    let config_path = Path::new(&config_filename);
 
     let _file: fs::File = OpenOptions::new()
         .write(true)
@@ -83,7 +83,7 @@ pub fn update_config(new_values: HashMap<&str, &str>) -> Result<(), io::Error> {
 
 pub fn read_config(key: &str, default: &str) -> String {
     let config_filename = filesystem::get_config_filename();
-    let config_path = Path::new(&*config_filename);
+    let config_path = Path::new(&config_filename);
 
     let value;
     if let Ok(config_string) = fs::read_to_string(config_path) {

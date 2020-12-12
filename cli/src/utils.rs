@@ -35,15 +35,6 @@ pub fn get_input_with_message(message: &str) -> String {
     get_input()
 }
 
-pub fn pause() {
-    println!(
-        "[Press {} to continue, {} to exit]",
-        "enter".green(),
-        "CTRL+C".red()
-    );
-    let _ = get_input();
-}
-
 pub fn is_valid_cron_expression(expression: &str) -> bool {
     lazy_static! {
         static ref RE: Regex = Regex::new(r#"(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|s|m|h))+)|(((([\d]+,)+\d+|(\d+(/|-)\d+)|\d+|\*|(\d|/|\*)) ?){5,7})"#).unwrap();

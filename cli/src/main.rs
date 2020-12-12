@@ -8,8 +8,6 @@ fn main() {
             SubCommand::with_name("init")
                 .about("Initializes the scheduler and extraction pipeline"),
         )
-        //.subcommand(SubCommand::with_name("dash")
-        //    .about("Show macro-level dashboard of metadata metadata"))
         .subcommand(
             SubCommand::with_name("config").about("Open file containing whale config information"),
         )
@@ -65,6 +63,7 @@ fn main() {
 
     let mut sql_file = "";
     let mut warehouse_name = "";
+
     if let Some(run_matches) = matches.subcommand_matches("run") {
         if run_matches.is_present("sql_file") {
             sql_file = run_matches.value_of("sql_file").unwrap()
@@ -76,7 +75,6 @@ fn main() {
 
     match matches.subcommand_name() {
         Some("init") => whale::Whale::init(),
-        // Some("dash") => whale::Whale::dash(),
         Some("etl") => whale::Whale::etl(),
         Some("pull") => whale::Whale::etl(),
         Some("schedule") => whale::Whale::schedule(true),
