@@ -27,6 +27,27 @@ This probably means either:
 
 Good luck, and happy whaling!";
 
+fn bat_is_installed() -> bool {
+    command_is_installed("bat")
+}
+
+fn command_is_installed(command: &str) -> bool {
+    let bat_testing_command = format!(
+        "command -v {:} > /dev/null && echo true || echo false",
+        command
+    );
+
+    let output = Command::new("sh")
+        .args(&["-c", &bat_testing_command])
+        .output()
+        .unwrap();
+
+    String::from_utf8_lossy(&output.stdout)
+        .trim()
+        .parse()
+        .unwrap()
+}
+
 pub fn table_skim() {
     let manifest_file_path = filesystem::get_manifest_filename();
     let tmp_manifest_file_path = filesystem::get_tmp_manifest_filename();
@@ -52,20 +73,7 @@ pub fn table_skim() {
     let custom_preview_command = serialization::read_config("preview_command", "");
 
     let reader = if custom_preview_command.is_empty() {
-        let bat_testing_command =
-            "command -v bat > /dev/null 2>&1 && echo true || echo false".to_string();
-
-        let output = Command::new("sh")
-            .args(&["-c", &bat_testing_command])
-            .output()
-            .unwrap();
-
-        let is_bat_installed = String::from_utf8_lossy(&output.stdout)
-            .trim()
-            .parse()
-            .unwrap();
-
-        if is_bat_installed {
+        if bat_is_installed() {
             "bat --color=always --style='changes'"
         } else {
             "cat"
@@ -96,5 +104,20 @@ pub fn table_skim() {
             ))
             .status()
             .expect("Failed to open file.");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::command_is_installed;
+
+    #[test]
+    fn test_command_installed() {
+        assert_eq!(command_is_installed("cat"), true)
+    }
+
+    #[test]
+    fn test_command_is_not_installed() {
+        assert_eq!(command_is_installed("nosuchcommand"), false)
     }
 }
