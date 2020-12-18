@@ -8,7 +8,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setuptools.setup(
     name="whale-pipelines",
-    version="1.2.1",
+    version="1.3.0",
     author="Robert Yi",
     author_email="robert@ryi.me",
     description="A pared-down metadata scraper + SQL runner.",
