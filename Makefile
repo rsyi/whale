@@ -17,10 +17,13 @@ python:
 	cp ${python_directory}/build_script.py ${dependency_binary_dir}
 	cp ${python_directory}/run_script.py ${dependency_binary_dir}
 
-.PHONY: install
-install: python
+.PHONY: rust
+install_rust:
 	mkdir -p ${install_dir}
 	cp ./cli/target/release/whale ${install_dir}
+
+.PHONY: install
+install: python rust
 
 .PHONY: test_python
 test_python:
