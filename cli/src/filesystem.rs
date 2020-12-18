@@ -24,19 +24,12 @@ pub fn create_file_structure() {
     .collect()
 }
 
-fn remove_duplicate_lines_from(file_path: &str) -> BTreeSet<String> {
-    let path = Path::new(file_path);
-
-    let contents =
-        fs::read_to_string(path).unwrap_or_else(|_| panic!("Can't read file `{}`", file_path));
-
-    contents
-        .lines()
-        .map(|i| i.to_owned())
-        .collect::<BTreeSet<String>>()
-}
-
 pub fn deduplicate_file(file_path_string: &str) {
+    let file_path = Path::new(file_path_string);
+    let contents = fs::read_to_string(file_path)
+        .unwrap_or_else(|_| panic!("Can't read file `{}`", file_path_string));
+    let lines: BTreeSet<_> = contents.lines().collect();
+
     match OpenOptions::new()
         .create(true)
         .write(true)
@@ -45,7 +38,7 @@ pub fn deduplicate_file(file_path_string: &str) {
     {
         Ok(file) => {
             let mut writer = BufWriter::new(&file);
-            for line in remove_duplicate_lines_from(file_path_string) {
+            for line in lines {
                 writeln!(writer, "{}", line).unwrap();
             }
             writer
