@@ -12,13 +12,13 @@ from whale.extractor.spanner_metadata_extractor import SpannerMetadataExtractor
 from whale.extractor.bigquery_watermark_extractor import BigQueryWatermarkExtractor
 from whale.extractor.glue_extractor import GlueExtractor
 from whale.extractor.snowflake_metadata_extractor import SnowflakeMetadataExtractor
+from whale.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
 from whale.extractor.metric_runner import MetricRunner
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 from databuilder.extractor.hive_table_metadata_extractor import (
     HiveTableMetadataExtractor,
 )
-from databuilder.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
 from databuilder.extractor.redshift_metadata_extractor import RedshiftMetadataExtractor
 
 
