@@ -11,6 +11,7 @@ from databuilder.extractor.base_postgres_metadata_extractor import (
     BasePostgresMetadataExtractor,
 )
 from databuilder.models.table_metadata import TableMetadata, ColumnMetadata
+from itertools import groupby
 
 
 class PostgresMetadataExtractor(BasePostgresMetadataExtractor):
@@ -31,7 +32,7 @@ class PostgresMetadataExtractor(BasePostgresMetadataExtractor):
             {cluster_source} as cluster, c.table_schema as schema, c.table_name as name, pgtd.description as description
           , c.column_name as col_name, c.data_type as col_type
           , pgcd.description as col_description, ordinal_position as col_sort_order
-          , CASE table_name IS NOT NULL THEN 1 ELSE 0 END AS is_view
+          , CASE WHEN b.table_name IS NOT NULL THEN 1 ELSE 0 END AS is_view
         FROM INFORMATION_SCHEMA.COLUMNS c
         LEFT JOIN -- Deviating from amundsen to include view tables
           pg_catalog.pg_statio_all_tables as st on c.table_schema=st.schemaname and c.table_name=st.relname
