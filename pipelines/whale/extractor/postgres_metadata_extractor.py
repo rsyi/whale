@@ -10,6 +10,7 @@ from pyhocon import ConfigFactory, ConfigTree  # noqa: F401
 from databuilder.extractor.base_postgres_metadata_extractor import (
     BasePostgresMetadataExtractor,
 )
+from databuilder.models.table_metadata import TableMetadata, ColumnMetadata
 
 
 class PostgresMetadataExtractor(BasePostgresMetadataExtractor):
