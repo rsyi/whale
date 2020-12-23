@@ -157,7 +157,7 @@ Fetching and rebasing local changes from github.");
             let activate_path = filesystem::get_activate_filename();
             let build_script_path = filesystem::get_build_script_filename();
             let full_command = format!(
-                "source {} && {} {}",
+                ". {} && {} {}",
                 activate_path, python_alias, build_script_path
             );
             let mut child = Command::new("sh").args(&["-c", &full_command]).spawn()?;
