@@ -33,7 +33,7 @@ fn bat_is_installed() -> bool {
 
 fn command_is_installed(command: &str) -> bool {
     let bat_testing_command = format!(
-        "command -v {:} > /dev/null && echo true || echo false",
+        "command -v {} > /dev/null && echo true || echo false",
         command
     );
 
@@ -48,27 +48,32 @@ fn command_is_installed(command: &str) -> bool {
         .unwrap()
 }
 
-pub fn table_skim() {
-    let manifest_file_path = filesystem::get_manifest_filename();
-    let tmp_manifest_file_path = filesystem::get_tmp_manifest_filename();
+fn read_file_to_string(file_path: &str) -> String {
+    fs::read_to_string(file_path)
+        .unwrap_or_else(|_| panic!(format!("failed to read path: {}", file_path)))
+}
 
-    // If manifest does not exist, use tmp manifest
-    // If tmp manifest doesn't exist, use an empty string
-    let table_manifest;
+// TODO: I don't like this name - how to clean this up?
+fn get_manifest_and_preview_arg(
+    manifest_file_path: String,
+    tmp_manifest_file_path: String,
+) -> (String, String) {
+    let markdown_path = format!("{}/{}.md", filesystem::get_metadata_dirname(), "{}");
 
-    let metadata_path = filesystem::get_metadata_dirname();
-
-    let preview_arg = if Path::new(&manifest_file_path).exists() {
-        table_manifest = fs::read_to_string(manifest_file_path).expect("Failed to read manifest.");
-        format!("{}/{}.md", metadata_path, "{}")
+    if Path::new(&manifest_file_path).exists() {
+        (read_file_to_string(&manifest_file_path), markdown_path)
     } else if Path::new(&tmp_manifest_file_path).exists() {
-        table_manifest = fs::read_to_string(tmp_manifest_file_path)
-            .expect("Failed to read manifest or tmp manifest.");
-        format!("{}/{}.md", metadata_path, "{}")
+        (read_file_to_string(&tmp_manifest_file_path), markdown_path)
     } else {
-        table_manifest = "No tables found.".to_string();
-        ASCII_ART.to_string()
-    };
+        ("No tables found.".to_string(), ASCII_ART.to_string())
+    }
+}
+
+pub fn table_skim() {
+    let (table_manifest, preview_arg) = get_manifest_and_preview_arg(
+        filesystem::get_manifest_filename(),
+        filesystem::get_tmp_manifest_filename(),
+    );
 
     let custom_preview_command = serialization::read_config("preview_command", "");
 
@@ -90,8 +95,7 @@ pub fn table_skim() {
         .build()
         .unwrap();
 
-    let item_reader = SkimItemReader::default();
-    let items = item_reader.of_bufread(Cursor::new(table_manifest));
+    let items = SkimItemReader::default().of_bufread(Cursor::new(table_manifest));
 
     let selected_items = Skim::run_with(&options, Some(items))
         .map(|out| out.selected_items)
