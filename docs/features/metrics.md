@@ -97,6 +97,9 @@ A full list of all historical values are saved in `~/.whale/metrics`.
 
 
 ## Slack alerts
+{% hint style="warning" %}
+We are building out our dedicated 🐳 Slack app, but in the meantime, feel free to join [our community](https://join.slack.com/t/df-whale/shared_invite/zt-k4zmmzw2-mFuBJE1er4AEuW6PF9cpfw) and set up alerts there.
+{% endhint %}
 
 Metrics can be enhanced with Slack alerts. These will send a message to you or your channel if a certain condition is met.
 The syntax is as follows:
@@ -109,7 +112,8 @@ metric-name:
   alerts:
     - condition: "condition"
       message: "message"
-    - slack: ["channel"]
+      slack: 
+        - "channel"
 ```
 
 Using the earlier example we could set an alert every time we find a null in column `user_id` like this:
@@ -125,7 +129,9 @@ null-registrations:
   alerts:
     - condition: "> 0"
       message: "Nulls found in column 'user_id' of mart.user_signups."
-      channel: ["#data-monitoring", "@bob"]
+      slack:
+        - "#data-monitoring"
+        - "@bob"
 ```
 
 As you can see, you can send a message on Slack to _individuals_ as well as Slack _channels_.
@@ -158,10 +164,14 @@ null-registrations:
   alerts:
     - condition: ">0"
       message: "Nulls found in column 'id' of mart.user_signups."
-      channel: ["#data-monitoring", "@bob"]
+      slack:
+        - "#data-monitoring"
+        - "@bob"
     - condition: "> 100"
       message: "More than 100 nulls found in column 'id' of mart.user_signups."
-      channel: ["#incident-room", "@joseph"]
+      slack:
+        - "#incident-room"
+        - "@joseph"
 
 distinct-registrations:
   sql: |
@@ -172,5 +182,7 @@ distinct-registrations:
   alerts:
     - condition: "<10"
       message: "Less than 10 users in mart.user_signups."
-      channel: ["#data-monitoring", "@bob"]
+      slack:
+        - "#data-monitoring"
+        - "@bob"
 ```
