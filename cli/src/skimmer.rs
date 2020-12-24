@@ -107,7 +107,7 @@ pub fn table_skim() {
                 &item.text().into_owned(),
             ))
             .status()
-            .expect("Failed to open file.");
+            .unwrap_or_else(|_| panic!("Failed to open file: {}", &item.text()));
     }
 }
 
