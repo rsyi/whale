@@ -25,10 +25,11 @@ pub fn create_file_structure() {
 }
 
 pub fn deduplicate_file(file_path_string: &str) {
-    let file_path = Path::new(file_path_string);
-    let contents = fs::read_to_string(file_path)
-        .unwrap_or_else(|_| panic!("Can't read file `{}`", file_path_string));
-    let lines: BTreeSet<_> = contents.lines().collect();
+    let lines: BTreeSet<String> = fs::read_to_string(Path::new(file_path_string))
+        .unwrap_or_else(|_| panic!("Can't read file `{}`", file_path_string))
+        .lines()
+        .map(|l| l.to_owned())
+        .collect();
 
     match OpenOptions::new()
         .create(true)
