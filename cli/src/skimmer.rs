@@ -32,13 +32,13 @@ fn bat_is_installed() -> bool {
 }
 
 fn command_is_installed(command: &str) -> bool {
-    let bat_testing_command = format!(
+    let check_command = format!(
         "command -v {} > /dev/null && echo true || echo false",
         command
     );
 
     let output = Command::new("sh")
-        .args(&["-c", &bat_testing_command])
+        .args(&["-c", &check_command])
         .output()
         .unwrap();
 
