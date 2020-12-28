@@ -10,3 +10,7 @@ coverage.xml
 whalebuilder.egg-info/
 .vim/
 dist.spec
+
+# Virtual environments
+env/
+venv/
