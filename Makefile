@@ -8,6 +8,8 @@ python3_alias:=python3
 .PHONY: rust
 rust:
 	cargo build --release --manifest-path cli/Cargo.toml
+	mkdir -p ${install_dir}
+	cp ./cli/target/release/whale ${install_dir}
 
 .PHONY: python
 python:
@@ -20,11 +22,6 @@ python:
 	python3 -m pip install --upgrade setuptools
 	cp ${python_directory}/build_script.py ${dependency_binary_dir}
 	cp ${python_directory}/run_script.py ${dependency_binary_dir}
-
-.PHONY: rust
-install_rust:
-	mkdir -p ${install_dir}
-	cp ./cli/target/release/whale ${install_dir}
 
 .PHONY: install
 install: python rust
