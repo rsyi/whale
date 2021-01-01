@@ -8,9 +8,9 @@ use std::path::Path;
 use std::process::Command;
 
 const ASCII_ART: &str = "<< EOF
-___=____
-,^        ^.      _
-|  x        |____| |
+   ___=____
+ ,^        ^.      _
+ |  x        |____| |
 ~^~^~^~^~^~^~^~^~^~^~^~
 
 “It is not down on any map; true places never are.”
