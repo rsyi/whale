@@ -1,3 +1,5 @@
+<font color="purple"><i>Whale is actively being built and maintained by <a href="https://dataframe.ai">Dataframe</a>. For our full, collaborative, and just as simple data discovery platform, check out <a href="https://dataframe.ai">dataframe.ai</a>.</i></font>
+
 <p align="center"><img src="docs/whale_logo.svg" width="600"/></p>
 
 ## The simplest way to keep track of your warehouse tables
