@@ -85,7 +85,7 @@ pub fn get_name() -> String {
         "Input a name for your warehouse (e.g. bq-1)".purple()
     );
     let mut name = utils::get_input();
-    if name == "" {
+    if name.is_empty() {
         let mut generator = Generator::with_naming(Name::Plain);
         name = generator.next().unwrap();
         println!("Using randomly generated name: {}", name.green());

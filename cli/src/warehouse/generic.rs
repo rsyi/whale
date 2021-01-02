@@ -38,7 +38,7 @@ impl GenericWarehouse {
         let username: Option<String>;
         let username_msg = "Username? [default: None]";
         let username_tmp = utils::get_input_with_message(username_msg);
-        if username_tmp == "" {
+        if username_tmp.is_empty() {
             username = None;
         } else {
             username = Some(username_tmp);
@@ -47,7 +47,7 @@ impl GenericWarehouse {
         let password: Option<String>;
         let password_msg = "Password? [default: None]";
         let password_tmp = utils::get_input_with_message(password_msg);
-        if password_tmp == "" {
+        if password_tmp.is_empty() {
             password = None;
         } else {
             password = Some(password_tmp);
@@ -59,7 +59,7 @@ impl GenericWarehouse {
         };
         let database_msg = format!("{} {}", database_msg, "[default: None]");
         let database_tmp = utils::get_input_with_message(&database_msg);
-        if database_tmp == "" {
+        if database_tmp.is_empty() {
             database = None;
         } else {
             database = Some(database_tmp);

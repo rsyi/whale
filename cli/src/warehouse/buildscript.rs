@@ -27,7 +27,7 @@ impl BuildScript {
             "python3".green()
         );
         let binary_path_tmp = utils::get_input_with_message(&binary_message);
-        if binary_path_tmp == "" {
+        if binary_path_tmp.is_empty() {
             python_binary_path = None;
         } else {
             python_binary_path = Some(binary_path_tmp);
