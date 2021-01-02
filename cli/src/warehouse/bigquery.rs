@@ -138,7 +138,7 @@ impl Bigquery {
         );
         let project_id = utils::get_input();
 
-        if project_id == "" {
+        if project_id.is_empty() {
             println!("You must specify a project_id.");
             Bigquery::prompt_project_id()
         } else {
