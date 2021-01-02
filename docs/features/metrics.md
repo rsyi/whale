@@ -97,11 +97,16 @@ A full list of all historical values are saved in `~/.whale/metrics`.
 
 
 ## Slack alerts
-{% hint style="warning" %}
-We are building out our dedicated 🐳 Slack app, but in the meantime, feel free to join [our community](https://join.slack.com/t/df-whale/shared_invite/zt-k4zmmzw2-mFuBJE1er4AEuW6PF9cpfw) and set up alerts there.
-{% endhint %}
 
 Metrics can be enhanced with Slack alerts. These will send a message to you or your channel if a certain condition is met.
+
+### Setup
+To enable Slack alerts for your Slack workspace first add the 🐳 Slack app:
+<a href="https://slack.com/oauth/v2/authorize?client_id=1407551924673.1505585912487&scope=chat:write,im:write&user_scope="><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
+
+Once you hit "Allow", you will be redirected back here. This time, however, an access token will be added to the URL parameters like so: https://docs.whale.cx/features/metrics#setup?token=123. Store this token, 123 in the URL given before, as an environment variable called `WHALE_SLACK_TOKEN`. That's all!
+
+### Syntax
 The syntax is as follows:
 
 ```text

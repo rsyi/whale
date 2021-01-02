@@ -28,7 +28,7 @@ install: python rust
 
 .PHONY: test_python
 test_python:
-	${python3_alias} -b -m pytest -o log_cli=true ${python_directory}/tests --cov=whale --cov-report=xml
+	${python3_alias} -b -m pytest -o log_cli=true ${python_directory}/tests services/tests --cov=whale --cov-report=xml
 	flake8 ${python_directory}/whale/ --exit-zero
 
 .PHONY: test
