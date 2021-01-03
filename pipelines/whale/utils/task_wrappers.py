@@ -24,6 +24,7 @@ from whale.utils.extractor_wrappers import (
     configure_presto_extractors,
     configure_redshift_extractors,
     configure_snowflake_extractors,
+    configure_splice_machine_extractors,
     configure_unscoped_sqlalchemy_engine,
     run_build_script,
 )
@@ -88,6 +89,7 @@ def pull():
             "presto": configure_presto_extractors,
             "redshift": configure_redshift_extractors,
             "snowflake": configure_snowflake_extractors,
+            "splicemachine": configure_splice_machine_extractors,
         }
 
         if connection.metadata_source == "build_script":
