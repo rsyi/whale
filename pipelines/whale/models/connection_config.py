@@ -87,7 +87,10 @@ class ConnectionConfigSchema(object):
                 self.dialect = self.metadata_source
 
             if self.metadata_source == "snowflake":
-                uri = self.account
+                if self.account is not None:
+                    uri = self.account
+                else:
+                    uri = self.uri
             else:
                 uri = self.uri
 
