@@ -85,9 +85,9 @@ class ConnectionConfigSchema(object):
             else:
                 self.dialect = self.metadata_source
             uri = self.uri
-            port = self.port
+            port_placeholder = f":{self.port}" if self.port is not None else ""
             database = self.database or ""
 
-            conn_string = f"{self.dialect}://{username_password_placeholder}@{uri}:{port}/{database}"
+            conn_string = f"{self.dialect}://{username_password_placeholder}@{uri}{port_placeholder}/{database}"
 
         self.conn_string = conn_string
