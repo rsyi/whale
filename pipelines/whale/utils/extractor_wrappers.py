@@ -241,7 +241,7 @@ def configure_snowflake_extractors(connection: ConnectionConfigSchema):
         {
             conn_string_key: connection.conn_string,
             f"{scope}.{Extractor.DATABASE_KEY}": connection.name,
-            f"{scope}.{Extractor.CLUSTER_KEY}": connection.cluster,
+            f"{scope}.{Extractor.CLUSTER_KEY}": connection.database,
             f"{scope}.{Extractor.WHERE_CLAUSE_SUFFIX_KEY}": connection.where_clause_suffix,
         }
     )
