@@ -6,9 +6,8 @@ use std::str::FromStr;
 use super::{
     bigquery::Bigquery, buildscript::BuildScript, errors::ParseMetadataSourceError,
     generic::GenericWarehouse, gitserver::GitServer, glue::Glue, hive::HiveMetastore,
-    metadatasource::MetadataSource
+    metadatasource::MetadataSource, snowflake::Snowflake,
 };
-use crate::warehouse::snowflake::Snowflake;
 use crate::utils;
 
 pub fn prompt_add_warehouse(is_first_time: bool) {

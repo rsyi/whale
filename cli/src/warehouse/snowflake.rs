@@ -14,7 +14,6 @@ pub struct Snowflake {
 
 impl Snowflake {
     pub fn prompt_add_details() {
-
         // name
         let name: String = get_name();
 
