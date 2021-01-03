@@ -47,7 +47,7 @@ TEST_BIGQUERY_CONNECTION_CONFIG = ConnectionConfigSchema(
 
 TEST_GLUE_CONNECTION_CONFIG = ConnectionConfigSchema(
     metadata_source="glue",
-    filters="mock_filter",
+    filter_key="mock_filter",
 )
 
 TEST_NEO4J_CONNECTION_CONFIG = ConnectionConfigSchema(
