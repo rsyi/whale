@@ -6,8 +6,9 @@ use std::str::FromStr;
 use super::{
     bigquery::Bigquery, buildscript::BuildScript, errors::ParseMetadataSourceError,
     generic::GenericWarehouse, gitserver::GitServer, glue::Glue, hive::HiveMetastore,
-    metadatasource::MetadataSource,
+    metadatasource::MetadataSource
 };
+use crate::warehouse::snowflake::Snowflake;
 use crate::utils;
 
 pub fn prompt_add_warehouse(is_first_time: bool) {
@@ -58,12 +59,12 @@ pub fn prompt_add_warehouse(is_first_time: bool) {
         | Ok(MetadataSource::Postgres)
         | Ok(MetadataSource::Presto)
         | Ok(MetadataSource::Redshift)
-        | Ok(MetadataSource::Snowflake)
         | Ok(MetadataSource::AmundsenNeo4j) => {
             GenericWarehouse::prompt_add_details(warehouse_enum.unwrap())
         }
         Ok(MetadataSource::Glue) => Glue::prompt_add_details(),
         Ok(MetadataSource::HiveMetastore) => HiveMetastore::prompt_add_details(),
+        Ok(MetadataSource::Snowflake) => Snowflake::prompt_add_details(),
         Ok(MetadataSource::GitServer) => GitServer::prompt_add_details(),
         Ok(MetadataSource::BuildScript) => BuildScript::prompt_add_details(),
         Err(e) => handle_error(e),

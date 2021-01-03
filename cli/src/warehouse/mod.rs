@@ -7,4 +7,5 @@ pub mod gitserver;
 pub mod glue;
 pub mod hive;
 pub mod metadatasource;
+pub mod snowflake;
 pub mod whutils;
