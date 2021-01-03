@@ -11,6 +11,7 @@ class ConnectionConfigSchema(object):
         username: Optional[str] = None,
         password: Optional[str] = None,
         name: Optional[str] = None,
+        account: Optional[str] = None,  # Snowflake-specific
         database: Optional[str] = None,
         instance: Optional[str] = None,
         cluster: Optional[str] = None,
@@ -31,7 +32,6 @@ class ConnectionConfigSchema(object):
         page_size: Optional[str] = None,
         filter_key: Optional[str] = None,
         where_clause_suffix: Optional[str] = "",
-        **kwargs,
     ):
 
         self.uri = uri
@@ -43,6 +43,7 @@ class ConnectionConfigSchema(object):
         self.username = username
         self.password = password
         self.name = name
+        self.account = account
         self.database = database
         self.instance = instance
         self.cluster = cluster
@@ -50,7 +51,7 @@ class ConnectionConfigSchema(object):
         self.included_schemas = included_schemas
         self.excluded_schemas = excluded_schemas
         self.included_keys = included_keys
-        self.excluded_keys = included_keys
+        self.excluded_keys = excluded_keys
         self.included_key_regex = included_key_regex
         self.excluded_key_regex = excluded_key_regex
         self.included_tables_regex = included_tables_regex
@@ -84,10 +85,18 @@ class ConnectionConfigSchema(object):
                 self.dialect = self.dialect
             else:
                 self.dialect = self.metadata_source
-            uri = self.uri
-            port = self.port
+
+            if self.metadata_source == "snowflake":
+                if self.account is not None:
+                    uri = self.account
+                else:
+                    uri = self.uri
+            else:
+                uri = self.uri
+
+            port_placeholder = f":{self.port}" if self.port is not None else ""
             database = self.database or ""
 
-            conn_string = f"{self.dialect}://{username_password_placeholder}@{uri}:{port}/{database}"
+            conn_string = f"{self.dialect}://{username_password_placeholder}@{uri}{port_placeholder}/{database}"
 
         self.conn_string = conn_string
