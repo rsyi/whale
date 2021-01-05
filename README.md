@@ -10,7 +10,7 @@
 * Define and schedule basic metric calculations (in beta).
 * Run quality tests and systematically monitor anomalies (in roadmap).
 
-😁 [**Join the discussion on slack.**](https://join.slack.com/t/df-whale/shared_invite/zt-k4zmmzw2-mFuBJE1er4AEuW6PF9cpfw )
+😁 [**Join the discussion on slack.**](http://slack.dataframe.ai/)
 
 ---
 
