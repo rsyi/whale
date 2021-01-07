@@ -16,7 +16,7 @@
 
 ![](https://github.com/dataframehq/whale/workflows/CI/badge.svg)
 ![codecov](https://codecov.io/gh/dataframehq/whale/branch/master/graph/badge.svg)
-[![slack](https://badgen.net/badge/icon/slack?icon=slack&color=purple&label)](https://join.slack.com/t/talk-whale/shared_invite/zt-i2rayu1u-fljCh7reVstTBOtaH1n1xA)
+[![slack](https://badgen.net/badge/icon/slack?icon=slack&color=purple&label)](http://slack.dataframe.ai/)
 
 For a live demo, check out [**dataframehq/whale-bigquery-public-data**](https://github.com/dataframehq/whale-bigquery-public-data).
 
