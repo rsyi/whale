@@ -12,6 +12,7 @@ from whale.extractor.spanner_metadata_extractor import SpannerMetadataExtractor
 from whale.extractor.bigquery_watermark_extractor import BigQueryWatermarkExtractor
 from whale.extractor.glue_extractor import GlueExtractor
 from whale.extractor.snowflake_metadata_extractor import SnowflakeMetadataExtractor
+from whale.extractor.splice_machine_metadata_extractor import SpliceMachineMetadataExtractor
 from whale.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
 from whale.extractor.metric_runner import MetricRunner
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
@@ -248,6 +249,26 @@ def configure_snowflake_extractors(connection: ConnectionConfigSchema):
 
     extractors = [extractor]
     extractors, conf = add_metrics(extractors, conf, connection)
+
+    return extractors, conf
+
+
+def configure_splice_machine_extractors(connection: ConnectionConfigSchema):
+    Extractor = SpliceMachineMetadataExtractor
+    extractor = Extractor()
+    scope = extractor.get_scope()
+
+    conf = ConfigFactory.from_dict(
+        {
+            f"{scope}.{Extractor.HOST_KEY}": connection.uri,
+            f"{scope}.{Extractor.USERNAME_KEY}": connection.username,
+            f"{scope}.{Extractor.PASSWORD_KEY}": connection.password,
+            f"{scope}.{Extractor.WHERE_CLAUSE_SUFFIX_KEY}": connection.where_clause_suffix,
+        }
+    )
+
+    extractors = [extractor]
+    # extractors, conf = add_metrics(extractors, conf, connection)
 
     return extractors, conf
 
