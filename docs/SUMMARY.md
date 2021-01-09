@@ -10,7 +10,7 @@
 
 ## Additional features <a id="features"></a>
 
-* [Metrics](features/metrics.md)
+* [SQL Automation](features/metrics.md)
 * [Running SQL queries](features/running-sql-queries.md)
 * [Jinja2 templating](features/jinja2-templating.md)
 

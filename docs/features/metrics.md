@@ -1,10 +1,10 @@
-# Metrics
+# SQL Automation
 
 {% hint style="info" %}
 **Supported connections:** BigQuery, Postgres, Presto, Redshift, Snowflake
 {% endhint %}
 
-Whale supports automatic barebones metric definition and scheduled calculation. Metrics are defined by creating a ```````metrics```` block, as explained below. Any metric defined in this way will automatically be scheduled alongside the metadata scraping job. Metric definitions support Jinja2 templating -- for more information on how to set this up, see [Jinja2 templating](jinja2-templating.md).
+Whale supports automatic, barebones scheduled metrics calculation. Metrics are defined by creating a ```````metrics```` block, as explained below. Any metric defined in this way will automatically be scheduled alongside the metadata scraping job. Metric definitions support Jinja2 templating -- for more information on how to set this up, see [Jinja2 templating](jinja2-templating.md).
 
 ## Basic usage
 

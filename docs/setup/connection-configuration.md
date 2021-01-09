@@ -146,6 +146,17 @@ username:  # Optional
 password:  # Optional
 ```
 
+## Splice Machine
+
+```text
+---
+name: 
+metadata_source: splicemachine
+uri: jdbc-cluster114-splice-prod.splicemachine.io  # an example 
+username:
+password:
+```
+
 ## Build script
 
 We also support use of custom scripts that handle the metadata scraping and dumping of this data into local files \(in the `metadata` subdirectory\) and manifests \(in the `manifests` subdirectory\). For more information, see [Custom extraction](../for-developers/custom-extraction.md).
