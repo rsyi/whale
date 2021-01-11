@@ -15,6 +15,7 @@ from whale.utils.parsers import (
     sections_from_markdown,
     DEFINED_METRICS_SECTION,
 )
+from whale.utils.markdown_delimiters import METRICS_DELIMITER
 from whale.models.metric_value import MetricValue, SlackAlert
 
 SQLALCHEMY_ENGINE_SCOPE = SQLAlchemyEngine().get_scope()
@@ -25,7 +26,7 @@ SQLALCHEMY_CONN_STRING_KEY = (
 LOGGER = logging.getLogger(__name__)
 
 
-class MetricRunner(SQLAlchemyEngine):
+class UGCRunner(SQLAlchemyEngine):
 
     DATABASE_KEY = "database"
     DEFAULT_CONFIG = ConfigFactory.from_dict(
@@ -39,7 +40,7 @@ class MetricRunner(SQLAlchemyEngine):
         self.conf = conf.with_fallback(self.DEFAULT_CONFIG)
         self.sql_alch_conf = Scoped.get_scoped_conf(self.conf, SQLALCHEMY_ENGINE_SCOPE)
 
-        self.database = self.conf.get(MetricRunner.DATABASE_KEY)
+        self.database = self.conf.get(UGCRunner.DATABASE_KEY)
         table_stub_paths = self.conf.get("table_stub_paths")
         if table_stub_paths is None:
             self.table_stub_paths = self._find_all_table_stub_paths()
@@ -60,7 +61,7 @@ class MetricRunner(SQLAlchemyEngine):
     def _find_all_table_stub_paths(self) -> list:
         try:
             results = subprocess.check_output(
-                f"grep -l '```metrics' ~/.whale/metadata/{self.database}/* -d skip",
+                f"grep -l '{METRICS_DELIMITER}' ~/.whale/metadata/{self.database}/* -d skip",
                 shell=True,
             )
             results = results.decode("utf-8")
