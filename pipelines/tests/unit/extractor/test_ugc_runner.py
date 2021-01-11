@@ -11,7 +11,7 @@ from pyhocon import ConfigFactory
 from databuilder import Scoped
 
 from whale.models.metric_value import SlackAlert
-from whale.extractor.metric_runner import MetricRunner
+from whale.extractor.ugc_runner import UGCRunner
 from whale.utils import paths
 from whale.models.table_metadata import TableMetadata
 from whale.loader import whale_loader
@@ -43,7 +43,7 @@ class TestMetricRunner(unittest.TestCase):
 
         self.extractor_config = ConfigFactory.from_dict(
             {
-                MetricRunner.DATABASE_KEY: self.database,
+                UGCRunner.DATABASE_KEY: self.database,
                 "table_stub_paths": [self.table_stub_path],
             }
         )
@@ -82,7 +82,7 @@ class TestMetricRunner(unittest.TestCase):
 
         self.add_metrics_and_alerts_to_markdown("null-ids", sql_query, slack_alerts)
 
-        extractor = MetricRunner()
+        extractor = UGCRunner()
         extractor.init(self.extractor_config)
         extractor.extract()
         mock_execution.assert_called_once_with(
@@ -121,7 +121,7 @@ class TestMetricRunner(unittest.TestCase):
 
         mock_slack_client.return_value = {"message": {"text": alert_message}}
 
-        extractor = MetricRunner()
+        extractor = UGCRunner()
         extractor.init(self.extractor_config)
 
         results = extractor.extract()
@@ -171,7 +171,7 @@ class TestMetricRunner(unittest.TestCase):
 
         mock_slack_client.return_value = {"message": {"text": alert_message}}
 
-        extractor = MetricRunner()
+        extractor = UGCRunner()
         extractor.init(self.extractor_config)
 
         results = extractor.extract()
