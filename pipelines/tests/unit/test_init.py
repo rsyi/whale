@@ -3,6 +3,7 @@ import pytest
 from mock import patch
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from whale import run, pull, execute_markdown_sql_blocks, EXECUTION_FLAG
+from .fixtures import mock_whale_dir
 import whale
 
 
