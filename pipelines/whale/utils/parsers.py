@@ -7,6 +7,7 @@ from whale.utils.markdown_delimiters import (
     PARTITIONS_DELIMITER,
     USAGE_DELIMITER,
     UGC_DELIMITER,
+    SQL_BLOCK_DELIMITER,
 )
 
 HEADER_SECTION = "header"
@@ -83,6 +84,44 @@ def parse_ugc(ugc_blob):
             sections[state].append(clause)
 
     return sections
+
+
+def find_blocks_and_process(
+    ugc_blob,
+    function_to_apply_to_block,
+    function_kwargs={},
+    delimiter_start=SQL_BLOCK_DELIMITER,
+    delimiter_end=BLOCK_END_DELIMITER,
+):
+    """Takes a blob and applies the function `function_to_apply_to_block` to
+    each block delimited by `delimiter_start` and `delimiter_end`."""
+
+    IN_BLOCK = "in_block"
+    OUT_OF_BLOCK = "out_of_block"
+
+    regex_to_match = (
+        "(" + delimiter_start + "|" + delimiter_end + ")"
+    )  # To reduce priority, END_DELIMITERS always go last
+    splits = re.split(regex_to_match, ugc_blob)
+
+    state = OUT_OF_BLOCK
+
+    sections = []
+    for clause in splits:
+        if state == IN_BLOCK:
+            processed_clause = function_to_apply_to_block(clause, **function_kwargs)
+            state = OUT_OF_BLOCK
+        else:
+            processed_clause = clause
+
+        if clause == delimiter_start:
+            state = IN_BLOCK
+        elif clause == delimiter_end:
+            state = OUT_OF_BLOCK
+
+        sections.append(processed_clause)
+
+    return "".join(sections)
 
 
 def sections_from_markdown(file_path):

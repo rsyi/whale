@@ -12,9 +12,11 @@ from whale.extractor.spanner_metadata_extractor import SpannerMetadataExtractor
 from whale.extractor.bigquery_watermark_extractor import BigQueryWatermarkExtractor
 from whale.extractor.glue_extractor import GlueExtractor
 from whale.extractor.snowflake_metadata_extractor import SnowflakeMetadataExtractor
-from whale.extractor.splice_machine_metadata_extractor import SpliceMachineMetadataExtractor
+from whale.extractor.splice_machine_metadata_extractor import (
+    SpliceMachineMetadataExtractor,
+)
 from whale.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
-from whale.extractor.metric_runner import MetricRunner
+from whale.extractor.ugc_runner import UGCRunner
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 from databuilder.extractor.hive_table_metadata_extractor import (
@@ -28,7 +30,7 @@ BUILD_SCRIPT_TEMPLATE = """source {venv_path}/bin/activate \
 SQL_ALCHEMY_SCOPE = SQLAlchemyExtractor().get_scope()
 SQL_ALCHEMY_ENGINE_SCOPE = SQLAlchemyEngine().get_scope()
 
-METRIC_RUNNER_SCOPE = MetricRunner().get_scope()
+METRIC_RUNNER_SCOPE = UGCRunner().get_scope()
 
 
 def get_sql_alchemy_conn_string_key(scope):
@@ -36,8 +38,8 @@ def get_sql_alchemy_conn_string_key(scope):
     return conn_string_key
 
 
-def add_metrics(extractors: list, conf: ConfigTree, connection):
-    conf.put(f"{METRIC_RUNNER_SCOPE}.{MetricRunner.DATABASE_KEY}", connection.name)
+def add_ugc_runner(extractors: list, conf: ConfigTree, connection):
+    conf.put(f"{METRIC_RUNNER_SCOPE}.{UGCRunner.DATABASE_KEY}", connection.name)
     conf.put(
         f"{METRIC_RUNNER_SCOPE}.{SQL_ALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CONN_STRING_KEY}",
         connection.conn_string,
@@ -46,7 +48,7 @@ def add_metrics(extractors: list, conf: ConfigTree, connection):
         f"{METRIC_RUNNER_SCOPE}.{SQL_ALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CREDENTIALS_PATH_KEY}",
         connection.key_path,
     )
-    extractors.append(MetricRunner())
+    extractors.append(UGCRunner())
     return extractors, conf
 
 
@@ -75,7 +77,7 @@ def configure_bigquery_extractors(connection: ConnectionConfigSchema):
     )
 
     extractors = [extractor, watermark_extractor]
-    extractors, conf = add_metrics(extractors, conf, connection)
+    extractors, conf = add_ugc_runner(extractors, conf, connection)
 
     return extractors, conf
 
@@ -96,7 +98,7 @@ def configure_spanner_extractors(connection: ConnectionConfigSchema):
     )
 
     extractors = [extractor]
-    extractors, conf = add_metrics(extractors, conf, connection)
+    extractors, conf = add_ugc_runner(extractors, conf, connection)
 
     return extractors, conf
 
@@ -164,7 +166,7 @@ def configure_presto_extractors(connection: ConnectionConfigSchema):
     )
 
     extractors = [extractor]
-    extractors, conf = add_metrics(extractors, conf, connection)
+    extractors, conf = add_ugc_runner(extractors, conf, connection)
 
     return extractors, conf
 
@@ -205,7 +207,7 @@ def configure_postgres_extractors(connection: ConnectionConfigSchema):
     )
 
     extractors = [extractor]
-    extractors, conf = add_metrics(extractors, conf, connection)
+    extractors, conf = add_ugc_runner(extractors, conf, connection)
 
     return extractors, conf
 
@@ -226,7 +228,7 @@ def configure_redshift_extractors(connection: ConnectionConfigSchema):
     )
 
     extractors = [extractor]
-    extractors, conf = add_metrics(extractors, conf, connection)
+    extractors, conf = add_ugc_runner(extractors, conf, connection)
 
     return extractors, conf
 
@@ -248,7 +250,7 @@ def configure_snowflake_extractors(connection: ConnectionConfigSchema):
     )
 
     extractors = [extractor]
-    extractors, conf = add_metrics(extractors, conf, connection)
+    extractors, conf = add_ugc_runner(extractors, conf, connection)
 
     return extractors, conf
 
@@ -268,7 +270,7 @@ def configure_splice_machine_extractors(connection: ConnectionConfigSchema):
     )
 
     extractors = [extractor]
-    # extractors, conf = add_metrics(extractors, conf, connection)
+    # extractors, conf = add_ugc_runner(extractors, conf, connection)
 
     return extractors, conf
 
