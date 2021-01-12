@@ -4,6 +4,7 @@ build/
 target/
 build_script.spec
 .test_artifacts
+*.egg-info
 *.pyc
 .coverage
 coverage.xml
