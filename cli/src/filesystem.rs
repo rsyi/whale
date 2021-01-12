@@ -99,6 +99,10 @@ pub fn get_bin_dirname() -> String {
     format!("{}/{}", get_base_dirname(), "bin")
 }
 
+pub fn get_block_execute_script_filename() -> String {
+    format!("{}/{}", get_libexec_dirname(), "block_execute_script.py")
+}
+
 pub fn get_build_script_filename() -> String {
     format!("{}/{}", get_libexec_dirname(), "build_script.py")
 }

@@ -1,8 +1,7 @@
+import datetime
 import logging
 import os
 import pandas as pd
-import subprocess
-import yaml
 
 from pathlib import Path
 
@@ -11,7 +10,13 @@ from whale.utils.sql import template_query
 from whale.task import WhaleTask
 from whale.loader.whale_loader import WhaleLoader
 from whale.models.connection_config import ConnectionConfigSchema
-from whale.utils import copy_manifest, transfer_manifest
+from whale.utils import copy_manifest, get_table_info_from_path, transfer_manifest
+from whale.utils.parsers import (
+    find_blocks_and_process,
+    sections_from_markdown,
+    markdown_from_sections,
+    UGC_SECTION,
+)
 from whale.utils.config import get_connection, read_connections
 
 from whale.utils.extractor_wrappers import (
@@ -32,23 +37,41 @@ from whale.utils.extractor_wrappers import (
 LOGGER = logging.getLogger(__name__)
 
 
-def run(sql, warehouse_name=None):
+def execute_adhoc_sql(filepath: str):
     """
-    Runs sql queries against warehouse_name defined in ~/.whale/config/connections.yaml.
-    If no warehouse_name is given, the first is used.
-    """
-    connection_dict = get_connection(warehouse_name=warehouse_name)
-    connection = ConnectionConfigSchema(**connection_dict)
-    engine, conf = configure_unscoped_sqlalchemy_engine(connection)
-    engine.init(conf)
-    sql = template_query(sql, connection_name=connection.name)
-    LOGGER.info(f"Templated query:\n{sql}")
+    Executes all adhoc sql, denoted by ```sql, within the file `filepath`, and
+    destructively reinserts the results beneath the definition.
 
-    result = engine.execute(sql, has_header=True)
-    headers = next(result)
-    table = list(result)
-    df = pd.DataFrame(table, columns=headers)
-    return df
+    Note: duplicate queries will be ignored.
+    """
+
+    EXECUTION_FLAG = f"\n--!wh-execute\n"
+    RESULTS_HEADER = f"/* results:{datetime.datetime.now()}"
+
+    database, _, _, _ = get_table_info_from_path(filepath)
+    sections = sections_from_markdown(filepath)
+    ugc_blob = sections[UGC_SECTION]
+
+    def isolate_sql_from_results(block):
+        splits = block.split(EXECUTION_FLAG)
+        return "\n".join(splits)
+
+    def execute_and_append(block):
+        sql = isolate_sql_from_results(block)
+        results = run(sql, warehouse_name=database)
+        tabulated_results = results.to_string()
+        formatted_block = f"{sql}\n{RESULTS_HEADER}\n{tabulated_results}\n*/"
+        return formatted_block
+
+    if EXECUTION_FLAG in ugc_blob:
+        ugc_blob = find_blocks_and_process(ugc_blob, execute_and_append)
+        sections[UGC_SECTION] = ugc_blob
+        new_markdown_blob = markdown_from_sections(sections)
+
+        with open(filepath, "w") as f:
+            f.write(new_markdown_blob)
+    elif EXECUTION_FLAG.strip() in ugc_blob:
+        LOGGER.warning(f"{EXECUTION_FLAG.strip()} must be on its own line.")
 
 
 def pull():
@@ -126,3 +149,22 @@ def pull():
                     LOGGER.warning(f"Skipping {type(extractor)}.")
 
     transfer_manifest(tmp_manifest_path)
+
+
+def run(sql, warehouse_name=None):
+    """
+    Runs sql queries against warehouse_name defined in ~/.whale/config/connections.yaml.
+    If no warehouse_name is given, the first is used.
+    """
+    connection_dict = get_connection(warehouse_name=warehouse_name)
+    connection = ConnectionConfigSchema(**connection_dict)
+    engine, conf = configure_unscoped_sqlalchemy_engine(connection)
+    engine.init(conf)
+    sql = template_query(sql, connection_name=connection.name)
+    LOGGER.info(f"Templated query:\n{sql}")
+
+    result = engine.execute(sql, has_header=True)
+    headers = next(result)
+    table = list(result)
+    df = pd.DataFrame(table, columns=headers)
+    return df

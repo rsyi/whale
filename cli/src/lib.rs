@@ -169,6 +169,19 @@ Fetching and rebasing local changes from github.");
         Ok(())
     }
 
+    pub fn execute_sql_blocks(md_file: &str) -> Result<(), io::Error> {
+        let python_alias = serialization::read_config("python3_alias", "python3");
+        let activate_path = filesystem::get_activate_filename();
+        let block_execute_script_path = filesystem::get_block_execute_script_filename();
+        let full_command = format!(
+            "source {} && {} {} {}",
+            activate_path, python_alias, block_execute_script_path, md_file,
+        );
+        let mut child = Command::new("sh").args(&["-c", &full_command]).spawn()?;
+        child.wait()?;
+        Ok(())
+    }
+
     pub fn run(sql_file: &str, warehouse_name: &str) -> Result<(), io::Error> {
         let python_alias = serialization::read_config("python3_alias", "python3");
         let activate_path = filesystem::get_activate_filename();
