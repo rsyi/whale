@@ -22,7 +22,6 @@ python:
 	python3 -m pip install --upgrade setuptools
 	cp ${python_directory}/build_script.py ${dependency_binary_dir}
 	cp ${python_directory}/run_script.py ${dependency_binary_dir}
-	cp ${python_directory}/block_execute_script.py ${dependency_binary_dir}
 
 .PHONY: install
 install: python rust

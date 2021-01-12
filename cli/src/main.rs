@@ -36,7 +36,7 @@ fn main() {
             SubCommand::with_name("run")
                 .about("Execute a query file")
                 .arg(
-                    Arg::with_name("sql_file")
+                    Arg::with_name("filename")
                         .help("File path that contains the sql file to run")
                         .required(true),
                 )
@@ -46,15 +46,6 @@ fn main() {
                         .long("warehouse")
                         .help("Warehouse name to run the query against")
                         .required(false),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name("execute-sql-blocks")
-                .about("Execute all sql blocks within the markdown file ending with --!wh-execute.")
-                .arg(
-                    Arg::with_name("md_file")
-                        .help("File path that contains the markdown file to run")
-                        .required(true),
                 ),
         )
         .subcommand(
@@ -70,23 +61,15 @@ fn main() {
         }
     }
 
-    let mut sql_file = "";
+    let mut filename = "";
     let mut warehouse_name = "";
 
     if let Some(run_matches) = matches.subcommand_matches("run") {
-        if run_matches.is_present("sql_file") {
-            sql_file = run_matches.value_of("sql_file").unwrap()
+        if run_matches.is_present("filename") {
+            filename = run_matches.value_of("filename").unwrap()
         }
         if run_matches.is_present("warehouse_name") {
             warehouse_name = run_matches.value_of("warehouse_name").unwrap()
-        }
-    }
-
-    let mut md_file = "";
-
-    if let Some(execute_sql_block_matches) = matches.subcommand_matches("execute-sql-blocks") {
-        if execute_sql_block_matches.is_present("md_file") {
-            md_file = execute_sql_block_matches.value_of("md_file").unwrap()
         }
     }
 
@@ -99,8 +82,7 @@ fn main() {
         Some("connections") => whale::Whale::connections(),
         Some("git-enable") => whale::Whale::git_enable(),
         Some("git-setup") => whale::Whale::git_setup(git_address),
-        Some("run") => whale::Whale::run(sql_file, warehouse_name),
-        Some("execute-sql-blocks") => whale::Whale::execute_sql_blocks(md_file),
+        Some("run") => whale::Whale::run(filename, warehouse_name),
         _ => whale::Whale::run_with(matches),
     }
     .expect("Failed to run command.");

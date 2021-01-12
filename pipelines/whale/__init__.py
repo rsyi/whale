@@ -35,48 +35,85 @@ from whale.utils.extractor_wrappers import (
 )
 
 LOGGER = logging.getLogger(__name__)
-EXECUTION_FLAG = f"\n--!wh-execute\n"
+EXECUTION_FLAG = "\n--!wh-run\n"
 
 
-def execute_markdown_sql_blocks(filepath: str):
+def embed_results_as_comment(sql: str, results: pd.DataFrame):
     """
-    Executes all sql, denoted by ```sql, within the file `filepath`, and
-    destructively reinserts the results beneath the definition.
+    Given sql and results of executing this query, embed the results as a comment into sql.
 
-    Note: duplicate queries will be ignored.
     """
+    results_header = f"/* results: {datetime.datetime.now()}\n{38*'-'}"
+    tabulated_results = results.to_string()
+    formatted_results = f"\n{results_header}\n{tabulated_results}\n*/\n"
+    # Only replace the first instance of EXECUTION_FLAG
+    sql_with_result = sql.replace(EXECUTION_FLAG, formatted_results, 1)
+    return sql_with_result
 
-    RESULTS_HEADER = f"/* results:{datetime.datetime.now()}"
 
+def execute_markdown_sql_blocks(filepath: str) -> str:
+    """
+    Executes all sql, denoted by ```sql, within the file `filepath` if
+    EXECUTION_FLAG is within. Replace the EXECUTION_FLAG with the results.
+
+    """
     database, _, _, _ = get_table_info_from_path(filepath)
     sections = sections_from_markdown(filepath)
     ugc_blob = sections[UGC_SECTION]
 
-    def isolate_sql_from_results(block):
-        splits = block.split(EXECUTION_FLAG)
-        return "\n".join(splits)
+    def run_and_append_results(sql, warehouse_name=None) -> str:
+        if EXECUTION_FLAG in sql:
+            results = run(sql, warehouse_name=warehouse_name)
+            sql_with_result = embed_results_as_comment(sql, results)
+            return sql_with_result
+        else:
+            return sql
 
-    def execute_and_append(block):
-        sql = isolate_sql_from_results(block)
-        results = run(sql, warehouse_name=database)
-        tabulated_results = results.to_string()
-        formatted_block = f"{sql}\n{RESULTS_HEADER}\n{tabulated_results}\n*/"
-        return formatted_block
-
+    new_markdown_blob = markdown_from_sections(sections)
     if EXECUTION_FLAG in ugc_blob:
-        ugc_blob = find_blocks_and_process(ugc_blob, execute_and_append)
+        ugc_blob = find_blocks_and_process(
+            ugc_blob,
+            run_and_append_results,
+            function_kwargs={"warehouse_name": database},
+        )
+
         sections[UGC_SECTION] = ugc_blob
         new_markdown_blob = markdown_from_sections(sections)
 
         with open(filepath, "w") as f:
             f.write(new_markdown_blob)
+
     elif EXECUTION_FLAG.strip() in ugc_blob:
         LOGGER.warning(f"{EXECUTION_FLAG.strip()} must be on its own line.")
+
+    return new_markdown_blob
+
+
+def execute_sql_file(filepath: str, warehouse_name: str = None):
+    """
+    Wrapper around whale.run and whale.run_and_append results that loads from a
+    file, rather than taking a string with the SQL.
+
+    """
+    with open(filepath, "r") as f:
+        sql = f.read()
+
+    results = run(sql, warehouse_name=warehouse_name)
+    if EXECUTION_FLAG in sql:
+        new_sql = embed_results_as_comment(sql, results)
+        with open(filepath, "w") as f:
+            f.write(new_sql)
+    return results
 
 
 def pull():
     """
-    Pulls down all metadata & metrics from user-defined warehouse connections in ~/.whale/config/connections.yaml.
+    Pulls down all metadata & metrics from user-defined warehouse connections
+    in ~/.whale/config/connections.yaml.
+
+    Generally not to be used publicly. This is accessed by the rust client to
+    update metadata and facilitate scheduling.
+
     """
     for path in [
         paths.CONFIG_DIR,
@@ -151,13 +188,14 @@ def pull():
     transfer_manifest(tmp_manifest_path)
 
 
-def run(sql, warehouse_name=None):
+def run(sql, warehouse_name=None) -> pd.DataFrame:
     """
-    Runs sql queries against warehouse_name defined in ~/.whale/config/connections.yaml.
-    If no warehouse_name is given, the first is used.
+    Runs sql queries against warehouse_name defined in
+    ~/.whale/config/connections.yaml.  If no warehouse_name is given, the first
+    is used.
+
     """
-    connection_dict = get_connection(warehouse_name=warehouse_name)
-    connection = ConnectionConfigSchema(**connection_dict)
+    connection = get_connection(warehouse_name=warehouse_name)
     engine, conf = configure_unscoped_sqlalchemy_engine(connection)
     engine.init(conf)
     sql = template_query(sql, connection_name=connection.name)

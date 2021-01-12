@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 from mock import patch
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
+from whale.models.connection_config import ConnectionConfigSchema
 from whale import run, pull, execute_markdown_sql_blocks, EXECUTION_FLAG
 from .fixtures import mock_whale_dir
 import whale
@@ -15,11 +16,10 @@ def no_op_template(query):
 @patch.object(whale, "template_query")
 @patch.object(whale, "get_connection")
 @patch.object(SQLAlchemyEngine, "execute")
-def test_run(mock_execution, get_connection, mock_template_query):
+def test_run(mock_execution, get_connection, _):
     mock_execution.return_value = iter([["hi"], [0]])
-    get_connection.return_value = {
-        "metadata_source": "bigquery",
-    }
+    get_connection.return_value = ConnectionConfigSchema(metadata_source="bigquery")
+
     sql = "select count(anonymous_id) from `bigquery-sample-no-prod-stuff`.census.button_clicked;"
     df = run(sql)
     assert type(df) == pd.DataFrame
