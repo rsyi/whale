@@ -4,14 +4,14 @@
 
 ## Setup
 
-* [Git setup](setup/getting-started-for-teams.md)
 * [Connection configuration](setup/connection-configuration.md)
 * [Selective indexing](setup/selective-indexing.md)
+* [Git setup](setup/getting-started-for-teams.md)
 
 ## Additional features <a id="features"></a>
 
-* [SQL Automation](features/metrics.md)
 * [Running SQL queries](features/running-sql-queries.md)
+* [Query automation and alerting](features/metrics.md)
 * [Jinja2 templating](features/jinja2-templating.md)
 
 ## Customization

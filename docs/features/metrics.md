@@ -1,4 +1,4 @@
-# SQL Automation
+# Query automation and alerting
 
 {% hint style="info" %}
 **Supported connections:** BigQuery, Postgres, Presto, Redshift, Snowflake
