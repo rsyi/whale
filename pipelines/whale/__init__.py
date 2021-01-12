@@ -50,7 +50,6 @@ def execute_markdown_sql_blocks(filepath: str):
 
     database, _, _, _ = get_table_info_from_path(filepath)
     sections = sections_from_markdown(filepath)
-    print("SECTIONS:", sections)
     ugc_blob = sections[UGC_SECTION]
 
     def isolate_sql_from_results(block):
