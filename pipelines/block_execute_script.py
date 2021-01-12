@@ -1,4 +1,4 @@
-from whale import execute_adhoc_sql
+from whale import execute_markdown_sql_blocks
 
 import argparse
 
@@ -8,4 +8,4 @@ parser = argparse.ArgumentParser(
 parser.add_argument("filename")
 args = parser.parse_args()
 
-execute_adhoc_sql(args.filename)
+execute_markdown_sql_blocks(args.filename)
