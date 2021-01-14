@@ -3,6 +3,7 @@ import google
 import googleapiclient
 import google_auth_httplib2
 import http
+from pydoc import locate
 
 from mock import patch
 
@@ -127,3 +128,12 @@ def test_configure_neo4j_extractor(mock_settings):
     extractor = extractors[0]
     scoped_conf = Scoped.get_scoped_conf(conf, extractor.get_scope())
     assert extractor.init(scoped_conf) == None
+
+
+def test_add_indexes_adds_index_to_postgres_extractor(*mock_settings):
+    extractors, conf = configure_postgres_extractors(TEST_POSTGRES_CONNECTION_CONFIG)
+    index_type = locate('whale.extractor.postgres_index_extractor.PostgresIndexExtractor')
+
+    extractor_is_index = [isinstance(extr, index_type) for extr in extractors]
+    assert extractor_is_index.count(True) == 1
+

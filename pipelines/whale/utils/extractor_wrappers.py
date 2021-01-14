@@ -17,6 +17,8 @@ from whale.extractor.splice_machine_metadata_extractor import (
 )
 from whale.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
 from whale.extractor.ugc_runner import UGCRunner
+from whale.extractor.base_index_extractor import IndexExtractor
+from whale.extractor.postgres_index_extractor import PostgresIndexExtractor
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 from databuilder.extractor.hive_table_metadata_extractor import (
@@ -31,6 +33,7 @@ SQL_ALCHEMY_SCOPE = SQLAlchemyExtractor().get_scope()
 SQL_ALCHEMY_ENGINE_SCOPE = SQLAlchemyEngine().get_scope()
 
 METRIC_RUNNER_SCOPE = UGCRunner().get_scope()
+INDEX_SCOPE = IndexExtractor().get_scope()
 
 
 def get_sql_alchemy_conn_string_key(scope):
@@ -49,6 +52,25 @@ def add_ugc_runner(extractors: list, conf: ConfigTree, connection):
         connection.key_path,
     )
     extractors.append(UGCRunner())
+    return extractors, conf
+
+
+def add_indexes(extractors: list, conf: ConfigTree, connection):
+    conf.put(f"{INDEX_SCOPE}.{IndexExtractor.DATABASE_KEY}", connection.name)
+    conf.put(
+        f"{INDEX_SCOPE}.{SQL_ALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CONN_STRING_KEY}",
+        connection.conn_string,
+    )
+    conf.put(
+        f"{INDEX_SCOPE}.{SQL_ALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CREDENTIALS_PATH_KEY}",
+        connection.key_path,
+    )
+
+    metadata_source_dict = {
+        "postgres": PostgresIndexExtractor,
+    }
+
+    extractors.append(metadata_source_dict[connection.metadata_source]())
     return extractors, conf
 
 
@@ -208,6 +230,7 @@ def configure_postgres_extractors(connection: ConnectionConfigSchema):
 
     extractors = [extractor]
     extractors, conf = add_ugc_runner(extractors, conf, connection)
+    extractors, conf = add_indexes(extractors, conf, connection)
 
     return extractors, conf
 

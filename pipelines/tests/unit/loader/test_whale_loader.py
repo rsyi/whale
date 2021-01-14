@@ -7,6 +7,7 @@ from pyhocon import ConfigFactory
 from typing import Dict, Iterable, Any, Callable  # noqa: F401
 
 from whale.models.table_metadata import TableMetadata
+from whale.models.index_metadata import IndexMetadata
 from whale.loader import whale_loader
 from whale.utils import paths
 
@@ -74,3 +75,31 @@ def test_load_catalog_specified(patched_config):
     assert "mock_table" in written_record
     assert "mock_catalog" in written_record
     assert "mock_database" in written_record
+
+def test_load_index_metadata(patched_config):
+    record = IndexMetadata(
+        database="mock_database",
+        cluster="mock_catalog",
+        schema="mock_schema",
+        table="mock_table",
+        name="mock_index",
+        columns=['mock_column_1', 'mock_column_2'],
+    )
+
+    loader = whale_loader.WhaleLoader()
+    loader.init(patched_config)
+    loader.load(record)
+
+    loader.close()
+    file_path = os.path.join(
+        patched_config.get("base_directory"),
+        "mock_database/mock_catalog.mock_schema.mock_table.md",
+    )
+    with open(file_path, "r") as f:
+        written_record = f.read()
+
+    assert "mock_schema" in written_record
+    assert "mock_table" in written_record
+    assert "mock_catalog" in written_record
+    assert "mock_database" in written_record
+    assert "mock_index" in written_record

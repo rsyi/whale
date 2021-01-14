@@ -1,6 +1,7 @@
 import re
 from whale.utils.markdown_delimiters import (
     COLUMN_DETAILS_DELIMITER,
+    INDEX_DELIMITER,
     DEFINED_METRICS_DELIMITER,
     METRICS_DELIMITER,
     BLOCK_END_DELIMITER,
@@ -12,6 +13,7 @@ from whale.utils.markdown_delimiters import (
 
 HEADER_SECTION = "header"
 COLUMN_DETAILS_SECTION = "column_details"
+INDEX_SECTION = "index"
 PARTITION_SECTION = "partition"
 USAGE_SECTION = "usage"
 UGC_SECTION = "ugc"
@@ -25,6 +27,8 @@ def parse_programmatic_blob(programmatic_blob):
     regex_to_match = (
         "("
         + COLUMN_DETAILS_DELIMITER
+        + "|"
+        + INDEX_DELIMITER
         + "|"
         + PARTITIONS_DELIMITER
         + "|"
@@ -40,6 +44,7 @@ def parse_programmatic_blob(programmatic_blob):
     sections = {
         HEADER_SECTION: [],
         COLUMN_DETAILS_SECTION: [],
+        INDEX_SECTION: [],
         PARTITION_SECTION: [],
         USAGE_SECTION: [],
         METRICS_SECTION: [],
@@ -48,6 +53,8 @@ def parse_programmatic_blob(programmatic_blob):
     for clause in splits:
         if clause == COLUMN_DETAILS_DELIMITER:
             state = COLUMN_DETAILS_SECTION
+        elif clause == INDEX_DELIMITER:
+            state = INDEX_SECTION
         elif clause == PARTITIONS_DELIMITER:
             state = PARTITION_SECTION
         elif clause == USAGE_DELIMITER:
@@ -148,6 +155,7 @@ def markdown_from_sections(sections: dict):
     programmatic_blob = (
         sections[HEADER_SECTION]
         + sections[COLUMN_DETAILS_SECTION]
+        + sections[INDEX_SECTION]
         + sections[PARTITION_SECTION]
         + sections[USAGE_SECTION]
         + sections[METRICS_SECTION]
