@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 import logging
 from logging.handlers import RotatingFileHandler
-from whale.utils.task_wrappers import pull
+from whale import pull
 from whale.utils.paths import ETL_LOG_PATH, LOGS_DIR
 
 Path(LOGS_DIR).mkdir(parents=True, exist_ok=True)
