@@ -99,5 +99,15 @@ For those familiar with Jupyter or R markdown notebooks, this pattern might feel
 
 ### Editor configuration
 
+#### Vim
+
+Add the following to your `.vimrc` file, and you can run `<Leader>wh` to execute whale files. `<Leader>` is generally `\` or `,`.
+
+```text
+nmap <Leader>wh :w<CR>:exec '!~/.whale/bin/whale run %'<CR>:e<CR>
+```
+
+#### Vscode
+
 TODO
 
