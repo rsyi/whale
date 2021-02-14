@@ -61,15 +61,25 @@ class PostgresMetadataExtractor(BasePostgresMetadataExtractor):
 
             for row in group:
                 last_row = row
-                columns.append(ColumnMetadata(row['col_name'], row['col_description'],
-                                              row['col_type'], row['col_sort_order']))
+                columns.append(
+                    ColumnMetadata(
+                        row["col_name"],
+                        row["col_description"],
+                        row["col_type"],
+                        row["col_sort_order"],
+                    )
+                )
 
             # Deviating from amundsen to add `is_view`
-            yield TableMetadata(self._database, last_row['cluster'],
-                                last_row['schema'],
-                                last_row['name'],
-                                last_row['description'],
-                                columns, last_row['is_view'])
+            yield TableMetadata(
+                self._database,
+                last_row["cluster"],
+                last_row["schema"],
+                last_row["name"],
+                last_row["description"],
+                columns,
+                last_row["is_view"],
+            )
 
     def get_scope(self) -> str:
         return "extractor.postgres_metadata"
