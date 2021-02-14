@@ -6,7 +6,8 @@ from pyhocon import ConfigTree  # noqa: F401
 from typing import List, Any  # noqa: F401
 
 from whale.extractor.base_bigquery_extractor import BaseBigQueryExtractor
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 
 
 DatasetRef = namedtuple("DatasetRef", ["datasetId", "projectId"])
@@ -147,7 +148,7 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
             col = ColumnMetadata(
                 name=col_name,
                 description=column.get("description", ""),
-                col_type=column["type"],
+                data_type=column["type"],
                 sort_order=total_cols,
                 tags=tags,
             )
@@ -162,7 +163,7 @@ class BigQueryMetadataExtractor(BaseBigQueryExtractor):
             col = ColumnMetadata(
                 name=col_name,
                 description=column.get("description", ""),
-                col_type=column["type"],
+                data_type=column["type"],
                 sort_order=total_cols,
                 tags=tags,
             )

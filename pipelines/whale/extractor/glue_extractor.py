@@ -2,7 +2,8 @@ import boto3
 from databuilder.extractor.base_extractor import Extractor
 from pyhocon import ConfigFactory, ConfigTree
 from typing import Any, Dict, Iterator, List, Union
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.column_metadata import ColumnMetadata
+from whale.models.table_metadata import TableMetadata
 
 
 class GlueExtractor(Extractor):

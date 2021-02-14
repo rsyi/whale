@@ -8,7 +8,8 @@ from unidecode import unidecode
 from databuilder import Scoped
 from databuilder.extractor.base_extractor import Extractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 from itertools import groupby
 
 
@@ -30,7 +31,7 @@ class SnowflakeMetadataExtractor(Extractor):
     SELECT
         lower(c.column_name) AS col_name,
         c.comment AS col_description,
-        lower(c.data_type) AS col_type,
+        lower(c.data_type) AS data_type,
         lower(c.ordinal_position) AS col_sort_order,
         lower('{database}') AS database,
         lower(c.table_catalog) AS cluster,
@@ -112,7 +113,7 @@ class SnowflakeMetadataExtractor(Extractor):
                     ColumnMetadata(
                         name=row["col_name"],
                         description=column_description,
-                        col_type=row["col_type"],
+                        data_type=row["data_type"],
                         sort_order=row["col_sort_order"],
                     )
                 )

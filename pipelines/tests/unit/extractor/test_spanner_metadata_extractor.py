@@ -8,7 +8,8 @@ from pyhocon import ConfigFactory
 from databuilder import Scoped
 from whale.extractor.spanner_metadata_extractor import SpannerMetadataExtractor
 from whale.extractor.spanner_metadata_extractor import spanner
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 
 logging.basicConfig(level=logging.INFO)
 

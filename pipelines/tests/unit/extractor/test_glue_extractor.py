@@ -5,7 +5,8 @@ from mock import patch
 from pyhocon import ConfigFactory
 
 from whale.extractor.glue_extractor import GlueExtractor
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 
 
 @patch("whale.extractor.glue_extractor.boto3.client", lambda x: None)

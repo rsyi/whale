@@ -7,7 +7,8 @@ from pyhocon import ConfigFactory, ConfigTree
 from typing import Any, Dict, Iterator, Optional
 
 from databuilder.extractor.base_extractor import Extractor
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 from itertools import groupby
 from splicemachinesa.pyodbc import splice_connect
 
@@ -88,7 +89,7 @@ class SpliceMachineMetadataExtractor(Extractor):
                     ColumnMetadata(
                         name=row["column_name"],
                         description=None,
-                        col_type=row["column_type"],
+                        data_type=row["column_type"],
                         sort_order=row["column_sort_order"],
                     )
                 )

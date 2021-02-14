@@ -6,7 +6,8 @@ from pyhocon import ConfigFactory
 
 from whale.extractor.splice_machine_metadata_extractor import SpliceMachineMetadataExtractor
 from whale.extractor import splice_machine_metadata_extractor
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 
 
 class TestSpliceMachineMetadataExtractor(unittest.TestCase):

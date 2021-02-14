@@ -7,7 +7,8 @@ from typing import Any, Dict  # noqa: F401
 
 from whale.extractor.snowflake_metadata_extractor import SnowflakeMetadataExtractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 
 
 class TestSnowflakeMetadataExtractor(unittest.TestCase):
@@ -55,7 +56,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id1",
-                        "col_type": "number",
+                        "data_type": "number",
                         "col_description": "description of id1",
                         "col_sort_order": 0,
                     },
@@ -64,7 +65,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id2",
-                        "col_type": "number",
+                        "data_type": "number",
                         "col_description": "description of id2",
                         "col_sort_order": 1,
                     },
@@ -73,7 +74,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "is_active",
-                        "col_type": "boolean",
+                        "data_type": "boolean",
                         "col_description": None,
                         "col_sort_order": 2,
                     },
@@ -82,7 +83,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "source",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of source",
                         "col_sort_order": 3,
                     },
@@ -91,7 +92,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "etl_created_at",
-                        "col_type": "timestamp_ltz",
+                        "data_type": "timestamp_ltz",
                         "col_description": "description of etl_created_at",
                         "col_sort_order": 4,
                     },
@@ -100,7 +101,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "ds",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": None,
                         "col_sort_order": 5,
                     },
@@ -170,7 +171,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id1",
-                        "col_type": "number",
+                        "data_type": "number",
                         "col_description": "description of col_id1",
                         "col_sort_order": 0,
                     },
@@ -179,7 +180,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id2",
-                        "col_type": "number",
+                        "data_type": "number",
                         "col_description": "description of col_id2",
                         "col_sort_order": 1,
                     },
@@ -188,7 +189,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "is_active",
-                        "col_type": "boolean",
+                        "data_type": "boolean",
                         "col_description": None,
                         "col_sort_order": 2,
                     },
@@ -197,7 +198,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "source",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of source",
                         "col_sort_order": 3,
                     },
@@ -206,7 +207,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "etl_created_at",
-                        "col_type": "timestamp_ltz",
+                        "data_type": "timestamp_ltz",
                         "col_description": "description of etl_created_at",
                         "col_sort_order": 4,
                     },
@@ -215,7 +216,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "ds",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": None,
                         "col_sort_order": 5,
                     },
@@ -224,7 +225,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_name",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of col_name",
                         "col_sort_order": 0,
                     },
@@ -233,7 +234,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_name2",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of col_name2",
                         "col_sort_order": 1,
                     },
@@ -242,7 +243,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id3",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of col_id3",
                         "col_sort_order": 0,
                     },
@@ -251,7 +252,7 @@ class TestSnowflakeMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_name3",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of col_name3",
                         "col_sort_order": 1,
                     },

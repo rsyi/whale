@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Union  # noqa: F401
 
-from databuilder.models.table_metadata import ColumnMetadata
+from whale.models.column_metadata import ColumnMetadata
 
 
 class PrestoWatermark(object):

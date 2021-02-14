@@ -278,33 +278,33 @@ def format_columns(record) -> str:
     max_type_length = 9
     columns = record.columns
 
-    if columns:
-        column_template_no_desc = "* {buffered_type} `{name}`"
-        column_template = column_template_no_desc + "\n  - {description}"
-        formatted_columns_list = []
-
-        for column in columns:
-            buffer_length = max(max_type_length - len(column.type), 0)
-            buffered_type = "[" + column.type + "]" + " " * buffer_length
-
-            if column.description:
-                formatted_column_text = column_template.format(
-                    buffered_type=buffered_type,
-                    name=column.name,
-                    description=column.description,
-                )
-            else:
-                formatted_column_text = column_template_no_desc.format(
-                    buffered_type=buffered_type,
-                    name=column.name,
-                )
-
-            formatted_columns_list.append(formatted_column_text)
-
-        formatted_columns = "\n".join(formatted_columns_list)
-        return formatted_columns
-    else:
+    if not columns:
         return ""
+
+    column_template_no_desc = "* {buffered_type} `{name}`"
+    column_template = column_template_no_desc + "\n  - {description}"
+    formatted_columns_list = []
+
+    for column in columns:
+        buffer_length = max(max_type_length - len(column.type), 0)
+        buffered_type = "[" + column.type + "]" + " " * buffer_length
+
+        if column.description:
+            formatted_column_text = column_template.format(
+                buffered_type=buffered_type,
+                name=column.name,
+                description=column.description,
+            )
+        else:
+            formatted_column_text = column_template_no_desc.format(
+                buffered_type=buffered_type,
+                name=column.name,
+            )
+
+        formatted_columns_list.append(formatted_column_text)
+
+    formatted_columns = "\n".join(formatted_columns_list)
+    return formatted_columns
 
 
 def _get_metrics_from_section(section):

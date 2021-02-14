@@ -7,7 +7,8 @@ from typing import Iterator, Union, Dict, Any  # noqa: F401
 
 from databuilder import Scoped
 from databuilder.extractor.base_extractor import Extractor
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 from itertools import groupby
 
 
@@ -32,7 +33,7 @@ class SpannerMetadataExtractor(Extractor):
     SQL_STATEMENT = """
     SELECT
       lower(c.column_name) AS col_name,
-      lower(c.spanner_type) AS col_type,
+      lower(c.spanner_type) AS data_type,
       c.ordinal_position AS col_sort_order,
       lower(c.table_schema) AS `schema`,
       lower(c.table_name) AS name
@@ -46,7 +47,7 @@ class SpannerMetadataExtractor(Extractor):
     ORDER by `schema`, name, col_sort_order ;
     """
 
-    HEADER = ["col_name", "col_type", "col_sort_order", "schema", "name"]
+    HEADER = ["col_name", "data_type", "col_sort_order", "schema", "name"]
 
     # Config keys.
     DEFAULT_CONFIG = ConfigFactory.from_dict(
@@ -126,7 +127,7 @@ class SpannerMetadataExtractor(Extractor):
                         ColumnMetadata(
                             row["col_name"],
                             None,
-                            row["col_type"],
+                            row["data_type"],
                             row["col_sort_order"],
                         )
                     )
