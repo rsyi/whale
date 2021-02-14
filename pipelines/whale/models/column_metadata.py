@@ -1,4 +1,5 @@
 from typing import Dict, Iterable, List, Optional, Union
+from whale.utils.markdown_delimiters import COLUMN_DETAILS_DELIMITER
 
 class ColumnMetadata:
     COLUMN_KEY_FORMAT = "{db}://{cluster}.{schema}.{tbl}/{col}"
@@ -25,6 +26,29 @@ class ColumnMetadata:
         self.sort_order = sort_order
         self.tags = tags
         self.is_partition_column = is_partition_column
+
+
+    def format_for_markdown(self):
+        max_type_length = 9
+
+        self.template_no_desc = "* {buffered_type} `{name}`"
+        self.template = self.template_no_desc + "\n  - {description}"
+
+        buffer_length = max(max_type_length - len(self.type), 0)
+        buffered_type = "[" + self.type + "]" + " " * buffer_length
+
+        if self.description:
+            return self.template.format(
+                buffered_type=buffered_type,
+                name=self.name,
+                description=self.description,
+            )
+        else:
+            return self.template_no_desc.format(
+                buffered_type=buffered_type,
+                name=self.name,
+            )
+
 
     def __repr__(self):
         # type: () -> str
