@@ -164,7 +164,6 @@ def pull():
         conf.put(manifest_key, tmp_manifest_path)
 
         for i, extractor in enumerate(extractors):
-            is_metadata_extractor = i == 0
             task = WhaleTask(
                 extractor=extractor,
                 loader=WhaleLoader(),
@@ -173,7 +172,8 @@ def pull():
 
             # Enable try except for non-metadata extractors
             # No need to update the manifest for other extractors
-            if is_metadata_extractor:
+
+            if conf.get_bool(f"{extractor.get_scope()}.is_metadata_extractor", True):
                 task.run()
                 task.save_stats()
                 conf.pop(manifest_key)
