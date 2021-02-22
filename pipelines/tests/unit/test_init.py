@@ -31,9 +31,7 @@ def test_pull_without_files(mock_whale_dir):
 
 
 @patch.object(whale, "run")
-def test_execute_markdown_sql_blocks_rips_and_replaces(
-        mock_run,
-        tmp_path):
+def test_execute_markdown_sql_blocks_rips_and_replaces(mock_run, tmp_path):
 
     MOCK_SQL_RESULTS = pd.DataFrame([0])
     mock_run.return_value = MOCK_SQL_RESULTS

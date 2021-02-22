@@ -4,7 +4,9 @@ import unittest
 from mock import patch, MagicMock
 from pyhocon import ConfigFactory
 
-from whale.extractor.splice_machine_metadata_extractor import SpliceMachineMetadataExtractor
+from whale.extractor.splice_machine_metadata_extractor import (
+    SpliceMachineMetadataExtractor,
+)
 from whale.extractor import splice_machine_metadata_extractor
 from whale.models.table_metadata import TableMetadata, ColumnMetadata
 
@@ -34,7 +36,9 @@ class TestSpliceMachineMetadataExtractor(unittest.TestCase):
             self.assertEqual(results, None)
 
     def test_extraction_with_single_result(self):
-        with patch.object(splice_machine_metadata_extractor, "splice_connect") as mock_connect:
+        with patch.object(
+            splice_machine_metadata_extractor, "splice_connect"
+        ) as mock_connect:
             column = ColumnMetadata("column1", None, "int", 0)
             table = TableMetadata(
                 self.DATABASE,
