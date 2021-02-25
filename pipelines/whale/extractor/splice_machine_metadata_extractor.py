@@ -44,19 +44,32 @@ class SpliceMachineMetadataExtractor(Extractor):
 
     def init(self, conf: ConfigTree) -> None:
         self.conf = conf.with_fallback(SpliceMachineMetadataExtractor.DEFAULT_CONFIG)
-        self._database = self.conf.get_string(SpliceMachineMetadataExtractor.DATABASE_KEY)
+        self._database = self.conf.get_string(
+            SpliceMachineMetadataExtractor.DATABASE_KEY
+        )
         self._cluster = self.conf.get_string(SpliceMachineMetadataExtractor.CLUSTER_KEY)
-        self._where_clause_suffix = self.conf.get_string(SpliceMachineMetadataExtractor.WHERE_CLAUSE_SUFFIX_KEY)
-        self._username = self.conf.get_string(SpliceMachineMetadataExtractor.USERNAME_KEY)
-        self._password = self.conf.get_string(SpliceMachineMetadataExtractor.PASSWORD_KEY)
+        self._where_clause_suffix = self.conf.get_string(
+            SpliceMachineMetadataExtractor.WHERE_CLAUSE_SUFFIX_KEY
+        )
+        self._username = self.conf.get_string(
+            SpliceMachineMetadataExtractor.USERNAME_KEY
+        )
+        self._password = self.conf.get_string(
+            SpliceMachineMetadataExtractor.PASSWORD_KEY
+        )
         self._host = self.conf.get_string(SpliceMachineMetadataExtractor.HOST_KEY)
 
         context = {
             "where_clause_suffix": self._where_clause_suffix,
         }
 
-        j2_env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))), trim_blocks=True)
-        self.sql_statement = j2_env.get_template('splice_machine_metadata_extractor.sql').render(context)
+        j2_env = Environment(
+            loader=FileSystemLoader(os.path.dirname(os.path.abspath(__file__))),
+            trim_blocks=True,
+        )
+        self.sql_statement = j2_env.get_template(
+            "splice_machine_metadata_extractor.sql"
+        ).render(context)
 
         LOGGER.info("SQL for splicemachine: {}".format(self.sql_statement))
         self._extract_iter = None
@@ -129,7 +142,8 @@ class SpliceMachineMetadataExtractor(Extractor):
         :return:
         """
         if row:
-            return TableKey(schema_name=row["schema_name"], table_name=row["table_name"])
+            return TableKey(
+                schema_name=row["schema_name"], table_name=row["table_name"]
+            )
 
         return None
-
