@@ -7,7 +7,9 @@ from typing import (  # noqa: F401
 
 from pyhocon import ConfigFactory, ConfigTree  # noqa: F401
 
-from whale.extractor.base_postgres_metadata_extractor import BasePostgresMetadataExtractor
+from whale.extractor.base_postgres_metadata_extractor import (
+    BasePostgresMetadataExtractor,
+)
 from whale.models.table_metadata import TableMetadata
 from whale.models.column_metadata import ColumnMetadata
 from itertools import groupby
@@ -60,15 +62,25 @@ class PostgresMetadataExtractor(BasePostgresMetadataExtractor):
 
             for row in group:
                 last_row = row
-                columns.append(ColumnMetadata(row['col_name'], row['col_description'],
-                                              row['data_type'], row['col_sort_order']))
+                columns.append(
+                    ColumnMetadata(
+                        row["col_name"],
+                        row["col_description"],
+                        row["data_type"],
+                        row["col_sort_order"],
+                    )
+                )
 
             # Deviating from amundsen to add `is_view`
-            yield TableMetadata(self._database, last_row['cluster'],
-                                last_row['schema'],
-                                last_row['name'],
-                                last_row['description'],
-                                columns, last_row['is_view'])
+            yield TableMetadata(
+                self._database,
+                last_row["cluster"],
+                last_row["schema"],
+                last_row["name"],
+                last_row["description"],
+                columns,
+                last_row["is_view"],
+            )
 
     def get_scope(self) -> str:
         return "extractor.postgres_metadata"
