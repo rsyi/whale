@@ -10,7 +10,8 @@ REDIRECT_URL = "https://docs.whale.cx/features/metrics#setup"
 CLIENT_ID = "123"
 CLIENT_SECRET = "456"
 
-@app.route('/', methods=['GET'])
+
+@app.route("/", methods=["GET"])
 def code_to_token():
     code_param = request.args.get("code")
 
@@ -23,8 +24,7 @@ def code_to_token():
         },
     )
 
-    if not r.json()['ok']:
+    if not r.json()["ok"]:
         return redirect(f"{REDIRECT_URL}?error={r.json().get('error')}")
 
     return redirect(f"{REDIRECT_URL}?token={r.json().get('access_token')}")
-
