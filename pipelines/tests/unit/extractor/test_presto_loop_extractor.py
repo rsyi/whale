@@ -72,7 +72,7 @@ class TestPrestoLoopExtractor(unittest.TestCase):
                 ColumnMetadata(
                     name=MOCK_COLUMN_RESULT[0],
                     description=MOCK_COLUMN_RESULT[3],
-                    col_type=MOCK_COLUMN_RESULT[1],
+                    data_type=MOCK_COLUMN_RESULT[1],
                     sort_order=0,
                     is_partition_column=is_partition_column,
                 )

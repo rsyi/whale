@@ -2,7 +2,8 @@ from itertools import zip_longest
 from pyhocon import ConfigTree
 
 from databuilder.extractor.neo4j_extractor import Neo4jExtractor
-from whale.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 from whale.utils.neo4j import combine_where_clauses
 
 
@@ -139,7 +140,7 @@ class AmundsenNeo4jMetadataExtractor(Neo4jExtractor):
                         ColumnMetadata(
                             name=column_name,
                             description=column_description,
-                            col_type=column_type,
+                            data_type=column_type,
                             sort_order=column_sort_order,
                             is_partition_column=is_partition_column,
                         )

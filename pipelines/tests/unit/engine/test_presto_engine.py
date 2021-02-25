@@ -6,7 +6,8 @@ from pyhocon import ConfigFactory
 
 from whale.engine.presto_engine import PrestoEngine
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
-from whale.models.table_metadata import ColumnMetadata, TableMetadata
+from whale.models.column_metadata import ColumnMetadata
+from whale.models.table_metadata import TableMetadata
 
 MOCK_CONNECTION_NAME = "TEST_CONNECTION"
 MOCK_DATABASE_NAME = "mock_database"
@@ -24,7 +25,7 @@ MOCK_INFORMATION_SCHEMA_RESULT_1 = {
     "col_sort_order": 0,
     "is_partition_col": 0,
     "col_description": "unique id",
-    "col_type": "varchar(64)",
+    "data_type": "varchar(64)",
     "is_view": "0",
 }
 MOCK_INFORMATION_SCHEMA_RESULT_2 = {
@@ -36,7 +37,7 @@ MOCK_INFORMATION_SCHEMA_RESULT_2 = {
     "col_sort_order": "1",
     "is_partition_col": "1",
     "col_description": "datestamp",
-    "col_type": "varchar(64)",
+    "data_type": "varchar(64)",
     "is_view": "0",
 }
 
@@ -79,7 +80,7 @@ class TestPrestoEngine(unittest.TestCase):
                 description=MOCK_INFORMATION_SCHEMA_RESULT_1[
                     "col_description"
                 ],  # noqa: 501
-                col_type=MOCK_INFORMATION_SCHEMA_RESULT_1["col_type"],
+                data_type=MOCK_INFORMATION_SCHEMA_RESULT_1["data_type"],
                 sort_order=MOCK_INFORMATION_SCHEMA_RESULT_1["col_sort_order"],
                 is_partition_column=None,
             ),
@@ -88,7 +89,7 @@ class TestPrestoEngine(unittest.TestCase):
                 description=MOCK_INFORMATION_SCHEMA_RESULT_2[
                     "col_description"
                 ],  # noqa: 501
-                col_type=MOCK_INFORMATION_SCHEMA_RESULT_2["col_type"],
+                data_type=MOCK_INFORMATION_SCHEMA_RESULT_2["data_type"],
                 sort_order=MOCK_INFORMATION_SCHEMA_RESULT_2["col_sort_order"],
                 is_partition_column=None,
             ),

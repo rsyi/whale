@@ -5,9 +5,10 @@ from typing import Any, Dict
 from mock import MagicMock, patch
 from pyhocon import ConfigFactory
 
-from databuilder.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
+from whale.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
-from databuilder.models.table_metadata import ColumnMetadata, TableMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 
 
 class TestPostgresMetadataExtractor(unittest.TestCase):
@@ -43,6 +44,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 "schema": "test_schema",
                 "name": "test_table",
                 "description": "a table for testing",
+                "is_view": 0,
                 "cluster": self.conf[PostgresMetadataExtractor.CLUSTER_KEY],
             }
 
@@ -50,7 +52,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id1",
-                        "col_type": "bigint",
+                        "data_type": "bigint",
                         "col_description": "description of id1",
                         "col_sort_order": 0,
                     },
@@ -59,7 +61,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id2",
-                        "col_type": "bigint",
+                        "data_type": "bigint",
                         "col_description": "description of id2",
                         "col_sort_order": 1,
                     },
@@ -68,7 +70,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "is_active",
-                        "col_type": "boolean",
+                        "data_type": "boolean",
                         "col_description": None,
                         "col_sort_order": 2,
                     },
@@ -77,7 +79,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "source",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of source",
                         "col_sort_order": 3,
                     },
@@ -86,7 +88,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "etl_created_at",
-                        "col_type": "timestamp",
+                        "data_type": "timestamp",
                         "col_description": "description of etl_created_at",
                         "col_sort_order": 4,
                     },
@@ -95,7 +97,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "ds",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": None,
                         "col_sort_order": 5,
                     },
@@ -125,6 +127,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                     ),
                     ColumnMetadata("ds", None, "varchar", 5),
                 ],
+                0,
             )
 
             self.assertEqual(expected.__repr__(), actual.__repr__())
@@ -140,6 +143,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 "schema": "test_schema1",
                 "name": "test_table1",
                 "description": "test table 1",
+                "is_view": 0,
                 "cluster": self.conf[PostgresMetadataExtractor.CLUSTER_KEY],
             }
 
@@ -147,6 +151,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 "schema": "test_schema1",
                 "name": "test_table2",
                 "description": "test table 2",
+                "is_view": 0,
                 "cluster": self.conf[PostgresMetadataExtractor.CLUSTER_KEY],
             }
 
@@ -154,6 +159,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 "schema": "test_schema2",
                 "name": "test_table3",
                 "description": "test table 3",
+                "is_view": 0,
                 "cluster": self.conf[PostgresMetadataExtractor.CLUSTER_KEY],
             }
 
@@ -161,7 +167,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id1",
-                        "col_type": "bigint",
+                        "data_type": "bigint",
                         "col_description": "description of col_id1",
                         "col_sort_order": 0,
                     },
@@ -170,7 +176,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id2",
-                        "col_type": "bigint",
+                        "data_type": "bigint",
                         "col_description": "description of col_id2",
                         "col_sort_order": 1,
                     },
@@ -179,7 +185,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "is_active",
-                        "col_type": "boolean",
+                        "data_type": "boolean",
                         "col_description": None,
                         "col_sort_order": 2,
                     },
@@ -188,7 +194,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "source",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of source",
                         "col_sort_order": 3,
                     },
@@ -197,7 +203,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "etl_created_at",
-                        "col_type": "timestamp",
+                        "data_type": "timestamp",
                         "col_description": "description of etl_created_at",
                         "col_sort_order": 4,
                     },
@@ -206,7 +212,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "ds",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": None,
                         "col_sort_order": 5,
                     },
@@ -215,7 +221,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_name",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of col_name",
                         "col_sort_order": 0,
                     },
@@ -224,7 +230,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_name2",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of col_name2",
                         "col_sort_order": 1,
                     },
@@ -233,7 +239,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_id3",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of col_id3",
                         "col_sort_order": 0,
                     },
@@ -242,7 +248,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                 self._union(
                     {
                         "col_name": "col_name3",
-                        "col_type": "varchar",
+                        "data_type": "varchar",
                         "col_description": "description of col_name3",
                         "col_sort_order": 1,
                     },
@@ -272,6 +278,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                     ),
                     ColumnMetadata("ds", None, "varchar", 5),
                 ],
+                0,
             )
             self.assertEqual(expected.__repr__(), extractor.extract().__repr__())
 
@@ -287,6 +294,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                         "col_name2", "description of col_name2", "varchar", 1
                     ),
                 ],
+                0,
             )
             self.assertEqual(expected.__repr__(), extractor.extract().__repr__())
 
@@ -302,6 +310,7 @@ class TestPostgresMetadataExtractor(unittest.TestCase):
                         "col_name3", "description of col_name3", "varchar", 1
                     ),
                 ],
+                0,
             )
             self.assertEqual(expected.__repr__(), extractor.extract().__repr__())
 

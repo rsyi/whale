@@ -7,10 +7,11 @@ from typing import (  # noqa: F401
 
 from pyhocon import ConfigFactory, ConfigTree  # noqa: F401
 
-from databuilder.extractor.base_postgres_metadata_extractor import (
+from whale.extractor.base_postgres_metadata_extractor import (
     BasePostgresMetadataExtractor,
 )
-from databuilder.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
 from itertools import groupby
 
 
@@ -30,7 +31,7 @@ class PostgresMetadataExtractor(BasePostgresMetadataExtractor):
         return """
         SELECT
             {cluster_source} as cluster, c.table_schema as schema, c.table_name as name, pgtd.description as description
-          , c.column_name as col_name, c.data_type as col_type
+          , c.column_name as col_name, c.data_type
           , pgcd.description as col_description, ordinal_position as col_sort_order
           , CASE WHEN b.table_name IS NOT NULL THEN 1 ELSE 0 END AS is_view
         FROM INFORMATION_SCHEMA.COLUMNS c
@@ -65,7 +66,7 @@ class PostgresMetadataExtractor(BasePostgresMetadataExtractor):
                     ColumnMetadata(
                         row["col_name"],
                         row["col_description"],
-                        row["col_type"],
+                        row["data_type"],
                         row["col_sort_order"],
                     )
                 )

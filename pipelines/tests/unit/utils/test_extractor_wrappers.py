@@ -11,9 +11,7 @@ from whale.models.connection_config import ConnectionConfigSchema
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 from whale.extractor.bigquery_metadata_extractor import BaseBigQueryExtractor
-from databuilder.extractor.base_postgres_metadata_extractor import (
-    BasePostgresMetadataExtractor,
-)
+from whale.extractor.base_postgres_metadata_extractor import BasePostgresMetadataExtractor
 from whale.utils.extractor_wrappers import (
     configure_bigquery_extractors,
     configure_glue_extractors,

@@ -5,7 +5,9 @@ from itertools import groupby
 from typing import Dict, Iterable, Iterator, List, Optional, NamedTuple  # noqa: F821
 
 from whale.models.presto_watermark import PrestoWatermark
-from whale.models.table_metadata import ColumnMetadata, TableColumnStats, TableMetadata
+from whale.models.table_metadata import TableMetadata
+from whale.models.column_metadata import ColumnMetadata
+from whale.models.table_column_stats import TableColumnStats
 
 
 LOGGER = logging.getLogger(__name__)
@@ -66,7 +68,7 @@ class PrestoCommandsMixin:
           , a.ordinal_position as col_sort_order
           , IF(a.extra_info = 'partition key', 1, 0) AS is_partition_col
           , a.comment AS col_description
-          , a.data_type AS col_type
+          , a.data_type
           , IF(b.table_name is not null, 1, 0) AS is_view
         FROM {cluster_prefix}information_schema.columns a
         LEFT JOIN {cluster_prefix}information_schema.views b
@@ -102,7 +104,7 @@ class PrestoCommandsMixin:
                     ColumnMetadata(
                         row["col_name"],
                         row["col_description"],
-                        row["col_type"],
+                        row["data_type"],
                         row["col_sort_order"],
                     )
                 )
@@ -139,7 +141,7 @@ class PrestoCommandsMixin:
                 ColumnMetadata(
                     name=column_dict["Column"],
                     description=column_dict["Comment"],
-                    col_type=column_dict["Type"],
+                    data_type=column_dict["Type"],
                     sort_order=i,
                     is_partition_column=column_dict["Extra"] == "partition key",
                 )
