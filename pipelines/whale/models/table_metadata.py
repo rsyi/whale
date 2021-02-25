@@ -5,6 +5,7 @@ from databuilder.models.table_metadata import DescriptionMetadata
 from whale.models.column_metadata import ColumnMetadata
 from whale.utils.markdown_delimiters import COLUMN_DETAILS_DELIMITER
 
+
 class TableMetadata(object):
     """
     Simplified table metadata that contains columns, extended with
@@ -30,7 +31,7 @@ class TableMetadata(object):
         tags: Optional[Union[List[Dict], List[str]]] = None,
         labels: Optional[Union[Dict, List[str]]] = None,
         description_source: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         # type: (...) -> None
         """
@@ -64,7 +65,6 @@ class TableMetadata(object):
         if kwargs:
             self.attrs = copy.deepcopy(kwargs)
 
-
     def format_for_markdown(self):
         block_template = textwrap.dedent(
             """        # `{schema_statement}{name}`{view_statement}
@@ -75,7 +75,9 @@ class TableMetadata(object):
             """
         )
 
-        formatted_columns_list = [column.format_for_markdown() for column in self.columns]
+        formatted_columns_list = [
+            column.format_for_markdown() for column in self.columns
+        ]
         formatted_columns = "\n".join(formatted_columns_list)
 
         if self.description:
@@ -116,7 +118,6 @@ class TableMetadata(object):
 
         return markdown_blob
 
-
     def __repr__(self):
         # type: () -> str
         return "TableMetadata({!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r})".format(
@@ -156,5 +157,3 @@ class TableMetadata(object):
             tbl=self.name,
             col=col.name,
         )
-
-
