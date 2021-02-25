@@ -1,6 +1,10 @@
 import copy
 from typing import Dict, Iterable, List, Optional, Union
+import textwrap
+from databuilder.models.table_metadata import DescriptionMetadata
 from whale.models.column_metadata import ColumnMetadata
+from whale.utils.markdown_delimiters import COLUMN_DETAILS_DELIMITER
+
 
 class TableMetadata(object):
     """
@@ -27,7 +31,7 @@ class TableMetadata(object):
         tags: Optional[Union[List[Dict], List[str]]] = None,
         labels: Optional[Union[Dict, List[str]]] = None,
         description_source: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         # type: (...) -> None
         """
@@ -60,6 +64,59 @@ class TableMetadata(object):
 
         if kwargs:
             self.attrs = copy.deepcopy(kwargs)
+
+    def format_for_markdown(self):
+        block_template = textwrap.dedent(
+            """        # `{schema_statement}{name}`{view_statement}
+        `{database}`{cluster_statement}
+        {description}
+        {column_details_delimiter}
+        {columns}
+            """
+        )
+
+        formatted_columns_list = [
+            column.format_for_markdown() for column in self.columns
+        ]
+        formatted_columns = "\n".join(formatted_columns_list)
+
+        if self.description:
+            if type(self.description) == DescriptionMetadata:
+                description = self.description._text + "\n"
+            else:
+                description = str(self.description) + "\n"
+        else:
+            description = ""
+
+        if self.cluster == "None":  # edge case for Hive Metastore
+            cluster = None
+        else:
+            cluster = self.cluster
+
+        if cluster is not None:
+            cluster_statement = f" | `{cluster}`"
+        else:
+            cluster_statement = ""
+
+        if (
+            self.schema == None
+        ):  # edge case for Glue, which puts everything in self.table
+            schema_statement = ""
+        else:
+            schema_statement = f"{self.schema}."
+
+        markdown_blob = block_template.format(
+            schema_statement=schema_statement,
+            name=self.name,
+            view_statement=" [view]" if self.is_view else "",
+            database=self.database,
+            cluster_statement=cluster_statement,
+            description=description,
+            column_details_delimiter=COLUMN_DETAILS_DELIMITER,
+            columns=formatted_columns,
+        )
+
+        return markdown_blob
 
     def __repr__(self):
         # type: () -> str
@@ -100,5 +157,3 @@ class TableMetadata(object):
             tbl=self.name,
             col=col.name,
         )
-
-
