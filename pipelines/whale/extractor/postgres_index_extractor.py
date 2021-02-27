@@ -3,8 +3,9 @@ from collections import namedtuple
 from itertools import groupby
 
 from whale.extractor.base_index_extractor import IndexExtractor
-from whale.models.index_metadata import IndexMetadata
+from whale.models.index_metadata import TableIndexesMetadata, IndexMetadata
 
+TableKey = namedtuple("TableKey", ["schema", "name"])
 IndexKey = namedtuple("IndexKey", ["schema", "table", "name"])
 
 
@@ -52,23 +53,49 @@ class PostgresIndexExtractor(IndexExtractor):
         )
 
     def _get_extract_iter(self):
-        for key, group in groupby(self._get_raw_extract_iter(), self._get_index_key):
-            columns = []
-            for row in group:
-                last_row = row
-                columns.append(row["column_name"])
+        for table_key, table_group in groupby(
+            self._get_raw_extract_iter(), self._get_table_key
+        ):
 
-            yield IndexMetadata(
+            indexes = []
+            for index_key, index_group in groupby(table_group, self._get_index_key):
+                columns = []
+
+                for row in index_group:
+                    last_row = row
+                    columns.append(row["column_name"])
+
+                indexes.append(
+                    IndexMetadata(
+                        name=last_row["index_name"],
+                        index_type="primary" if last_row["is_primary"] else None,
+                        architecture="clustered" if last_row["is_clustered"] else None,
+                        constraint="unique" if last_row["is_unique"] else None,
+                        columns=columns,
+                    )
+                )
+
+            yield TableIndexesMetadata(
                 database=self._database,
                 cluster=last_row["cluster"],
                 schema=last_row["schema"],
                 table=last_row["table"],
-                name=last_row["index_name"],
-                index_type="primary" if last_row["is_primary"] else None,
-                architecture="clustered" if last_row["is_clustered"] else None,
-                constraint="unique" if last_row["is_unique"] else None,
-                columns=columns,
+                indexes=indexes,
             )
+
+    def _get_table_key(self, row: Dict[str, Any]) -> Union[TableKey, None]:
+        """
+        Table key consists of schema and table name
+        :param row:
+        :return:
+        """
+        if not row:
+            return None
+
+        return TableKey(
+            schema=row["schema"],
+            name=row["table"],
+        )
 
     def _get_index_key(self, row: Dict[str, Any]) -> Union[IndexKey, None]:
         """
@@ -80,5 +107,7 @@ class PostgresIndexExtractor(IndexExtractor):
             return None
 
         return IndexKey(
-            schema=row["schema"], table=row["table"], name=row["index_name"]
+            schema=row["schema"],
+            table=row["table"],
+            name=row["index_name"],
         )

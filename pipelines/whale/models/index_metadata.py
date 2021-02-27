@@ -12,10 +12,6 @@ class IndexMetadata:
 
     def __init__(
         self,
-        database: str,
-        cluster: str,
-        schema: str,
-        table: str,
         name: str,
         columns: Iterable[str],
         description: Optional[str] = None,
@@ -26,10 +22,6 @@ class IndexMetadata:
     ):
         # type: (...) -> None
         """
-        :param database: Name of the database
-        :param cluster: Name of the cluster
-        :param schema: Name of the table schema
-        :param table: Name of the table
         :param name: Name of the index
         :param columns: List of columns contained in the index
         :param description: Description of the index
@@ -39,31 +31,23 @@ class IndexMetadata:
         :param tags: Tag of index
         """
 
-        self.database = database
         self.name = name
-        self.cluster = cluster
-        self.schema = schema
-        self.table = table
+        self.columns = columns
         self.description = description
         self.index_type = index_type
         self.architecture = architecture
         self.constraint = constraint
-        self.columns = columns
         self.tags = tags
 
     def __repr__(self):
         # type: () -> str
-        return "IndexMetadata({!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r})".format(
-            self.database,
-            self.cluster,
-            self.schema,
-            self.table,
+        return "IndexMetadata({!r}, {!r}, {!r}, {!r}, {!r}, {!r}, {!r})".format(
             self.name,
+            self.columns,
             self.description,
             self.index_type,
             self.architecture,
             self.constraint,
-            self.columns,
             self.tags,
         )
 
@@ -90,7 +74,48 @@ class IndexMetadata:
             column_list=column_list_concat,
         )
 
-        formatted_indexes_list = []
-        formatted_indexes_list.append(formatted_index)
+        return formatted_index
 
-        return "\n".join(formatted_indexes_list)
+
+class TableIndexesMetadata:
+    """
+    Contains the list of indexes for a given table
+    """
+
+    def __init__(
+        self,
+        database: str,
+        cluster: str,
+        schema: str,
+        table: str,
+        indexes: Iterable[IndexMetadata],
+    ):
+        # type: (...) -> None
+        """
+        :param database: Name of the database
+        :param cluster: Name of the cluster
+        :param schema: Name of the table schema
+        :param table: Name of the table
+        :param indexes: Iterable of indexes
+        """
+
+        self.database = database
+        self.cluster = cluster
+        self.schema = schema
+        self.table = table
+        self.indexes = indexes
+
+    def __repr__(self):
+        # type: () -> str
+        return "IndexMetadata({!r}, {!r}, {!r}, {!r}, {!r})".format(
+            self.database,
+            self.cluster,
+            self.schema,
+            self.table,
+            self.indexes,
+        )
+
+    def format_for_markdown(self):
+        formatted_indexes = [index.format_for_markdown() for index in self.indexes]
+
+        return "\n".join(formatted_indexes)

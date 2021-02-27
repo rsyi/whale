@@ -22,7 +22,7 @@ from whale.utils.parsers import (
     sections_from_markdown,
 )
 import whale.models.table_metadata as metadata_model_whale
-from whale.models.index_metadata import IndexMetadata
+from whale.models.index_metadata import TableIndexesMetadata
 from whale.models.metric_value import MetricValue
 from databuilder.models.watermark import Watermark
 from databuilder.models.table_metadata import DescriptionMetadata
@@ -76,7 +76,7 @@ class WhaleLoader(Loader):
         if not record:
             return
 
-        if type(record) in [MetricValue, Watermark, IndexMetadata]:
+        if type(record) in [MetricValue, Watermark, TableIndexesMetadata]:
             table = record.table
         else:
             table = record.name
@@ -138,7 +138,7 @@ def update_markdown(file_path, record):
     section_methods = {
         MetricValue: _update_metric,
         Watermark: _update_watermark,
-        IndexMetadata: _update_index_metadata,
+        TableIndexesMetadata: _update_index_metadata,
         metadata_model_whale.TableMetadata: _update_table_metadata,
         metadata_model_amundsen.TableMetadata: _update_table_metadata,
     }
@@ -216,10 +216,9 @@ def _update_table_metadata(sections, record):
 
 
 def _update_index_metadata(sections, record):
-    if not sections[INDEX_SECTION]:
-        sections[INDEX_SECTION] = INDEX_DELIMITER + "\n"
-
-    sections[INDEX_SECTION] += record.format_for_markdown() + "\n"
+    sections[INDEX_SECTION] = (
+        INDEX_DELIMITER + "\n" + record.format_for_markdown() + "\n"
+    )
 
     return sections
 

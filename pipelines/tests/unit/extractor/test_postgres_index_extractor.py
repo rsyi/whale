@@ -7,7 +7,7 @@ from pyhocon import ConfigFactory
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 
 from whale.extractor.postgres_index_extractor import PostgresIndexExtractor
-from whale.models.index_metadata import IndexMetadata
+from whale.models.index_metadata import TableIndexesMetadata, IndexMetadata
 
 
 class TestPostgresIndexExtractor(unittest.TestCase):
@@ -71,11 +71,7 @@ class TestPostgresIndexExtractor(unittest.TestCase):
             extractor.init(self.conf)
             actual = extractor.extract()
 
-            expected = IndexMetadata(
-                database="postgres",
-                cluster="MY_CLUSTER",
-                schema="test_schema",
-                table="test_table",
+            expected_index = IndexMetadata(
                 name="idx_1",
                 description=None,
                 index_type=None,
@@ -83,6 +79,14 @@ class TestPostgresIndexExtractor(unittest.TestCase):
                 constraint="unique",
                 columns=["idx_column_1", "idx_column_2"],
                 tags=None,
+            )
+
+            expected = TableIndexesMetadata(
+                database="postgres",
+                cluster="MY_CLUSTER",
+                schema="test_schema",
+                table="test_table",
+                indexes=[expected_index],
             )
 
             self.assertEqual(expected.__repr__(), actual.__repr__())
@@ -163,11 +167,7 @@ class TestPostgresIndexExtractor(unittest.TestCase):
             extractor = PostgresIndexExtractor()
             extractor.init(self.conf)
 
-            expected = IndexMetadata(
-                database="postgres",
-                cluster="MY_CLUSTER",
-                schema="test_schema_1",
-                table="test_table_1",
+            expected_index_1 = IndexMetadata(
                 name="idx_1",
                 description=None,
                 index_type=None,
@@ -177,13 +177,7 @@ class TestPostgresIndexExtractor(unittest.TestCase):
                 tags=None,
             )
 
-            self.assertEqual(expected.__repr__(), extractor.extract().__repr__())
-
-            expected = IndexMetadata(
-                database="postgres",
-                cluster="MY_CLUSTER",
-                schema="test_schema_1",
-                table="test_table_1",
+            expected_index_2 = IndexMetadata(
                 name="idx_2",
                 description=None,
                 index_type=None,
@@ -193,13 +187,17 @@ class TestPostgresIndexExtractor(unittest.TestCase):
                 tags=None,
             )
 
-            self.assertEqual(expected.__repr__(), extractor.extract().__repr__())
-
-            expected = IndexMetadata(
+            expected = TableIndexesMetadata(
                 database="postgres",
                 cluster="MY_CLUSTER",
-                schema="test_schema_2",
-                table="test_table_2",
+                schema="test_schema_1",
+                table="test_table_1",
+                indexes=[expected_index_1, expected_index_2],
+            )
+
+            self.assertEqual(expected.__repr__(), extractor.extract().__repr__())
+
+            expected_index = IndexMetadata(
                 name="idx_3",
                 description=None,
                 index_type=None,
@@ -207,6 +205,14 @@ class TestPostgresIndexExtractor(unittest.TestCase):
                 constraint="unique",
                 columns=["idx_3_column_1", "idx_3_column_2"],
                 tags=None,
+            )
+
+            expected = TableIndexesMetadata(
+                database="postgres",
+                cluster="MY_CLUSTER",
+                schema="test_schema_2",
+                table="test_table_2",
+                indexes=[expected_index],
             )
 
             self.assertEqual(expected.__repr__(), extractor.extract().__repr__())
