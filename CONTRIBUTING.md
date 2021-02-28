@@ -5,11 +5,11 @@ Whale welcomes all contributions and corrections. Before contributing, please ma
 
 ## 🌳 Setting up your environment
 ### Python
-The python client is accessed by the rust client through `./pipelines/build_script.py` and `./pipelines/run_script.py`.  For development purposes, therefore, it is generally sufficient to install only the python client by creating a virtual environment, activating it, then running the following command in the `./pipelines/` directory:
+The python client is accessed by the rust client through `./pipelines/build_script.py` and `./pipelines/run_script.py`.  For development purposes, therefore, it is generally sufficient to install only the python client by creating a virtual environment, activating it, then running the following command in the repository root:
 ```
 pip install -e .
 ```
-This command installs a symlink to the pipelines directory in site-packages for the current virtual environment. Any tests can then be run within this environment. 
+This command installs a symlink to the repository root in site-packages for the current virtual environment. Any tests can then be run within this environment. 
 
 If you'd like to QA some new functionality against a real warehouse connection, you can run `python build_script.py` or `python run_script.py`, within the `./pipelines/` directory. (You'll need to define a connection to a warehouse within `~/.whale/config/connections.yaml` either manually or using `wh init` for this to work.)
 
