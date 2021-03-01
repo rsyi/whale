@@ -22,6 +22,7 @@ from whale.utils.parsers import (
     sections_from_markdown,
 )
 import whale.models.table_metadata as metadata_model_whale
+from whale.models.index_metadata import TableIndexesMetadata
 from whale.models.metric_value import MetricValue
 from databuilder.models.watermark import Watermark
 from databuilder.models.table_metadata import DescriptionMetadata
@@ -29,6 +30,7 @@ import databuilder.models.table_metadata as metadata_model_amundsen
 
 from whale.utils.markdown_delimiters import (
     COLUMN_DETAILS_DELIMITER,
+    INDEX_DELIMITER,
     METRICS_DELIMITER,
     PARTITIONS_DELIMITER,
     TAGS_DELIMITER,
@@ -37,6 +39,7 @@ from whale.utils.markdown_delimiters import (
 from whale.utils.parsers import (
     HEADER_SECTION,
     COLUMN_DETAILS_SECTION,
+    INDEX_SECTION,
     PARTITION_SECTION,
     UGC_SECTION,
     METRICS_SECTION,
@@ -73,7 +76,7 @@ class WhaleLoader(Loader):
         if not record:
             return
 
-        if type(record) in [MetricValue, Watermark]:
+        if type(record) in [MetricValue, Watermark, TableIndexesMetadata]:
             table = record.table
         else:
             table = record.name
@@ -135,6 +138,7 @@ def update_markdown(file_path, record):
     section_methods = {
         MetricValue: _update_metric,
         Watermark: _update_watermark,
+        TableIndexesMetadata: _update_index_metadata,
         metadata_model_whale.TableMetadata: _update_table_metadata,
         metadata_model_amundsen.TableMetadata: _update_table_metadata,
     }
@@ -142,6 +146,7 @@ def update_markdown(file_path, record):
     sections = sections_from_markdown(file_path)
     # The table metadata record has both a header and column details. Add
     # custom logic to handle both.
+
     section_method = section_methods[type(record)]
     sections = section_method(sections, record)
 
@@ -206,6 +211,14 @@ def _update_table_metadata(sections, record):
     # sections[TAGS_DELIMITER] = (
     #     TAGS_DELIMITER + tag_blob + "\n"
     # )
+
+    return sections
+
+
+def _update_index_metadata(sections, record):
+    sections[INDEX_SECTION] = (
+        INDEX_DELIMITER + "\n" + record.format_for_markdown() + "\n"
+    )
 
     return sections
 
