@@ -3,15 +3,10 @@ from pathlib import Path
 from mock import call, patch
 import pytest
 
-from whale.utils.paths import TEMPLATE_DIR
 from whale.utils.sql import (
     template_query,
-    validate_templates,
     _validate_and_print_result,
 )
-from whale.utils import paths
-
-from whale.utils import sql
 
 VALID_TEMPLATE = "{% set main = 5 %}"
 VALID_FILE_NAME = "valid.sql"
