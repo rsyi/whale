@@ -1,7 +1,7 @@
 from jinja2 import Environment, BaseLoader
 from pathlib import Path
 from termcolor import colored
-from whale.utils.paths import TEMPLATE_DIR
+from whale.utils.paths import MACROS_DIR
 
 DEFAULT_TEMPLATE_NAME = "default.sql"
 FAILING_COLOR = "red"
@@ -15,7 +15,7 @@ def template_query(query, connection_name=""):
     templated query.
     """
     # First determine the connection type, and look for a "connection_name.sql" file in templates.
-    template_file_path = TEMPLATE_DIR / (connection_name + ".sql")
+    template_file_path = MACROS_DIR / ((connection_name or "") + ".sql")
     is_template_file_path_found = template_file_path.is_file()
 
     if is_template_file_path_found:
@@ -31,8 +31,8 @@ def template_query(query, connection_name=""):
 
 
 def validate_templates():
-    if TEMPLATE_DIR.is_dir():
-        for template_file in TEMPLATE_DIR.glob("**/*"):
+    if MACROS_DIR.is_dir():
+        for template_file in MACROS_DIR.glob("**/*"):
             _validate_and_print_result(template_file)
     else:
         warning_text = textwrap.dedent(
@@ -48,7 +48,7 @@ def validate_templates():
 
 
 def _validate_and_print_result(template_file: Path):
-    relative_file_path = template_file.relative_to(TEMPLATE_DIR)
+    relative_file_path = template_file.relative_to(MACROS_DIR)
     with open(template_file, "r") as f:
         template = f.read()
         try:

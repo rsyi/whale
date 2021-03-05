@@ -19,4 +19,4 @@ if file_extension.lower() in [".md", ".markdown"]:
     result = execute_markdown_sql_blocks(args.filename)
 else:  # Catchall for all sql-based extensions
     result = execute_sql_file(args.filename, warehouse_name=args.warehouse_name)
-print(result)
+    print(result)

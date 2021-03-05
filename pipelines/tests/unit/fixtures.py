@@ -21,7 +21,7 @@ def mock_whale_dir(monkeypatch, tmp_path, request):
         "MANIFEST_PATH": paths.MANIFEST_PATH,
         "METRICS_PATH": paths.METRICS_PATH,
         "METADATA_PATH": paths.METADATA_PATH,
-        "TEMPLATE_DIR": paths.TEMPLATE_DIR,
+        "MACROS_DIR": paths.MACROS_DIR,
     }.items():
         d = get_mocked_path(tmp_path, path)
         monkeypatch.setattr(paths, attr_name, d)
@@ -31,7 +31,7 @@ def mock_whale_dir(monkeypatch, tmp_path, request):
                 d.parent.mkdir(parents=True, exist_ok=True)
             elif d.is_file():
                 d.touch(exist_ok=True)
-        if attr_name in ["TEMPLATE_DIR"]:
+        if attr_name in ["MACROS_DIR"]:
             monkeypatch.setattr(sql, attr_name, d)
     return tmp_path
 
@@ -39,4 +39,4 @@ def mock_whale_dir(monkeypatch, tmp_path, request):
 @pytest.mark.parametrize(mock_whale_dir, [True], indirect=True)
 @pytest.fixture()
 def mock_template_dir(mock_whale_dir):
-    return mock_whale_dir / paths.TEMPLATE_DIR.parts[-1]
+    return mock_whale_dir / paths.MACROS_DIR.parts[-1]

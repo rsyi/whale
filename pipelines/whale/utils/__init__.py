@@ -48,24 +48,46 @@ def create_base_table_stub(file_path, database, cluster, schema, table):
     safe_write(file_path, text_to_write)
 
 
+def path_is_parent(parent_path, child_path):
+    # Smooth out relative path names, note: if you are concerned about symbolic
+    # links, you should use os.path.realpath too
+    parent_path = os.path.abspath(parent_path)
+    child_path = os.path.abspath(child_path)
+
+    # Compare the common path of the parent and child path with the common path
+    # of just the parent path. Using the commonpath method on just the parent
+    # path will regularise the path name in the same way as the comparison that
+    # deals with both paths, removing any trailing path separator
+    return os.path.commonpath([parent_path]) ==  \
+        os.path.commonpath([parent_path, child_path])
+
+
 def get_table_info_from_path(
     file_path,
 ):
-    database = os.path.dirname(file_path)
-    table_string = str(file_path).split(database + "/")[-1]
+    if path_is_parent(paths.BASE_DIR, file_path):
+        database = os.path.dirname(file_path)
+        table_string = str(file_path).split(database + "/")[-1]
 
-    database = str(database).split("/")[-1]
-    table_components = table_string.split(".")
-    table = table_components[-2]
-    if len(table_components) == 4:
-        cluster = table_components[-4]
-        schema = table_components[-3]
-    elif len(table_components) == 3:
-        cluster = None
-        schema = table_components[-3]
+        database = str(database).split("/")[-1]
+        table_components = table_string.split(".")
+        table = table_components[-2]
+        if len(table_components) == 4:
+            cluster = table_components[-4]
+            schema = table_components[-3]
+        elif len(table_components) == 3:
+            cluster = None
+            schema = table_components[-3]
+        else:
+            cluster = None
+            schema = None
+
     else:
+        database = None
         cluster = None
         schema = None
+        table = None
+
     return database, cluster, schema, table
 
 

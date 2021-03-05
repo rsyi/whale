@@ -15,6 +15,7 @@ from whale.utils.parsers import (
     find_blocks_and_process,
     sections_from_markdown,
     markdown_from_sections,
+    HEADER_SECTION,
     UGC_SECTION,
 )
 from whale.utils.config import get_connection, read_connections
@@ -58,8 +59,8 @@ def execute_markdown_sql_blocks(filepath: str) -> str:
 
     """
     database, _, _, _ = get_table_info_from_path(filepath)
-    sections = sections_from_markdown(filepath)
-    ugc_blob = sections[UGC_SECTION]
+    with open(filepath, "r") as f:
+        ugc_blob = "".join(f.readlines())
 
     def run_and_append_results(sql, warehouse_name=None) -> str:
         if EXECUTION_FLAG in sql:
@@ -69,7 +70,6 @@ def execute_markdown_sql_blocks(filepath: str) -> str:
         else:
             return sql
 
-    new_markdown_blob = markdown_from_sections(sections)
     if EXECUTION_FLAG in ugc_blob:
         ugc_blob = find_blocks_and_process(
             ugc_blob,
@@ -77,16 +77,13 @@ def execute_markdown_sql_blocks(filepath: str) -> str:
             function_kwargs={"warehouse_name": database},
         )
 
-        sections[UGC_SECTION] = ugc_blob
-        new_markdown_blob = markdown_from_sections(sections)
-
         with open(filepath, "w") as f:
-            f.write(new_markdown_blob)
+            f.write(ugc_blob)
 
     elif EXECUTION_FLAG.strip() in ugc_blob:
         LOGGER.warning(f"{EXECUTION_FLAG.strip()} must be on its own line.")
 
-    return new_markdown_blob
+    return ugc_blob
 
 
 def execute_sql_file(filepath: str, warehouse_name: str = None):
