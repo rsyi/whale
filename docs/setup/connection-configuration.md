@@ -144,6 +144,7 @@ uri:
 port:
 username:  # Optional
 password:  # Optional
+role:  # Optional
 ```
 
 ## Splice Machine
