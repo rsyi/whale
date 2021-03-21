@@ -15,6 +15,7 @@ class ConnectionConfigSchema(object):
         database: Optional[str] = None,
         instance: Optional[str] = None,
         cluster: Optional[str] = None,
+        role: Optional[str] = None,
         is_location_parsing_enabled: bool = False,
         included_schemas: List = [],
         excluded_schemas: List = [],
@@ -47,6 +48,7 @@ class ConnectionConfigSchema(object):
         self.database = database
         self.instance = instance
         self.cluster = cluster
+        self.role = role
         self.is_location_parsing_enabled = is_location_parsing_enabled
         self.included_schemas = included_schemas
         self.excluded_schemas = excluded_schemas
@@ -97,6 +99,7 @@ class ConnectionConfigSchema(object):
             port_placeholder = f":{self.port}" if self.port is not None else ""
             database = self.database or ""
 
-            conn_string = f"{self.dialect}://{username_password_placeholder}@{uri}{port_placeholder}/{database}"
+            role_placeholder = f"?role={self.role}" if self.role is not None else ""
 
+            conn_string = f"{self.dialect}://{username_password_placeholder}@{uri}{port_placeholder}/{database}{role_placeholder}"
         self.conn_string = conn_string
