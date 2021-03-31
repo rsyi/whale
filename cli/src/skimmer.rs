@@ -50,7 +50,7 @@ fn command_is_installed(command: &str) -> bool {
 
 fn read_file_to_string(file_path: &str) -> String {
     fs::read_to_string(file_path)
-        .unwrap_or_else(|_| panic!(format!("failed to read path: {}", file_path)))
+        .unwrap_or_else(|_| panic!("{}", format!("failed to read path: {}", file_path)))
 }
 
 // TODO: I don't like this name - how to clean this up?
