@@ -1,14 +1,14 @@
-<font color="purple"><i>Whale is actively being built and maintained by <a href="https://dataframe.ai">Dataframe</a>. For our full, collaborative, and just as simple data discovery platform, check out <a href="https://dataframe.ai">dataframe.ai</a>.</i></font>
+<font color="purple"><i>Whale is actively being built and maintained by <a href="https://dataframe.ai">Dataframe</a>. For our full, collaborative SQL workspace, check out <a href="https://prequel.ai">prequel</a>.</i></font>
 
 <p align="center"><img src="docs/whale_logo.svg" width="600"/></p>
 
-## The simplest way to keep track of your warehouse tables
-`whale` is a lightweight **data discovery, documentation, and quality engine for your data warehouse**.
+## The simplest way to find tables, write queries, and take notes
+`whale` is a lightweight, CLI-first **SQL workspace for your data warehouse**.
 
+* Execute SQL in `.sql` files using `wh run`, or in sql blocks within `.md` files using the `--!wh-run` flag and `wh run`.
 * Automatically index all of the tables in your warehouse as plain markdown files -- so they're easily versionable, searchable, and editable either locally or through a remote git server.
-* Search for tables and documentation through the CLI or through a git remote server like Github.
+* Search for tables and documentation.
 * Define and schedule basic metric calculations (in beta).
-* Run quality tests and systematically monitor anomalies (in roadmap).
 
 😁 [**Join the discussion on slack.**](http://slack.dataframe.ai/)
 
@@ -18,7 +18,7 @@
 ![codecov](https://codecov.io/gh/dataframehq/whale/branch/master/graph/badge.svg)
 [![slack](https://badgen.net/badge/icon/slack?icon=slack&color=purple&label)](http://slack.dataframe.ai/)
 
-For a live demo, check out [**dataframehq/whale-bigquery-public-data**](https://github.com/dataframehq/whale-bigquery-public-data).
+For a demo of a git-backed workflow, check out [**dataframehq/whale-bigquery-public-data**](https://github.com/dataframehq/whale-bigquery-public-data).
 
 ![](docs/demo.gif)
 
@@ -73,3 +73,17 @@ wh
 ```
 
 to search over all metadata. Hitting `enter` will open the editable part of the docs in your default text editor, defined by the environmental variable `$EDITOR` (if no value is specified, whale will use the command `open`).
+
+To execute `.sql` files, run:
+
+```
+wh run your_query.sql
+```
+
+To execute markdown files, you'll need to write the query in a  ```sql block, then place a `--!wh-run` on its own line. Upon execution of the markdown file, any sql blocks with this comment will execute the query and replace the `--!wh-run` line with the result set. To run the markdown file, run:
+
+```
+wh run your_markdown_file.md
+```
+
+A common pattern is to set up a shortcut in your IDE to execute `wh run %` for a smooth editing + execution workflow. For an example of how to do this in vim, see the docs [here](https://docs.whale.cx/features/running-sql-queries#editor-configuration). This is one of the most powerful features of whale, enabling you to take notes and write executable queries seamlessly side-by-side.
