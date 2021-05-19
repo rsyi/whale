@@ -19,12 +19,12 @@ from whale.extractor.postgres_metadata_extractor import PostgresMetadataExtracto
 from whale.extractor.ugc_runner import UGCRunner
 from whale.extractor.base_index_extractor import IndexExtractor
 from whale.extractor.postgres_index_extractor import PostgresIndexExtractor
+from whale.extractor.redshift_metadata_extractor import RedshiftMetadataExtractor
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 from databuilder.extractor.hive_table_metadata_extractor import (
     HiveTableMetadataExtractor,
 )
-from databuilder.extractor.redshift_metadata_extractor import RedshiftMetadataExtractor
 
 
 BUILD_SCRIPT_TEMPLATE = """source {venv_path}/bin/activate \
