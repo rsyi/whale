@@ -11,7 +11,7 @@ from typing import Iterator, Union, Dict, Any
 from databuilder import Scoped
 from databuilder.extractor.base_extractor import Extractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
-from databuilder.models.table_metadata import TableMetadata, ColumnMetadata
+from whale.models.table_metadata import TableMetadata, ColumnMetadata
 from itertools import groupby
 
 
