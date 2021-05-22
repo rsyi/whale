@@ -1,6 +1,5 @@
 # whale-pipelines
 
-# Triggering CI
 whale-pipelines is a library based on amundsen's databuilder that enables easy extraction of metadata into whale's markdown format. The library references static config files in `~/.whale/` to establish connections and customize the scraping process. Whale also provides hooks into SQLAlchemy for easy execution of SQL queries against these locally defined connections, without having to specify connection strings at every request.
 
 For information on the full CLI platform, visit [whale](https://github.com/dataframehq/whale).
