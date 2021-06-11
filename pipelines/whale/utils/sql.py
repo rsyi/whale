@@ -8,7 +8,7 @@ FAILING_COLOR = "red"
 PASSING_COLOR = "green"
 
 
-def template_query(query, connection_name=""):
+def template_query(query, connection_name="", extra_macros=""):
     """
     Takes the provided query, looks for a connection_name.sql file containing
     Jinja templating, combines these strings, and runs Jinja2 to render the
@@ -18,6 +18,7 @@ def template_query(query, connection_name=""):
     template_file_path = MACROS_DIR / ((connection_name or "") + ".sql")
     is_template_file_path_found = template_file_path.is_file()
 
+    query = "\n".join([extra_macros, query])
     if is_template_file_path_found:
         # Load this default file and prepend to the provided query.
         with open(template_file_path, "r") as f:

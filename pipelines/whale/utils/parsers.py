@@ -111,20 +111,50 @@ def find_blocks_and_process(
     )  # To reduce priority, END_DELIMITERS always go last
     splits = re.split(regex_to_match, ugc_blob)
 
-    state = OUT_OF_BLOCK
-
-    sections = []
-    for clause in splits:
-        if state == IN_BLOCK:
-            processed_clause = function_to_apply_to_block(clause, **function_kwargs)
-            state = OUT_OF_BLOCK
-        else:
-            processed_clause = clause
-
+    def get_state(clause):
         if clause == delimiter_start:
             state = IN_BLOCK
         elif clause == delimiter_end:
             state = OUT_OF_BLOCK
+        return state
+
+    def construct_jinja_statement(clause):
+        # Check if the first element is a -, in which case everything up to the
+        # newline is used as the jinja alias
+        if clause[0] == "-":
+            clause_split_on_cr = clause.split("\n")
+            jinja_alias = clause_split_on_cr[0][1:]
+            sql = "\n".join(split_sql[1:])
+            jinja_statement = textwrap.dedent(f"""
+            {{% set {jinja_alias} %}}
+            ({sql})
+            {{% endset %}}
+            """)
+            return jinja_statement
+        else:
+            return None
+
+    # Loop through once to get macros
+    state = OUT_OF_BLOCK
+    jinja_statements = []
+    for clause in splits:
+        if state == IN_BLOCK:
+            jinja_statements.append(construct_jinja_statement(clause))
+        else:
+            pass
+        state = get_state(clause)
+    extra_macros = "".join(jinja_statements)
+
+    state = OUT_OF_BLOCK
+    sections = []
+    for clause in splits:
+        if state == IN_BLOCK:
+            processed_clause = function_to_apply_to_block(clause, **function_kwargs, extra_macros=extra_macros)
+            state = OUT_OF_BLOCK
+        else:
+            processed_clause = clause
+
+        state = get_state(clause)
 
         sections.append(processed_clause)
 
