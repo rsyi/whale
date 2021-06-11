@@ -126,11 +126,13 @@ def find_blocks_and_process(
             clause_split_on_cr = clause.split("\n")
             jinja_alias = clause_split_on_cr[0][1:]
             sql = "\n".join(clause_split_on_cr[1:])
-            jinja_statement = textwrap.dedent(f"""
+            jinja_statement = textwrap.dedent(
+                f"""
             {{% set {jinja_alias} %}}
             ({sql})
             {{% endset %}}
-            """)
+            """
+            )
             return jinja_statement
         else:
             return None
@@ -152,7 +154,9 @@ def find_blocks_and_process(
     sections = []
     for clause in splits:
         if state == IN_BLOCK:
-            processed_clause = function_to_apply_to_block(clause, **function_kwargs, extra_macros=extra_macros)
+            processed_clause = function_to_apply_to_block(
+                clause, **function_kwargs, extra_macros=extra_macros
+            )
             state = OUT_OF_BLOCK
         else:
             processed_clause = clause
