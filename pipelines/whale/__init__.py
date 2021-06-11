@@ -199,6 +199,7 @@ def run(sql, warehouse_name=None, extra_macros: str = "") -> pd.DataFrame:
         sql, connection_name=connection.name, extra_macros=extra_macros
     )
     LOGGER.info(f"Templated query:\n{sql}")
+    sql = sql.replace("%", "%%")
 
     result = engine.execute(sql, has_header=True)
     headers = next(result)
