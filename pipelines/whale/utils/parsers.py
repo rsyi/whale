@@ -154,9 +154,13 @@ def find_blocks_and_process(
     sections = []
     for clause in splits:
         if state == IN_BLOCK:
-            processed_clause = function_to_apply_to_block(
-                clause, **function_kwargs, extra_macros=extra_macros
+            split_clause = clause.split("\n")
+            prefix = split_clause[0]
+            sql = "\n".join(split_clause[1:])
+            processed_sql = function_to_apply_to_block(
+                sql, **function_kwargs, extra_macros=extra_macros
             )
+            processed_clause = "\n".join([prefix, processed_sql])
             state = OUT_OF_BLOCK
         else:
             processed_clause = clause
