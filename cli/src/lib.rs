@@ -1,5 +1,3 @@
-mod tuievent;
-
 #[macro_use]
 extern crate lazy_static;
 use clap::ArgMatches;
@@ -175,7 +173,7 @@ Fetching and rebasing local changes from github.");
         let run_script_path = filesystem::get_run_script_filename();
         let arguments = format!("{} {}", sql_file, warehouse_name);
         let full_command = format!(
-            "source {} && {} {} {}",
+            ". {} && {} {} {}",
             activate_path, python_alias, run_script_path, arguments
         );
         let mut child = Command::new("sh").args(&["-c", &full_command]).spawn()?;
