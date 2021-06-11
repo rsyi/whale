@@ -102,7 +102,8 @@ jobs:
           override: true
       - name: Install tarpaulin dependencies
         run: |
-          sudo apt-get update \
+          echo "deb http://security.ubuntu.com/ubuntu xenial-security main" | sudo tee -a /etc/apt/sources.list \
+          && sudo apt-get update \
           && sudo apt-get install libss1.0.0
       - uses: actions-rs/tarpaulin@v0.1
         with:
