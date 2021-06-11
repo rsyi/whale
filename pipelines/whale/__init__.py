@@ -62,9 +62,9 @@ def execute_markdown_sql_blocks(filepath: str) -> str:
     with open(filepath, "r") as f:
         ugc_blob = "".join(f.readlines())
 
-    def run_and_append_results(sql, warehouse_name=None) -> str:
+    def run_and_append_results(sql, warehouse_name=None, extra_macros: str = "") -> str:
         if EXECUTION_FLAG in sql:
-            results = run(sql, warehouse_name=warehouse_name)
+            results = run(sql, warehouse_name=warehouse_name, extra_macros=extra_macros)
             sql_with_result = embed_results_as_comment(sql, results)
             return sql_with_result
         else:
@@ -185,7 +185,7 @@ def pull():
     transfer_manifest(tmp_manifest_path)
 
 
-def run(sql, warehouse_name=None) -> pd.DataFrame:
+def run(sql, warehouse_name=None, extra_macros: str = "") -> pd.DataFrame:
     """
     Runs sql queries against warehouse_name defined in
     ~/.whale/config/connections.yaml.  If no warehouse_name is given, the first
@@ -195,7 +195,9 @@ def run(sql, warehouse_name=None) -> pd.DataFrame:
     connection = get_connection(warehouse_name=warehouse_name)
     engine, conf = configure_unscoped_sqlalchemy_engine(connection)
     engine.init(conf)
-    sql = template_query(sql, connection_name=connection.name)
+    sql = template_query(
+        sql, connection_name=connection.name, extra_macros=extra_macros
+    )
     LOGGER.info(f"Templated query:\n{sql}")
 
     result = engine.execute(sql, has_header=True)
