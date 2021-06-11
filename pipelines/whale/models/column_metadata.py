@@ -28,7 +28,6 @@ class ColumnMetadata:
         self.tags = tags
         self.is_partition_column = is_partition_column
 
-
     def format_for_markdown(self):
         max_type_length = 9
 
@@ -49,7 +48,6 @@ class ColumnMetadata:
                 buffered_type=buffered_type,
                 name=self.name,
             )
-
 
     def __repr__(self):
         # type: () -> str

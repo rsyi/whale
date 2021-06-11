@@ -1,6 +1,7 @@
 from typing import Dict, Iterable, List, Optional, Union
 from whale.models.column_metadata import ColumnMetadata
 
+
 class TableColumnStats:
     """
     Table stats model.
