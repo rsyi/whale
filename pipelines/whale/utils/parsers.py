@@ -1,4 +1,5 @@
 import re
+import textwrap
 from whale.utils.markdown_delimiters import (
     COLUMN_DETAILS_DELIMITER,
     INDEX_DELIMITER,
@@ -111,7 +112,7 @@ def find_blocks_and_process(
     )  # To reduce priority, END_DELIMITERS always go last
     splits = re.split(regex_to_match, ugc_blob)
 
-    def get_state(clause):
+    def get_state(clause, state):
         if clause == delimiter_start:
             state = IN_BLOCK
         elif clause == delimiter_end:
@@ -124,7 +125,7 @@ def find_blocks_and_process(
         if clause[0] == "-":
             clause_split_on_cr = clause.split("\n")
             jinja_alias = clause_split_on_cr[0][1:]
-            sql = "\n".join(split_sql[1:])
+            sql = "\n".join(clause_split_on_cr[1:])
             jinja_statement = textwrap.dedent(f"""
             {{% set {jinja_alias} %}}
             ({sql})
@@ -139,10 +140,12 @@ def find_blocks_and_process(
     jinja_statements = []
     for clause in splits:
         if state == IN_BLOCK:
-            jinja_statements.append(construct_jinja_statement(clause))
+            jinja_statement = construct_jinja_statement(clause)
+            if jinja_statement:
+                jinja_statements.append(jinja_statement)
         else:
             pass
-        state = get_state(clause)
+        state = get_state(clause, state)
     extra_macros = "".join(jinja_statements)
 
     state = OUT_OF_BLOCK
@@ -154,7 +157,7 @@ def find_blocks_and_process(
         else:
             processed_clause = clause
 
-        state = get_state(clause)
+        state = get_state(clause, state)
 
         sections.append(processed_clause)
 
