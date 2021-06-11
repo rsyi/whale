@@ -1,6 +1,6 @@
 [package]
 name = "whale"
-version = "2.1.0-b0"
+version = "2.1.0-b1"
 authors = ["Robert Yi <robert@dataframe.ai>"]
 edition = "2018"
 
