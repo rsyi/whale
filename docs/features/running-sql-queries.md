@@ -107,6 +107,11 @@ Add the following to your `.vimrc` file, and you can run `<Leader>wh` to execute
 nmap <Leader>wh :w<CR>:exec '!~/.whale/bin/whale run %'<CR>:e<CR>
 ```
 
+Or if installed via Homebrew:
+```text
+nmap <Leader>wh :w<CR>:exec '!/usr/local/bin/wh run %'<CR>:e<CR>
+```
+
 #### Vscode
 
 TODO
