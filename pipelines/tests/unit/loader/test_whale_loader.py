@@ -76,6 +76,7 @@ def test_load_catalog_specified(patched_config):
     assert "mock_catalog" in written_record
     assert "mock_database" in written_record
 
+
 def test_load_index_metadata(patched_config):
     index_metadata = IndexMetadata(
         name="mock_index",

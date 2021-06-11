@@ -12,7 +12,9 @@ from whale.models.connection_config import ConnectionConfigSchema
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 from whale.extractor.bigquery_metadata_extractor import BaseBigQueryExtractor
-from whale.extractor.base_postgres_metadata_extractor import BasePostgresMetadataExtractor
+from whale.extractor.base_postgres_metadata_extractor import (
+    BasePostgresMetadataExtractor,
+)
 from whale.utils.extractor_wrappers import (
     configure_bigquery_extractors,
     configure_glue_extractors,
@@ -132,8 +134,9 @@ def test_configure_neo4j_extractor(mock_settings):
 
 def test_add_indexes_adds_index_to_postgres_extractor(*mock_settings):
     extractors, conf = configure_postgres_extractors(TEST_POSTGRES_CONNECTION_CONFIG)
-    index_type = locate('whale.extractor.postgres_index_extractor.PostgresIndexExtractor')
+    index_type = locate(
+        "whale.extractor.postgres_index_extractor.PostgresIndexExtractor"
+    )
 
     extractor_is_index = [isinstance(extr, index_type) for extr in extractors]
     assert extractor_is_index.count(True) == 1
-

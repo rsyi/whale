@@ -75,7 +75,9 @@ class TestTableIndexesMetadata(unittest.TestCase):
             "* [primary, unique, clustered] `test_index` [`test_column_1`, `test_column_2`]",
         ]
 
-        self.assertEqual(table_indexes_metadata.format_for_markdown(), "\n".join(expected_list))
+        self.assertEqual(
+            table_indexes_metadata.format_for_markdown(), "\n".join(expected_list)
+        )
 
 
 class TestIndexMetadata(unittest.TestCase):
