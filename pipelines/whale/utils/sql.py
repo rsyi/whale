@@ -18,7 +18,8 @@ def template_query(query, connection_name="", extra_macros=""):
     template_file_path = MACROS_DIR / ((connection_name or "") + ".sql")
     is_template_file_path_found = template_file_path.is_file()
 
-    query = "\n".join([extra_macros, query])
+    if extra_macros:
+        query = "\n".join([extra_macros, query])
     if is_template_file_path_found:
         # Load this default file and prepend to the provided query.
         with open(template_file_path, "r") as f:
