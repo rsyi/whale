@@ -51,6 +51,10 @@ def add_ugc_runner(extractors: list, conf: ConfigTree, connection):
         f"{METRIC_RUNNER_SCOPE}.{SQL_ALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CREDENTIALS_PATH_KEY}",
         connection.key_path,
     )
+    conf.put(
+        f"{METRIC_RUNNER_SCOPE}.{SQL_ALCHEMY_ENGINE_SCOPE}.{SQLAlchemyEngine.CONNECT_ARGS}",
+        connection.connect_args,
+    )
     extractors.append(UGCRunner())
     return extractors, conf
 
@@ -183,6 +187,7 @@ def configure_presto_extractors(connection: ConnectionConfigSchema):
             f"{loop_scope}.{LoopExtractor.CLUSTER_KEY}": connection.cluster,
             f"{scope}.{Extractor.DATABASE_KEY}": connection.name,
             f"{scope}.{Extractor.CLUSTER_KEY}": connection.cluster,
+            f"{scope}.{Extractor.CONNECT_ARGS}": connection.connect_args,
             f"{scope}.{Extractor.WHERE_CLAUSE_SUFFIX_KEY}": connection.where_clause_suffix,
         }
     )

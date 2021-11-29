@@ -2,6 +2,7 @@ import importlib
 from pyhocon import ConfigFactory, ConfigTree
 from sqlalchemy import create_engine
 from typing import Iterator
+from ast import literal_eval
 
 from whale.engine.base_engine import Engine
 
@@ -13,6 +14,7 @@ class SQLAlchemyEngine(Engine):
     """
 
     CONN_STRING_KEY = "conn_string"
+    CONNECT_ARGS = 'connect_args'
     MODEL_CLASS_KEY = "model_class"
     CREDENTIALS_PATH_KEY = "credentials_path"
 
@@ -23,6 +25,7 @@ class SQLAlchemyEngine(Engine):
         :param conf: configuration file.
         """
         self.conn_string = conf.get_string(SQLAlchemyEngine.CONN_STRING_KEY)
+        self.connect_args = conf.get_string(SQLAlchemyEngine.CONNECT_ARGS)
         self.credentials_path = conf.get(SQLAlchemyEngine.CREDENTIALS_PATH_KEY, None)
         self.connection = self._get_connection()
 
@@ -38,10 +41,16 @@ class SQLAlchemyEngine(Engine):
         """
         if self.credentials_path is not None:
             engine = create_engine(
-                self.conn_string, credentials_path=self.credentials_path
+                self.conn_string, credentials_path=self.credentials_path,
+                # connect_args={'protocol': 'https','requests_kwargs': {'verify': False}}
+                connect_args=literal_eval(self.connect_args)
             )
         else:
-            engine = create_engine(self.conn_string)
+            engine = create_engine(
+                self.conn_string,
+                # connect_args={'protocol': 'https','requests_kwargs': {'verify': False}}
+                connect_args=literal_eval(self.connect_args)
+            )
         conn = engine.connect()
         return conn
 
