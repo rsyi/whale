@@ -1,5 +1,5 @@
 import importlib
-from pyhocon import ConfigFactory, ConfigTree
+from pyhocon import ConfigFactory, ConfigTree, HOCONConverter
 from sqlalchemy import create_engine
 from typing import Iterator
 from ast import literal_eval
