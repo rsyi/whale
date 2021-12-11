@@ -25,7 +25,7 @@ class SQLAlchemyEngine(Engine):
         :param conf: configuration file.
         """
         self.conn_string = conf.get_string(SQLAlchemyEngine.CONN_STRING_KEY)
-        self.connect_args = conf.get_string(SQLAlchemyEngine.CONNECT_ARGS)
+        self.connect_args = HOCONConverter.to_json(conf.get_config(SQLAlchemyEngine.CONNECT_ARGS))
         self.credentials_path = conf.get(SQLAlchemyEngine.CREDENTIALS_PATH_KEY, None)
         self.connection = self._get_connection()
 
