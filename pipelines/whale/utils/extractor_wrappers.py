@@ -309,6 +309,7 @@ def configure_unscoped_sqlalchemy_engine(connection: ConnectionConfigSchema):
     conf = ConfigFactory.from_dict(
         {
             f"{Engine.CONN_STRING_KEY}": connection.conn_string,
+            f"{Engine.CONNECT_ARGS}": connection.connect_args,
             f"{Engine.CREDENTIALS_PATH_KEY}": connection.key_path,
         }
     )
