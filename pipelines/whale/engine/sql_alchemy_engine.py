@@ -32,6 +32,7 @@ class SQLAlchemyEngine(Engine):
         }
 
         self.conn_string = conf.get_string(SQLAlchemyEngine.CONN_STRING_KEY)
+<<<<<<< HEAD
         self.connect_args = connect_args
         self.credentials_path = conf.get(SQLAlchemyEngine.CREDENTIALS_PATH_KEY, None)
         self.connect_args = connect_args
