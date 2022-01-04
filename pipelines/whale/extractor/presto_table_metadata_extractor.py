@@ -25,6 +25,7 @@ class PrestoTableMetadataExtractor(Extractor):
     WHERE_CLAUSE_SUFFIX_KEY = "where_clause_suffix"
     CLUSTER_KEY = "cluster"
     DATABASE_KEY = "database"
+    CONNECT_ARGS = "connect_args"
 
     SQL_STATEMENT = """
     SELECT
@@ -81,7 +82,12 @@ class PrestoTableMetadataExtractor(Extractor):
         sql_alch_conf = Scoped.get_scoped_conf(
             self.conf, self._alchemy_extractor.get_scope()
         ).with_fallback(
-            ConfigFactory.from_dict({SQLAlchemyExtractor.EXTRACT_SQL: self.sql_stmt})
+            ConfigFactory.from_dict(
+                {
+                    SQLAlchemyExtractor.EXTRACT_SQL: self.sql_stmt,
+                    PrestoTableMetadataExtractor.CONNECT_ARGS: self.conf.get(PrestoTableMetadataExtractor.CONNECT_ARGS)
+                }
+            )
         )
 
         self._alchemy_extractor.init(sql_alch_conf)
