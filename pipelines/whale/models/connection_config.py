@@ -7,6 +7,7 @@ class ConnectionConfigSchema(object):
         metadata_source: str,
         dialect: Optional[str] = None,
         uri: Optional[str] = None,
+        connect_args: Optional[str] = None,
         port: Optional[int] = None,
         username: Optional[str] = None,
         password: Optional[str] = None,
@@ -36,6 +37,7 @@ class ConnectionConfigSchema(object):
     ):
 
         self.uri = uri
+        self.connect_args = connect_args
         self.port = port
         if metadata_source is not None:
             metadata_source = metadata_source.lower()
