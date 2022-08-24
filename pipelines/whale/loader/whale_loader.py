@@ -1,3 +1,4 @@
+import logging
 import os
 import yaml
 
@@ -45,6 +46,7 @@ from whale.utils.parsers import (
     METRICS_SECTION,
 )
 
+LOGGER = logging.getLogger(__name__)
 
 class WhaleLoader(Loader):
     """
@@ -65,6 +67,7 @@ class WhaleLoader(Loader):
         self.database_name = self.conf.get_string("database_name", None)
         Path(self.base_directory).mkdir(parents=True, exist_ok=True)
         Path(paths.MANIFEST_DIR).mkdir(parents=True, exist_ok=True)
+
 
     def load(self, record) -> None:
         """
@@ -116,6 +119,7 @@ class WhaleLoader(Loader):
 
         update_markdown(file_path, record)
 
+        # add path if it does not exist yet
         if self.tmp_manifest_path is not None:
             _append_to_temp_manifest(
                 database=database,
@@ -260,6 +264,18 @@ def _get_section_from_metrics(metrics):
 def _append_to_temp_manifest(
     database, cluster, schema, table, tmp_manifest_path=paths.TMP_MANIFEST_PATH
 ):
+    # read current manifest
+    tmp = []
+    if os.path.exists(tmp_manifest_path):
+        with open(tmp_manifest_path, "r") as f:
+            tmp = list(map(lambda s: s.strip(), f.readlines()))
+
+
+    # only add new entries
     relative_file_path = get_table_file_path_relative(database, cluster, schema, table)
+    # LOGGER.warning(f"###: {relative_file_path}")
+
     with open(tmp_manifest_path, "a") as f:
-        f.write(relative_file_path + "\n")
+        if not relative_file_path in tmp:
+            tmp.append(relative_file_path)
+            f.write(relative_file_path + "\n")

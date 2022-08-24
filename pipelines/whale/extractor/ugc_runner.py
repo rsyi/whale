@@ -16,6 +16,7 @@ from whale.utils.parsers import (
     DEFINED_METRICS_SECTION,
 )
 from whale.utils.markdown_delimiters import METRICS_DELIMITER
+from whale.utils.markdown_delimiters import DEFINED_METRICS_DELIMITER
 from whale.models.metric_value import MetricValue, SlackAlert
 
 SQLALCHEMY_ENGINE_SCOPE = SQLAlchemyEngine().get_scope()
@@ -61,7 +62,8 @@ class UGCRunner(SQLAlchemyEngine):
     def _find_all_table_stub_paths(self) -> list:
         try:
             results = subprocess.check_output(
-                f"grep -l '{METRICS_DELIMITER}' ~/.whale/metadata/{self.database}/* -d skip",
+                # f"grep -l '{METRICS_DELIMITER}' ~/.whale/metadata/{self.database}/* -d skip",
+                f"grep -l '{DEFINED_METRICS_DELIMITER}' ~/.whale/metadata/{self.database}/* -d skip",
                 shell=True,
             )
             results = results.decode("utf-8")
