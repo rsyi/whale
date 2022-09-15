@@ -37,4 +37,3 @@ class HiveTableMetadataExtractor(DatabuilderHiveTableMetadataExtractor):
                                 description = last_row['description'],
                                 columns = columns,
                                 is_view=is_view)
-    
