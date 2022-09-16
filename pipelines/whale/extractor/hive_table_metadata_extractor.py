@@ -27,7 +27,6 @@ class HiveTableMetadataExtractor(DatabuilderHiveTableMetadataExtractor):
                 else:
                     column = ColumnMetadata(row['col_name'], row['col_description'],
                                             row['col_type'], row['col_sort_order'])
-                print(key,column)
                 columns.append(column)
             is_view = last_row['is_view'] == 1
 
