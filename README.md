@@ -1,4 +1,4 @@
-<font color="purple"><i>Whale is actively being built and maintained by <a href="https://hyperquery.ai">Hyperquery</a>. For our full data workspace for teams, check out <a href="https://hyperquery.ai">hyperquery</a>.</i></font>
+<font color="purple"><i>Whale is actively being built and maintained by <a href="https://hyperquery.ai/?utm_source=whale">hyperquery</a>. For our full data workspace for teams, check out <a href="https://hyperquery.ai/?utm_source=whale">hyperquery</a>.</i></font>
 
 <p align="center"><img src="docs/whale_logo.svg" width="600"/></p>
 
