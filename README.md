@@ -1,4 +1,4 @@
-<font color="purple"><i>Whale is actively being built and maintained by <a href="https://dataframe.ai">Dataframe</a>. For our full, collaborative SQL workspace, check out <a href="https://prequel.ai">prequel</a>.</i></font>
+<font color="purple"><i>Whale is actively being built and maintained by <a href="https://hyperquery.ai">Hyperquery</a>. For our full, collaborative SQL workspace, check out <a href="https://hyperquery.ai">hyperquery</a>.</i></font>
 
 <p align="center"><img src="docs/whale_logo.svg" width="600"/></p>
 
