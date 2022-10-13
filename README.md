@@ -24,7 +24,7 @@ For a demo of a git-backed workflow, check out [**dataframehq/whale-bigquery-pub
 
 # 📔  Documentation
 
-[**Read the docs for a full overview of whale's capabilities.**](https://docs.whale.cx)
+[**Read the docs for a full overview of whale's capabilities.**](https://rsyi.gitbook.io/whale)
 
 ## Installation
 
@@ -59,7 +59,7 @@ wh init
 
 The cron job will run as you schedule it (by default, every 6 hours). If you're feeling impatient, you can also manually run `wh etl` to pull down the latest data from your warehouse.
 
-For team use, see the [docs](https://docs.whale.cx/setup/getting-started-for-teams) for instructions on how to set up and point your whale installation at a remote git server.
+For team use, see the [docs](https://rsyi.gitbook.io/whale/setup/getting-started-for-teams) for instructions on how to set up and point your whale installation at a remote git server.
 
 ### Seeding some sample data
 If you just want to get a feel for how whale works, remove the `~/.whale` directory and follow the instructions at [dataframehq/whale-bigquery-public-data](https://github.com/dataframehq/whale-bigquery-public-data).
@@ -86,4 +86,4 @@ To execute markdown files, you'll need to write the query in a  ```sql block, th
 wh run your_markdown_file.md
 ```
 
-A common pattern is to set up a shortcut in your IDE to execute `wh run %` for a smooth editing + execution workflow. For an example of how to do this in vim, see the docs [here](https://docs.whale.cx/features/running-sql-queries#editor-configuration). This is one of the most powerful features of whale, enabling you to take notes and write executable queries seamlessly side-by-side.
+A common pattern is to set up a shortcut in your IDE to execute `wh run %` for a smooth editing + execution workflow. For an example of how to do this in vim, see the docs [here](https://rsyi.gitbook.io/whale/features/running-sql-queries#editor-configuration). This is one of the most powerful features of whale, enabling you to take notes and write executable queries seamlessly side-by-side.
