@@ -39,16 +39,14 @@ class SQLAlchemyEngine(Engine):
         """
         Create a SQLAlchemy connection to `conn_string`.
         """
-        if self.credentials_path is not None:
+        if self.credentials_path:
             engine = create_engine(
                 self.conn_string, credentials_path=self.credentials_path,
-                # connect_args={'protocol': 'https','requests_kwargs': {'verify': False}}
                 connect_args=literal_eval(self.connect_args)
             )
         else:
             engine = create_engine(
                 self.conn_string,
-                # connect_args={'protocol': 'https','requests_kwargs': {'verify': False}}
                 connect_args=literal_eval(self.connect_args)
             )
         conn = engine.connect()

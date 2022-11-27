@@ -54,7 +54,7 @@ impl HiveMetastore {
         }
 
         let dialect_msg = "What is the dialect of this metastore? E.g. postgres. This is the dialect type that is used in the SQLAlchemy connection string. See https://docs.sqlalchemy.org/en/13/core/engines.html for more details.";
-        let dialect = utils::get_input_with_message(&dialect_msg);
+        let dialect = utils::get_input_with_message(dialect_msg);
 
         let database: Option<String>;
         let database_msg = "Is there a database within this connection that contains the metastore? This usually is the case for hive metastores, and it is usually called 'hive'. If in doubt, enter 'hive'.";

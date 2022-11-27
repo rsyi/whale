@@ -7,7 +7,7 @@ class ConnectionConfigSchema(object):
         metadata_source: str,
         dialect: Optional[str] = None,
         uri: Optional[str] = None,
-        connect_args: Optional[str] = None,
+        connect_args: Optional[dict] = None,
         port: Optional[int] = None,
         username: Optional[str] = None,
         password: Optional[str] = None,

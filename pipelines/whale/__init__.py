@@ -1,3 +1,4 @@
+import traceback
 import datetime
 import logging
 import os
@@ -181,6 +182,7 @@ def pull():
                 except Exception as e:
                     LOGGER.warning(e)
                     LOGGER.warning(f"Skipping {type(extractor)}.")
+                    LOGGER.warning(traceback.format_exc())
 
     transfer_manifest(tmp_manifest_path)
 
