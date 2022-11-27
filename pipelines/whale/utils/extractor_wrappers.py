@@ -22,10 +22,7 @@ from whale.extractor.postgres_index_extractor import PostgresIndexExtractor
 from whale.extractor.redshift_metadata_extractor import RedshiftMetadataExtractor
 from whale.engine.sql_alchemy_engine import SQLAlchemyEngine
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
-from databuilder.extractor.hive_table_metadata_extractor import (
-    HiveTableMetadataExtractor,
-)
-
+from whale.extractor.hive_table_metadata_extractor import HiveTableMetadataExtractor
 
 BUILD_SCRIPT_TEMPLATE = """source {venv_path}/bin/activate \
     && {python_binary} {build_script_path}"""
