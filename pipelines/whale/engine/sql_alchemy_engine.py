@@ -24,15 +24,8 @@ class SQLAlchemyEngine(Engine):
 
         :param conf: configuration file.
         """
-        connect_args = {
-            k: v
-            for k, v in conf.get_config(
-                SQLAlchemyEngine.CONNECT_ARGS, default=ConfigTree()
-            ).items()
-        }
-
         self.conn_string = conf.get_string(SQLAlchemyEngine.CONN_STRING_KEY)
-        self.connect_args = connect_args
+        self.connect_args = HOCONConverter.to_json(conf.get_config(SQLAlchemyEngine.CONNECT_ARGS))
         self.credentials_path = conf.get(SQLAlchemyEngine.CREDENTIALS_PATH_KEY, None)
         self.connection = self._get_connection()
 
@@ -48,14 +41,13 @@ class SQLAlchemyEngine(Engine):
         """
         if self.credentials_path:
             engine = create_engine(
-                self.conn_string,
-                credentials_path=self.credentials_path,
-                connect_args=self.connect_args
+                self.conn_string, credentials_path=self.credentials_path,
+                connect_args=literal_eval(self.connect_args)
             )
         else:
             engine = create_engine(
                 self.conn_string,
-                connect_args=self.connect_args
+                connect_args=literal_eval(self.connect_args)
             )
         conn = engine.connect()
         return conn
